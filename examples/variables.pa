@@ -1,0 +1,5 @@
+name = "Probal"
+city = "Kolkata"
+
+say name
+say city
