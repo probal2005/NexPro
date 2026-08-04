@@ -1,12 +1,19 @@
-from nexpro.errors import NexProSyntaxError
+from nexpro.errors import LexerError
 
 try:
-    raise NexProSyntaxError(
-        "Demo Error",
-        line=5,
-        column=12,
+
+    raise LexerError(
+
+        "Unknown character '$'",
+
+        line=4,
+
+        column=10,
+
         filename="demo.pa",
+
     )
 
-except Exception as e:
-    print(e)
+except Exception as error:
+
+    print(error)
