@@ -28,6 +28,7 @@ from nexpro.ast import (
     Binary,
 )
 
+from nexpro.errors import NexProSyntaxError
 
 class Parser:
 
@@ -49,8 +50,11 @@ class Parser:
     def expect(self, token_type):
 
         if self.current.type != token_type:
-            raise SyntaxError(
-                f"Expected {token_type}, got {self.current.type}"
+            raise NexProSyntaxError(
+                f"Expected {token_type}",
+                line=self.current.line,
+                column=self.current.column,
+                filename=self.current.filename,
             )
 
         token = self.current

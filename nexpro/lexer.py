@@ -18,7 +18,7 @@ from nexpro.tokens import (
     RPAREN,
     EOF,
 )
-
+from nexpro.errors import NexProSyntaxError
 
 class Lexer:
 
@@ -122,7 +122,12 @@ class Lexer:
         while self.current != '"':
 
             if self.current is None:
-                raise SyntaxError("Unterminated string.")
+                raise NexProSyntaxError(
+                    "Unknown statement",
+                    line=self.line,
+                    column=self.column,
+                    filename=self.current.filename if hasattr(self.current, 'filename') else None,
+                )
 
             value += self.current
 

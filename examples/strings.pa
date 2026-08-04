@@ -1,0 +1,7 @@
+first = "Nex"
+
+second = "Pro"
+
+say first
+
+say second

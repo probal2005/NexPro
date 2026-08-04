@@ -1,0 +1,7 @@
+# This is a comment
+
+say "Comments are ignored"
+
+# Another comment
+
+say "Done"

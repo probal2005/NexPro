@@ -1,14 +1,16 @@
 from nexpro.lexer import Lexer
 
-code = """
-a = 10 + 20
-
-say a
-"""
+code = '''
+name = "Probal"
+say name
+'''
 
 lexer = Lexer(code)
-
 tokens = lexer.tokenize()
+
+print("=== TOKENS ===")
 
 for token in tokens:
     print(token)
+
+print("\nLexer Test Passed ✅")

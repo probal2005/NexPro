@@ -1,5 +1,6 @@
 from nexpro.lexer import Lexer
 from nexpro.parser import Parser
+from nexpro.interpreter import Interpreter
 
 code = '''
 a = 10
@@ -15,6 +16,8 @@ parser = Parser(tokens)
 
 tree = parser.parse()
 
-print(tree)
+interpreter = Interpreter()
 
-print("\nParser Test Passed ✅")
+interpreter.visit(tree)
+
+print("\nInterpreter Test Passed ✅")
