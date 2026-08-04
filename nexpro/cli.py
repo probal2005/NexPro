@@ -1,36 +1,47 @@
-import argparse
+import sys
 
-from nexpro.lexer import tokenize
-from nexpro.parser import parse
-from nexpro.interpreter import execute
+from nexpro.lexer import Lexer
+from nexpro.parser import Parser
+from nexpro.interpreter import Interpreter
 
 
 def main():
 
-    parser = argparse.ArgumentParser(
-        prog="nexpro"
-    )
+    if len(sys.argv) != 3:
 
-    sub = parser.add_subparsers(dest="command")
+        print("Usage:")
 
-    run_parser = sub.add_parser("run")
+        print("nexpro run file.pa")
 
-    run_parser.add_argument("file")
+        return
 
-    args = parser.parse_args()
+    command = sys.argv[1]
 
-    if args.command == "run":
+    filename = sys.argv[2]
 
-        with open(args.file, "r", encoding="utf-8") as f:
+    if command != "run":
 
-            code = f.read()
+        print("Unknown command")
 
-        tokens = tokenize(code)
+        return
 
-        ast = parse(tokens)
+    with open(filename, "r") as file:
 
-        execute(ast)
+        code = file.read()
 
-    else:
+    lexer = Lexer(code)
 
-        parser.print_help()
+    tokens = lexer.tokenize()
+
+    parser = Parser(tokens)
+
+    tree = parser.parse()
+
+    interpreter = Interpreter()
+
+    interpreter.visit(tree)
+
+
+if __name__ == "__main__":
+
+    main()

@@ -1,73 +1,262 @@
 """
-NexPro Lexer
-v0.2.0
+NexPro Professional Lexer
+Version 0.3.0
 """
 
+from nexpro.tokens import (
+    Token,
+    SAY,
+    IDENTIFIER,
+    STRING,
+    NUMBER,
+    ASSIGN,
+    PLUS,
+    MINUS,
+    STAR,
+    SLASH,
+    LPAREN,
+    RPAREN,
+    EOF,
+)
 
-def tokenize(code: str):
-    tokens = []
 
-    for line_number, line in enumerate(code.splitlines(), start=1):
+class Lexer:
 
-        line = line.strip()
+    def __init__(self, source):
 
-        if not line:
-            continue
+        self.source = source
 
-        # -------------------------
-        # SAY
-        # -------------------------
+        self.position = 0
 
-        if line.startswith("say "):
+        self.line = 1
 
-            value = line[4:].strip()
+        self.column = 1
 
-            if value.startswith('"') and value.endswith('"'):
+        self.current = self.source[0] if self.source else None
 
-                tokens.append({
-                    "type": "SAY_STRING",
-                    "value": value[1:-1]
-                })
+    # -------------------------
 
-            else:
+    def advance(self):
 
-                tokens.append({
-                    "type": "SAY_VARIABLE",
-                    "value": value
-                })
+        if self.current == "\n":
+            self.line += 1
+            self.column = 1
+        else:
+            self.column += 1
 
-            continue
+        self.position += 1
 
-        # -------------------------
-        # Assignment
-        # -------------------------
+        if self.position >= len(self.source):
+            self.current = None
+        else:
+            self.current = self.source[self.position]
 
-        if "=" in line:
+    # -------------------------
 
-            name, value = line.split("=", 1)
+    def skip_whitespace(self):
 
-            name = name.strip()
+        while self.current and self.current.isspace():
+            self.advance()
 
-            value = value.strip()
+    # -------------------------
 
-            if value.startswith('"') and value.endswith('"'):
+    def identifier(self):
 
-                value = value[1:-1]
+        start_col = self.column
 
-            tokens.append({
+        value = ""
 
-                "type": "ASSIGN",
+        while self.current and (
+            self.current.isalnum()
+            or self.current == "_"
+        ):
+            value += self.current
+            self.advance()
 
-                "name": name,
+        if value == "say":
+            return Token(
+                SAY,
+                value,
+                self.line,
+                start_col
+            )
 
-                "value": value
-
-            })
-
-            continue
-
-        raise SyntaxError(
-            f"Line {line_number}: Unknown statement."
+        return Token(
+            IDENTIFIER,
+            value,
+            self.line,
+            start_col
         )
 
-    return tokens
+    # -------------------------
+
+    def number(self):
+
+        start_col = self.column
+
+        value = ""
+
+        while self.current and self.current.isdigit():
+
+            value += self.current
+
+            self.advance()
+
+        return Token(
+            NUMBER,
+            int(value),
+            self.line,
+            start_col
+        )
+
+    # -------------------------
+
+    def string(self):
+
+        start_col = self.column
+
+        self.advance()
+
+        value = ""
+
+        while self.current != '"':
+
+            if self.current is None:
+                raise SyntaxError("Unterminated string.")
+
+            value += self.current
+
+            self.advance()
+
+        self.advance()
+
+        return Token(
+            STRING,
+            value,
+            self.line,
+            start_col
+        )
+
+    # -------------------------
+
+    def tokenize(self):
+
+        tokens = []
+
+        while self.current:
+
+            if self.current.isspace():
+                self.skip_whitespace()
+                continue
+
+            if self.current.isalpha() or self.current == "_":
+                tokens.append(self.identifier())
+                continue
+
+            if self.current.isdigit():
+                tokens.append(self.number())
+                continue
+
+            if self.current == '"':
+                tokens.append(self.string())
+                continue
+
+            if self.current == "=":
+                tokens.append(
+                    Token(
+                        ASSIGN,
+                        "=",
+                        self.line,
+                        self.column,
+                    )
+                )
+                self.advance()
+                continue
+
+            if self.current == "+":
+                tokens.append(
+                    Token(
+                        PLUS,
+                        "+",
+                        self.line,
+                        self.column,
+                    )
+                )
+                self.advance()
+                continue
+
+            if self.current == "-":
+                tokens.append(
+                    Token(
+                        MINUS,
+                        "-",
+                        self.line,
+                        self.column,
+                    )
+                )
+                self.advance()
+                continue
+
+            if self.current == "*":
+                tokens.append(
+                    Token(
+                        STAR,
+                        "*",
+                        self.line,
+                        self.column,
+                    )
+                )
+                self.advance()
+                continue
+
+            if self.current == "/":
+                tokens.append(
+                    Token(
+                        SLASH,
+                        "/",
+                        self.line,
+                        self.column,
+                    )
+                )
+                self.advance()
+                continue
+
+            if self.current == "(":
+                tokens.append(
+                    Token(
+                        LPAREN,
+                        "(",
+                        self.line,
+                        self.column,
+                    )
+                )
+                self.advance()
+                continue
+
+            if self.current == ")":
+                tokens.append(
+                    Token(
+                        RPAREN,
+                        ")",
+                        self.line,
+                        self.column,
+                    )
+                )
+                self.advance()
+                continue
+
+            raise SyntaxError(
+                f"Unexpected character '{self.current}' at "
+                f"{self.line}:{self.column}"
+            )
+
+        tokens.append(
+            Token(
+                EOF,
+                "",
+                self.line,
+                self.column,
+            )
+        )
+
+        return tokens
