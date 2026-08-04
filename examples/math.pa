@@ -1,0 +1,13 @@
+a = 10
+
+b = 20
+
+say a + b
+
+say b - a
+
+say a * b
+
+say b / a
+
+say (10 + 20) * 5

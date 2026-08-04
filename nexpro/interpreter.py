@@ -1,38 +1,116 @@
 """
 NexPro Interpreter
-v0.2.0
+Version 0.3.0
 """
 
+from nexpro.ast import (
+    Program,
+    Assign,
+    Variable,
+    String,
+    Number,
+    Say,
+    Binary,
+)
 
-memory = {}
+from nexpro.runtime import Runtime
 
 
-def execute(ast):
+class Interpreter:
 
-    for node in ast:
+    def __init__(self):
+        self.runtime = Runtime()
 
-        if node["node"] == "ASSIGN":
+    # ---------------------------------
 
-            memory[node["name"]] = node["value"]
+    def visit(self, node):
 
-        elif node["node"] == "SAY_STRING":
+        if isinstance(node, Program):
+            return self.visit_program(node)
 
-            print(node["value"])
+        elif isinstance(node, Assign):
+            return self.visit_assign(node)
 
-        elif node["node"] == "SAY_VARIABLE":
+        elif isinstance(node, Variable):
+            return self.visit_variable(node)
 
-            variable = node["value"]
+        elif isinstance(node, String):
+            return self.visit_string(node)
 
-            if variable not in memory:
+        elif isinstance(node, Number):
+            return self.visit_number(node)
 
-                raise NameError(
+        elif isinstance(node, Say):
+            return self.visit_say(node)
 
-                    f"Variable '{variable}' not defined."
+        elif isinstance(node, Binary):
+            return self.visit_binary(node)
 
-                )
+        raise Exception(f"Unknown node: {type(node)}")
 
-            print(
+    # ---------------------------------
 
-                memory[variable]
+    def visit_program(self, node):
 
-            )
+        for statement in node.statements:
+            self.visit(statement)
+
+    # ---------------------------------
+
+    def visit_assign(self, node):
+
+        value = self.visit(node.value)
+
+        self.runtime.set(
+            node.variable.name,
+            value
+        )
+
+    # ---------------------------------
+
+    def visit_variable(self, node):
+
+        return self.runtime.get(node.name)
+
+    # ---------------------------------
+
+    def visit_string(self, node):
+
+        return node.value
+
+    # ---------------------------------
+
+    def visit_number(self, node):
+
+        return node.value
+
+    # ---------------------------------
+
+    def visit_say(self, node):
+
+        value = self.visit(node.value)
+
+        print(value)
+
+    # ---------------------------------
+
+    def visit_binary(self, node):
+
+        left = self.visit(node.left)
+        right = self.visit(node.right)
+
+        if node.operator == "+":
+            return left + right
+
+        elif node.operator == "-":
+            return left - right
+
+        elif node.operator == "*":
+            return left * right
+
+        elif node.operator == "/":
+            return left / right
+
+        raise Exception(
+            f"Unknown operator {node.operator}"
+        )
