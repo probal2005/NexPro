@@ -1,0 +1,7 @@
+name = "Probal"
+
+age = 20 + 5
+
+say name
+
+say age

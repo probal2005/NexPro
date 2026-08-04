@@ -1,20 +1,14 @@
 from nexpro.lexer import Lexer
 from nexpro.parser import Parser
 
-code = '''
-a = 10
-b = 20
-
-say a + b
-'''
+with open("examples/variables.pa") as file:
+    code = file.read()
 
 lexer = Lexer(code)
 tokens = lexer.tokenize()
 
 parser = Parser(tokens)
 
-tree = parser.parse()
-
-print(tree)
-
-print("\nParser Test Passed ✅")
+print("Current:", parser.current)
+print("Peek:", parser.peek())
+print("End:", parser.is_end())
