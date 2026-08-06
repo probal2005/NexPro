@@ -2,6 +2,7 @@
 NexPro Programming Language
 Parser
 Version 0.5.0
+Package 2 - Lesson 2
 Author: Probal Dhali
 """
 
@@ -12,6 +13,8 @@ from nexpro.tokens import (
     NUMBER,
     ASSIGN,
     SAY,
+    PLUS,
+    MINUS,
 )
 
 from nexpro.ast import (
@@ -21,6 +24,7 @@ from nexpro.ast import (
     String,
     Number,
     Say,
+    Binary,
 )
 
 from nexpro.errors import ParserError
@@ -34,70 +38,57 @@ class Parser:
         self.position = 0
         self.current = self.tokens[0]
 
-    # =========================================================
+    # ==========================================================
     # Navigation
-    # =========================================================
+    # ==========================================================
 
     def advance(self):
-        """
-        Move to next token.
-        """
+        """Move to next token."""
 
         if self.position < len(self.tokens) - 1:
-
             self.position += 1
             self.current = self.tokens[self.position]
 
         return self.current
 
-    # =========================================================
+    # ==========================================================
 
     def previous(self):
-        """
-        Return previous token.
-        """
+        """Return previous token."""
 
         if self.position == 0:
             return None
 
         return self.tokens[self.position - 1]
 
-    # =========================================================
+    # ==========================================================
 
     def peek(self):
-        """
-        Look ahead one token.
-        """
+        """Look ahead one token."""
 
         if self.position + 1 >= len(self.tokens):
             return None
 
         return self.tokens[self.position + 1]
 
-    # =========================================================
+    # ==========================================================
 
     def is_end(self):
 
         return self.current.type == EOF
 
-    # =========================================================
+    # ==========================================================
 
     def check(self, token_type):
-        """
-        Check current token.
-        """
 
         if self.is_end():
             return False
 
         return self.current.type == token_type
 
-    # =========================================================
+    # ==========================================================
 
     def match(self, *types):
-        """
-        Match one of many token types.
-        """
 
         for token_type in types:
 
@@ -109,16 +100,14 @@ class Parser:
 
         return False
 
-    # =========================================================
+    # ==========================================================
 
     def expect(self, token_type, message="Unexpected token"):
-        """
-        Consume required token.
-        """
 
         if self.check(token_type):
 
             token = self.current
+
             self.advance()
 
             return token
@@ -129,9 +118,9 @@ class Parser:
             column=self.current.column,
         )
 
-    # =========================================================
-    # Expressions
-    # =========================================================
+    # ==========================================================
+    # Primary Expressions
+    # ==========================================================
 
     def primary(self):
 
@@ -140,16 +129,19 @@ class Parser:
         if token.type == STRING:
 
             self.advance()
+
             return String(token.value)
 
         if token.type == NUMBER:
 
             self.advance()
+
             return Number(token.value)
 
         if token.type == IDENTIFIER:
 
             self.advance()
+
             return Variable(token.value)
 
         raise ParserError(
@@ -158,15 +150,44 @@ class Parser:
             column=token.column,
         )
 
-    # =========================================================
+    # ==========================================================
+    # Addition / Subtraction
+    # ==========================================================
+
+    def addition(self):
+
+        node = self.primary()
+
+        while self.current.type in (
+            PLUS,
+            MINUS,
+        ):
+
+            operator = self.current.value
+
+            self.advance()
+
+            right = self.primary()
+
+            node = Binary(
+                node,
+                operator,
+                right,
+            )
+
+        return node
+
+    # ==========================================================
+    # Expression
+    # ==========================================================
 
     def expression(self):
 
-        return self.primary()
+        return self.addition()
 
-    # =========================================================
-    # Statements
-    # =========================================================
+    # ==========================================================
+    # Assignment
+    # ==========================================================
 
     def assignment(self):
 
@@ -187,7 +208,9 @@ class Parser:
             value,
         )
 
-    # =========================================================
+    # ==========================================================
+    # Say Statement
+    # ==========================================================
 
     def say_statement(self):
 
@@ -200,7 +223,9 @@ class Parser:
 
         return Say(value)
 
-    # =========================================================
+    # ==========================================================
+    # Statement
+    # ==========================================================
 
     def statement(self):
 
@@ -216,9 +241,9 @@ class Parser:
             column=self.current.column,
         )
 
-    # =========================================================
+    # ==========================================================
     # Program
-    # =========================================================
+    # ==========================================================
 
     def parse(self):
 
