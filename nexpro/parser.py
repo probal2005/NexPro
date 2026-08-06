@@ -15,6 +15,8 @@ from nexpro.tokens import (
     SAY,
     PLUS,
     MINUS,
+    STAR,
+    SLASH,
 )
 
 from nexpro.ast import (
@@ -151,33 +153,6 @@ class Parser:
         )
 
     # ==========================================================
-    # Addition / Subtraction
-    # ==========================================================
-
-    def addition(self):
-
-        node = self.primary()
-
-        while self.current.type in (
-            PLUS,
-            MINUS,
-        ):
-
-            operator = self.current.value
-
-            self.advance()
-
-            right = self.primary()
-
-            node = Binary(
-                node,
-                operator,
-                right,
-            )
-
-        return node
-
-    # ==========================================================
     # Expression
     # ==========================================================
 
@@ -256,3 +231,59 @@ class Parser:
             )
 
         return Program(statements)
+
+
+    # ==========================================================
+# Multiplication / Division
+# ==========================================================
+
+def multiplication(self):
+
+    node = self.primary()
+
+    while self.current.type in (
+        STAR,
+        SLASH,
+    ):
+
+        operator = self.current.value
+
+        self.advance()
+
+        right = self.primary()
+
+        node = Binary(
+            node,
+            operator,
+            right,
+        )
+
+    return node
+
+
+    # ==========================================================
+# Addition / Subtraction
+# ==========================================================
+
+def addition(self):
+
+    node = self.multiplication()
+
+    while self.current.type in (
+        PLUS,
+        MINUS,
+    ):
+
+        operator = self.current.value
+
+        self.advance()
+
+        right = self.multiplication()
+
+        node = Binary(
+            node,
+            operator,
+            right,
+        )
+
+    return node 
