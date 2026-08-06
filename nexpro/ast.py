@@ -1,12 +1,9 @@
 """
 NexPro Programming Language
 Abstract Syntax Tree (AST)
-Version 0.4.0
+Version 0.5.0
 Author: Probal Dhali
 """
-
-from dataclasses import dataclass, field
-from typing import List, Optional
 
 
 # ==========================================================
@@ -14,7 +11,7 @@ from typing import List, Optional
 # ==========================================================
 
 class Node:
-    """Base class for all AST nodes."""
+    """Base class for every AST node."""
     pass
 
 
@@ -22,111 +19,86 @@ class Node:
 # Program
 # ==========================================================
 
-@dataclass(slots=True)
 class Program(Node):
-    statements: List[Node] = field(default_factory=list)
+
+    def __init__(self, statements):
+        self.statements = statements
 
 
 # ==========================================================
-# Literals
+# Statement Base
 # ==========================================================
 
-@dataclass(slots=True)
-class Number(Node):
-    value: int | float
-
-
-@dataclass(slots=True)
-class String(Node):
-    value: str
-
-
-@dataclass(slots=True)
-class Boolean(Node):
-    value: bool
+class Statement(Node):
+    pass
 
 
 # ==========================================================
-# Variables
+# Expression Base
 # ==========================================================
 
-@dataclass(slots=True)
-class Variable(Node):
-    name: str
-
-
-@dataclass(slots=True)
-class Assign(Node):
-    variable: Variable
-    value: Node
+class Expression(Node):
+    pass
 
 
 # ==========================================================
-# Statements
+# Assignment
 # ==========================================================
 
-@dataclass(slots=True)
-class Say(Node):
-    value: Node
+class Assign(Statement):
 
-
-# ==========================================================
-# Expressions
-# ==========================================================
-
-@dataclass(slots=True)
-class Binary(Node):
-    left: Node
-    operator: str
-    right: Node
-
-
-@dataclass(slots=True)
-class Unary(Node):
-    operator: str
-    operand: Node
+    def __init__(self, variable, value):
+        self.variable = variable
+        self.value = value
 
 
 # ==========================================================
-# Control Flow
+# Say Statement
 # ==========================================================
 
-@dataclass(slots=True)
-class If(Node):
-    condition: Node
-    body: List[Node]
-    else_body: Optional[List[Node]] = None
+class Say(Statement):
 
-
-@dataclass(slots=True)
-class Repeat(Node):
-    count: Node
-    body: List[Node]
-
-
-@dataclass(slots=True)
-class While(Node):
-    condition: Node
-    body: List[Node]
+    def __init__(self, expression):
+        self.expression = expression
 
 
 # ==========================================================
-# Future Features
+# Variable
 # ==========================================================
 
-@dataclass(slots=True)
-class Function(Node):
-    name: str
-    parameters: List[str]
-    body: List[Node]
+class Variable(Expression):
+
+    def __init__(self, name):
+        self.name = name
 
 
-@dataclass(slots=True)
-class Return(Node):
-    value: Node
+# ==========================================================
+# Number
+# ==========================================================
+
+class Number(Expression):
+
+    def __init__(self, value):
+        self.value = value
 
 
-@dataclass(slots=True)
-class Call(Node):
-    name: str
-    arguments: List[Node]
+# ==========================================================
+# String
+# ==========================================================
+
+class String(Expression):
+
+    def __init__(self, value):
+        self.value = value
+
+
+# ==========================================================
+# Binary Expression
+# ==========================================================
+
+class Binary(Expression):
+
+    def __init__(self, left, operator, right):
+        self.left = left
+        self.operator = operator
+        self.right = right
