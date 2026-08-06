@@ -1,43 +1,27 @@
-# NexPro Grammar
-Version 0.5.0
-
-## Program
-
-program
-    -> statement*
-
-----------------------------------------
-
-statement
-    -> assignment
-    | say_statement
-
-----------------------------------------
-
-assignment
-    -> IDENTIFIER ASSIGN expression
-
-----------------------------------------
-
-say_statement
-    -> SAY expression
-
-----------------------------------------
-
 expression
-    -> term
-       ( (PLUS | MINUS) term )*
+    -> addition
 
-----------------------------------------
+------------------------------------
 
-term
-    -> factor
-       ( (STAR | SLASH) factor )*
+addition
+    -> multiplication
+       ( (PLUS | MINUS)
+         multiplication )*
 
-----------------------------------------
+------------------------------------
 
-factor
+multiplication
+    -> primary
+       ( (STAR | SLASH)
+         primary )*
+
+------------------------------------
+
+primary
     -> NUMBER
+
     | STRING
+
     | IDENTIFIER
-    | LPAREN expression RPAREN
+
+    | "(" expression ")"
