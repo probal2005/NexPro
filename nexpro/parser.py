@@ -5,8 +5,24 @@ Version 0.5.0
 Author: Probal Dhali
 """
 
-from nexpro.tokens import EOF
-from nexpro.ast import Program
+from nexpro.tokens import (
+    EOF,
+    IDENTIFIER,
+    STRING,
+    NUMBER,
+    ASSIGN,
+    SAY,
+)
+
+from nexpro.ast import (
+    Program,
+    Assign,
+    Variable,
+    String,
+    Number,
+    Say,
+)
+
 from nexpro.errors import ParserError
 
 
@@ -18,6 +34,8 @@ class Parser:
         self.position = 0
         self.current = self.tokens[0]
 
+    # =========================================================
+    # Navigation
     # =========================================================
 
     def advance(self):
@@ -66,7 +84,7 @@ class Parser:
 
     def check(self, token_type):
         """
-        Check current token without consuming it.
+        Check current token.
         """
 
         if self.is_end():
@@ -101,7 +119,6 @@ class Parser:
         if self.check(token_type):
 
             token = self.current
-
             self.advance()
 
             return token
@@ -113,13 +130,94 @@ class Parser:
         )
 
     # =========================================================
+    # Expressions
+    # =========================================================
+
+    def primary(self):
+
+        token = self.current
+
+        if token.type == STRING:
+
+            self.advance()
+            return String(token.value)
+
+        if token.type == NUMBER:
+
+            self.advance()
+            return Number(token.value)
+
+        if token.type == IDENTIFIER:
+
+            self.advance()
+            return Variable(token.value)
+
+        raise ParserError(
+            "Expected expression",
+            line=token.line,
+            column=token.column,
+        )
+
+    # =========================================================
+
+    def expression(self):
+
+        return self.primary()
+
+    # =========================================================
+    # Statements
+    # =========================================================
+
+    def assignment(self):
+
+        name = self.expect(
+            IDENTIFIER,
+            "Expected variable name",
+        )
+
+        self.expect(
+            ASSIGN,
+            "Expected '='",
+        )
+
+        value = self.expression()
+
+        return Assign(
+            Variable(name.value),
+            value,
+        )
+
+    # =========================================================
+
+    def say_statement(self):
+
+        self.expect(
+            SAY,
+            "Expected 'say'",
+        )
+
+        value = self.expression()
+
+        return Say(value)
+
+    # =========================================================
 
     def statement(self):
 
-        self.advance()
+        if self.check(SAY):
+            return self.say_statement()
 
-        return None
+        if self.check(IDENTIFIER):
+            return self.assignment()
 
+        raise ParserError(
+            "Unknown statement",
+            line=self.current.line,
+            column=self.current.column,
+        )
+
+    # =========================================================
+    # Program
     # =========================================================
 
     def parse(self):
@@ -128,9 +226,8 @@ class Parser:
 
         while not self.is_end():
 
-            node = self.statement()
-
-            if node is not None:
-                statements.append(node)
+            statements.append(
+                self.statement()
+            )
 
         return Program(statements)
