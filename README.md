@@ -2,32 +2,48 @@
 
 # NexPro
 
-NexPro is a small programming language for `.pa` source files. It comes with an
-interpreter and a compiler that generates standalone Python scripts.
+NexPro is a small programming language for learning and writing short
+programs. Write code in `.pa` files, run it in your browser or terminal,
+and compile it to standalone Python.
 
-## Get started
+[Online Playground](https://nexpro-playground.vercel.app/) ·
+[Latest release](https://github.com/probal2005/NexPro/releases/latest) ·
+[Language reference](docs/language.md) ·
+[VS Code extension](editors/vscode/README.md)
 
-Try the [online playground](https://nexpro-playground.vercel.app/) or install
-the CLI with Python 3.11 or later. Download `nexpro-1.5.0-py3-none-any.whl` from
-the [1.5.0 release](https://github.com/probal2005/NexPro/releases/tag/v1.5.0).
-From your download directory, run:
+## Quick start
+
+### Try it in your browser
+
+Open the [playground](https://nexpro-playground.vercel.app/), choose **Hello world**
+from **Examples**, and select **Run code**. Use **Check syntax** to validate a
+program or **Compile to Python** to preview and download the generated script.
+
+Enter one line per `input()` call in **Program input**. Attach imported sibling
+`.pa` files under **Module files**. Select **Stop** to interrupt a running program.
+
+### Install the CLI
+
+Use Python 3.11 or later. Download the wheel from the
+[1.5.0 release](https://github.com/probal2005/NexPro/releases/tag/v1.5.0),
+then run these commands from your download directory.
 
 ```sh
 python -m pip install ./nexpro-1.5.0-py3-none-any.whl
 nexpro version
 ```
 
-You can also run `python -m pip install .` from a checkout of this repository.
-See the [installation guide](docs/HELP.md) for virtual environments and
-Windows commands.
+See the [installation guide](docs/HELP.md) for virtual environments and Windows
+commands. To install from a repository checkout, run `python -m pip install .`
+from the repository root.
 
-Create a UTF-8 file named `hello.pa` with this line:
+### Write your first program
+
+Save this as `hello.pa` in UTF-8.
 
 ```text
 say "Hello NexPro!"
 ```
-
-Then check, run, and compile it:
 
 ```sh
 nexpro check hello.pa
@@ -36,132 +52,75 @@ nexpro compile hello.pa -o hello.py
 python hello.py
 ```
 
-Both run commands print `Hello NexPro!`. The generated script needs Python
-and includes any imported modules. Without `-o`, compilation writes a
-sibling file with the `.py` extension.
+The interpreter and the generated script both print `Hello NexPro!`. The
+generated script runs with Python alone, including when the NexPro source
+imports other `.pa` files.
 
-Follow the [first-program tutorial](docs/tutorial.md) to build a small score
-calculator. See the [language reference](docs/language.md) and the
-[grammar](docs/grammar.md) for the language syntax and behavior.
+## What NexPro supports
 
-For `.pa` highlighting and syntax checks inside VS Code, install the
-[NexPro extension](editors/vscode/README.md).
+| Feature | Example |
+| --- | --- |
+| Variables, arithmetic, and operator precedence | [Arithmetic](examples/math.pa) |
+| Functions, parameters, return values, and local scope | [Functions](examples/functions.pa) · [Scope](examples/scope.pa) |
+| Conditions, short-circuit logic, and loops with `break` and `continue` | [Grade calculator](examples/grades.pa) · [Score filter](examples/score_filter.pa) |
+| Lists, dictionaries, and indexed assignment | [Lists](examples/lists.pa) · [Student scorecard](examples/scorecard.pa) |
+| Text input, numeric conversion, and list growth with `append()` | [Variable-length score input](examples/score_series.pa) |
+| Relative imports from other `.pa` files | [Import math functions](examples/imports.pa) |
 
-## Language
-
-```text
-# Print text and evaluate expressions
-name = "NexPro"
-say name
-say 2 + 3 * 4
-say (2 + 3) * 4
-```
-
-NexPro supports assignments, `say`, strings, integers, decimals, comments,
-and the four basic arithmetic operators. Multiplication and division bind more
-tightly than addition and subtraction. Parentheses override that order.
-
-### Functions and scope
+The example below stores a student's name and scores in a dictionary, then uses
+a function and a loop to calculate the average.
 
 ```text
-rate = 2
-
-function total(quantity, price)
-    subtotal = quantity * price
-    return subtotal + rate
-end
-
-say total(3, 5)
-```
-
-Define a function before calling it. Parameters and assignments inside a
-function are local to that call. Functions can also read global variables.
-A local assignment shadows a global of the same name. Use `return expression`
-to pass a value back to the caller. A function that reaches `end` returns
-`None` when printed. Use `+` or `-` before an expression for unary signs.
-
-See [functions](examples/functions.pa), [scope](examples/scope.pa),
-[temperature conversion](examples/temperature.pa), and [greeting](examples/greeting.pa).
-
-### Decisions and loops
-
-Use `if` with an optional `else` to choose a block, and `while` to repeat a
-block while its condition holds. Both end with `end`.
-
-```text
-number = 1
-while number <= 3
-    if number == 2
-        say "two"
-    else
-        say number
+function average(scores)
+    total = 0
+    for score in scores
+        total = total + score
     end
-    number = number + 1
+    return total / len(scores)
 end
+
+student = {"name": "Ada", "scores": [70, 85, 100]}
+say student["name"]
+say average(student["scores"])
 ```
 
-Comparisons (`==`, `!=`, `<`, `<=`, `>`, `>=`) evaluate after arithmetic and
-produce `true` or `false`. A condition treats zero, an empty string or list,
-`false`, and a missing return value as false. Other values are true. Use **Stop** in
-the playground or **Ctrl+C** in your terminal to interrupt a running loop.
+```text
+Ada
+85.0
+```
 
-See the [grade calculator](examples/grades.pa), [multiplication table](examples/multiplication_table.pa),
-and [sum from 1 to 10](examples/sum_1_to_10.pa).
+## Command reference
 
-### Lists and program input
+| Command | What it does |
+| --- | --- |
+| `nexpro run file.pa` | Run a program and read from standard input when needed. |
+| `nexpro check file.pa` | Check syntax and imports without running the program. |
+| `nexpro compile file.pa -o file.py` | Generate standalone Python. Omit `-o` to write a sibling `.py` file. |
+| `nexpro version` | Print the installed version. |
+| `nexpro help` | List the available commands. |
 
-Write a list as `[10, 20, 30]` or use `[]` for an empty list. Indexes start at
-zero. An index of `-1` reads the last item. `len()` returns the length of a
-list or string. Indexing also works on strings and nested lists.
+Syntax diagnostics show the source file, line, and column. Runtime errors in
+the interpreter and generated Python report NexPro source locations and
+function call frames.
 
-`input()` reads one line as text. Use `int(text)` or `float(text)` to convert
-it to a number. In the browser, enter the lines in **Program input** before
-running. The CLI and generated Python read from standard input.
+## Documentation and editor support
+
+- [First-program tutorial](docs/tutorial.md)
+- [Language reference](docs/language.md) and [formal grammar](docs/grammar.md)
+- [VS Code installation and setup](editors/vscode/README.md) for `.pa` syntax highlighting and the **NexPro: Check Syntax** command
+- [Changelog](docs/CHANGELOG.md) and [release downloads](https://github.com/probal2005/NexPro/releases)
+
+## Development
+
+From the repository root, install the project and run the test suite.
 
 ```sh
-printf '70\n85\n100\n' | nexpro run examples/scores.pa
+python -m pip install . pytest
+python -m pytest -q
 ```
 
-See [lists](examples/lists.pa), [score statistics](examples/scores.pa), and
-[a greeting with input](examples/input.pa).
-
-### Dictionaries
-
-Write `student = {"name": "Ada", "score": 85}` to group named values.
-Read an entry with `student["name"]`, or set it with `student["score"] = 90`.
-See the [student scorecard](examples/scorecard.pa) for a complete example.
-
-### Syntax checks and modules
-
-```sh
-nexpro check examples/imports.pa
-nexpro run examples/imports.pa
-nexpro compile examples/imports.pa -o imports.py
-```
-
-`check` validates the entry file and its imports without executing any code.
-Syntax errors show the filename, line, column, and a caret under the source.
-
-Use `import "math_utils.pa"` at the top level. Paths are relative to the file
-containing the import and stay within the entry file's directory. An imported
-file is included once at its first import. Its functions and variables are
-available in the program's global scope. Circular imports produce an error.
-Compiled Python includes the modules and can run by itself.
-
-In the playground, select **Import math functions** for a preloaded example,
-or attach your own sibling `.pa` files under **Module files**. Use **Check
-syntax** to check the editor and its imports without running the program.
-
-The `numbers.pa`, `string.pa`, `escape.pa`, `operators.pa`, and `keywords.pa`
-examples are lexer fixtures. The `error.pa` fixture demonstrates invalid input.
-
-## Tests
-
-Install NexPro and pytest in the same Python environment, then run
-`python -m pytest -q` from the repository root.
-
-## Browser playground
-
-The playground runs the repository's Python implementation in a browser worker
-using Pyodide. Vercel builds the static site from the repository root using
-`node web/build.mjs`; the generated site is placed in `dist/`.
+The language implementation lives in [`nexpro/`](nexpro/), the browser editor
+in [`web/`](web/), and the VS Code extension in
+[`editors/vscode/`](editors/vscode/). The playground runs NexPro through
+Pyodide in a browser worker. Build the static site with `node web/build.mjs`.
+The build output goes in `dist/`.
