@@ -4,6 +4,10 @@ All notable changes to NexPro will be documented here.
 
 ---
 
+## v1.3.0
+
+Added a VS Code extension with syntax highlighting and the **Check Syntax** command.
+
 ## v1.2.0
 
 Runtime errors include NexPro file names, line numbers, and function call frames.

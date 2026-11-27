@@ -1,0 +1,92 @@
+{
+  "name": "NexPro",
+  "scopeName": "source.nexpro",
+  "patterns": [
+    {
+      "name": "comment.line.number-sign.nexpro",
+      "match": "#.*$"
+    },
+    {
+      "include": "#strings"
+    },
+    {
+      "name": "meta.function.nexpro",
+      "match": "\\b(function)\\s+([\\p{L}_][\\p{L}\\p{N}_]*)",
+      "captures": {
+        "1": {
+          "name": "keyword.control.nexpro"
+        },
+        "2": {
+          "name": "entity.name.function.nexpro"
+        }
+      }
+    },
+    {
+      "match": "\\b(for)\\s+([\\p{L}_][\\p{L}\\p{N}_]*)\\s+(in)\\b",
+      "captures": {
+        "1": {
+          "name": "keyword.control.nexpro"
+        },
+        "3": {
+          "name": "keyword.control.nexpro"
+        }
+      }
+    },
+    {
+      "name": "keyword.control.nexpro",
+      "match": "\\b(?:say|return|import|if|else|while|end)\\b"
+    },
+    {
+      "match": "^\\s*(break)\\b(?!\\s*[=(])",
+      "captures": {
+        "1": {
+          "name": "keyword.control.nexpro"
+        }
+      }
+    },
+    {
+      "name": "constant.language.boolean.nexpro",
+      "match": "\\b(?:true|false)\\b"
+    },
+    {
+      "name": "support.function.builtin.nexpro",
+      "match": "\\b(?:append|float|input|int|len)(?=\\s*\\()"
+    },
+    {
+      "name": "constant.numeric.nexpro",
+      "match": "\\b\\p{Nd}+(?:\\.\\p{Nd}*)?"
+    },
+    {
+      "name": "keyword.operator.nexpro",
+      "match": "[=<>!]=|[=<>+*/-]"
+    }
+  ],
+  "repository": {
+    "strings": {
+      "patterns": [
+        {
+          "name": "string.quoted.double.nexpro",
+          "begin": "\"",
+          "end": "\"",
+          "patterns": [
+            {
+              "name": "constant.character.escape.nexpro",
+              "match": "\\\\."
+            }
+          ]
+        },
+        {
+          "name": "string.quoted.single.nexpro",
+          "begin": "'",
+          "end": "'",
+          "patterns": [
+            {
+              "name": "constant.character.escape.nexpro",
+              "match": "\\\\."
+            }
+          ]
+        }
+      ]
+    }
+  }
+}

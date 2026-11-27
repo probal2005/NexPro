@@ -1,7 +1,6 @@
-# NexPro 1.0 language reference
+# NexPro language reference
 
-This reference and the [grammar](grammar.md) define the supported 1.0
-features. The CLI interpreter and compiler use the same parser. A program is
+This reference and the [grammar](grammar.md) describe the supported language. The CLI interpreter and compiler use the same parser. A program is
 UTF-8 text, typically saved with a `.pa` extension.
 
 ## Source text and values

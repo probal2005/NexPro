@@ -6,12 +6,12 @@ interpreter and a compiler that generates standalone Python scripts.
 ## Get started
 
 Try the [online playground](https://nexpro-playground.vercel.app/) or install
-the CLI with Python 3.11 or later. Download `nexpro-1.0.0-py3-none-any.whl` from
-the [1.0.0 release](https://github.com/probal2005/NexPro/releases/tag/v1.0.0).
+the CLI with Python 3.11 or later. Download `nexpro-1.3.0-py3-none-any.whl` from
+the [1.3.0 release](https://github.com/probal2005/NexPro/releases/tag/v1.3.0).
 From your download directory, run:
 
 ```sh
-python -m pip install ./nexpro-1.0.0-py3-none-any.whl
+python -m pip install ./nexpro-1.3.0-py3-none-any.whl
 nexpro version
 ```
 
@@ -40,7 +40,10 @@ sibling file with the `.py` extension.
 
 Follow the [first-program tutorial](docs/tutorial.md) to build a small score
 calculator. See the [language reference](docs/language.md) and the
-[grammar](docs/grammar.md) for the 1.0 syntax and behavior.
+[grammar](docs/grammar.md) for the language syntax and behavior.
+
+For `.pa` highlighting and syntax checks inside VS Code, install the
+[NexPro extension](editors/vscode/README.md).
 
 ## Language
 

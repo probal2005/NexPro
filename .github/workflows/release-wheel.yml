@@ -19,11 +19,23 @@ jobs:
           python -m pip wheel --no-deps --wheel-dir dist .
           python -m pip install pytest dist/nexpro-*.whl
           python -m pytest -q
-      - name: Attach the verified wheel to its draft release
+      - uses: actions/setup-node@v6
+        if: hashFiles('editors/vscode/package.json') != ''
+        with:
+          node-version: "24"
+      - name: Package the VS Code extension
+        if: hashFiles('editors/vscode/package.json') != ''
+        working-directory: editors/vscode
+        run: npx --yes @vscode/vsce@4.1.1 package --skip-license --out ../../dist/
+      - name: Attach verified packages to their draft release
         env:
           GH_TOKEN: ${{ github.token }}
         run: |
           tag="v$(python -c 'from importlib.metadata import version; print(version("nexpro"))')"
           target="$(gh release view "$tag" --json isDraft,targetCommitish --jq 'select(.isDraft) | .targetCommitish')"
           test "$target" = "$GITHUB_SHA"
-          gh release upload "$tag" dist/nexpro-*.whl
+          assets=(dist/nexpro-*.whl)
+          if test -d editors/vscode; then
+            assets+=("dist/nexpro-${tag#v}.vsix")
+          fi
+          gh release upload "$tag" "${assets[@]}"
