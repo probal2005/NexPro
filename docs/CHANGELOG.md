@@ -4,6 +4,10 @@ All notable changes to NexPro will be documented here.
 
 ---
 
+## v1.5.0
+
+Added dictionaries and indexed assignment for dictionary entries and list items.
+
 ## v1.4.0
 
 Added short-circuit logical operators and `continue`.

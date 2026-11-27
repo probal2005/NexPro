@@ -21,6 +21,9 @@ from nexpro.tokens import (
     RPAREN,
     LBRACKET,
     RBRACKET,
+    LBRACE,
+    RBRACE,
+    COLON,
     COMMA,
     FUNCTION,
     RETURN,
@@ -64,6 +67,8 @@ from nexpro.ast import (
     Break,
     Continue,
     Logical,
+    Dictionary,
+    SetItem,
 )
 
 from nexpro.errors import ParserError
@@ -193,6 +198,18 @@ class Parser:
             if self.match(LPAREN):
                 return self.locate(self.call(token.value), token)
             return self.locate(Variable(token.value), token)
+
+        if self.match(LBRACE):
+            entries = []
+            if not self.check(RBRACE):
+                while True:
+                    key = self.expression()
+                    self.expect(COLON, "Expected ':' after dictionary key")
+                    entries.append((key, self.expression()))
+                    if not self.match(COMMA):
+                        break
+            self.expect(RBRACE, "Expected '}' after dictionary entries")
+            return self.locate(Dictionary(entries), token)
 
         if self.match(LBRACKET):
             elements = self.expression_list(RBRACKET)
@@ -388,6 +405,11 @@ class Parser:
                     )
                 self.advance()
                 return Break() if token.value == "break" else Continue()
+
+            if following is not None and following.type == LBRACKET:
+                target = self.postfix()
+                self.expect(ASSIGN, "Expected '=' after indexed target")
+                return SetItem(target, self.expression())
 
             if following is not None and following.type == LPAREN:
                 name = self.current.value

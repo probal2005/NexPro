@@ -184,3 +184,14 @@ class Logical(Expression):
 
 class Continue(Statement):
     pass
+
+
+class Dictionary(Expression):
+    def __init__(self, entries):
+        self.entries = entries
+
+
+class SetItem(Statement):
+    def __init__(self, target, value):
+        self.target = target
+        self.value = value

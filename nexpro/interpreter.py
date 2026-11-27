@@ -26,6 +26,8 @@ from nexpro.ast import (
     Break,
     Continue,
     Logical,
+    Dictionary,
+    SetItem,
 )
 
 from nexpro.errors import EXECUTION_ERRORS
@@ -105,6 +107,16 @@ class Interpreter:
 
         elif isinstance(node, ListLiteral):
             return [self.visit(element) for element in node.elements]
+
+        elif isinstance(node, Dictionary):
+            return {self.visit(key): self.visit(value) for key, value in node.entries}
+
+        elif isinstance(node, SetItem):
+            sequence = self.visit(node.target.sequence)
+            index = self.visit(node.target.index)
+            value = self.visit(node.value)
+            sequence[index] = value
+            return None
 
         elif isinstance(node, Index):
             sequence = self.visit(node.sequence)

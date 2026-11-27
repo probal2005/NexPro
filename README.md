@@ -6,12 +6,12 @@ interpreter and a compiler that generates standalone Python scripts.
 ## Get started
 
 Try the [online playground](https://nexpro-playground.vercel.app/) or install
-the CLI with Python 3.11 or later. Download `nexpro-1.4.0-py3-none-any.whl` from
-the [1.4.0 release](https://github.com/probal2005/NexPro/releases/tag/v1.4.0).
+the CLI with Python 3.11 or later. Download `nexpro-1.5.0-py3-none-any.whl` from
+the [1.5.0 release](https://github.com/probal2005/NexPro/releases/tag/v1.5.0).
 From your download directory, run:
 
 ```sh
-python -m pip install ./nexpro-1.4.0-py3-none-any.whl
+python -m pip install ./nexpro-1.5.0-py3-none-any.whl
 nexpro version
 ```
 
@@ -122,6 +122,12 @@ printf '70\n85\n100\n' | nexpro run examples/scores.pa
 
 See [lists](examples/lists.pa), [score statistics](examples/scores.pa), and
 [a greeting with input](examples/input.pa).
+
+### Dictionaries
+
+Write `student = {"name": "Ada", "score": 85}` to group named values.
+Read an entry with `student["name"]`, or set it with `student["score"] = 90`.
+See the [student scorecard](examples/scorecard.pa) for a complete example.
 
 ### Syntax checks and modules
 

@@ -1,0 +1,11 @@
+student = {"name": "Ada", "scores": [70, 85, 100]}
+student["status"] = "passed"
+total = 0
+
+for score in student["scores"]
+    total = total + score
+end
+
+say student["name"]
+say student["status"]
+say total / len(student["scores"])

@@ -7,7 +7,7 @@ function       -> "function" IDENTIFIER "(" parameters? ")" function_body "end"
 parameters     -> IDENTIFIER ("," IDENTIFIER)*
 function_body  -> statement*
 block          -> statement*
-statement      -> IDENTIFIER "=" expression
+statement      -> assignment
                 | "say" expression
                 | "if" expression block ("else" block)? "end"
                 | "while" expression block "end"
@@ -15,6 +15,7 @@ statement      -> IDENTIFIER "=" expression
                 | "break" | "continue"
                 | "return" expression
                 | call
+assignment     -> IDENTIFIER ("[" expression "]")* "=" expression
 expression     -> logical_and ("or" logical_and)*
 logical_and    -> logical_not ("and" logical_not)*
 logical_not    -> "not" logical_not | comparison
@@ -25,8 +26,10 @@ multiplication -> unary (("*" | "/") unary)*
 unary          -> ("+" | "-") unary | postfix
 postfix        -> primary ("[" expression "]")*
 list           -> "[" arguments? "]"
+dictionary     -> "{" (entry ("," entry)*)? "}"
+entry          -> expression ":" expression
 primary        -> NUMBER | STRING | "true" | "false"
-                | list | call | IDENTIFIER | "(" expression ")"
+                | dictionary | list | call | IDENTIFIER | "(" expression ")"
 call           -> IDENTIFIER "(" arguments? ")"
 arguments      -> expression ("," expression)*
 ```

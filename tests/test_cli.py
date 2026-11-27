@@ -34,6 +34,7 @@ def run(*args, cwd, input_text=None):
         ("grades", "A\nKeep practicing\ntrue\n"),
         ("multiplication_table", "".join(f"{n * 5}\n" for n in range(1, 11))),
         ("sum_1_to_10", "55\n"),
+        ("scorecard", "Ada\npassed\n85.0\n"),
         ("score_filter", "85.0\n"),
         ("lists", "6\nNex\no\n30\n"),
         ("imports", "49\n20.0\n"),
@@ -65,6 +66,8 @@ def test_examples(example, expected, tmp_path):
         ("return 1", "Unknown statement"),
         ("break", "only be used inside a loop"),
         ("continue", "only be used inside a loop"),
+        ('say {"name" "Ada"}', "Expected ':' after dictionary key"),
+        ('say {"name": "Ada"', "Expected '}' after dictionary entries"),
         ("if true say 1", "Expected 'end' after if block"),
         ("while false", "Expected 'end' after while block"),
         ("if true return 1 end", "Unknown statement"),
@@ -120,7 +123,7 @@ def test_literals_default_output_and_version(tmp_path):
     assert result.stdout == 'quoted "text"\n1.5\n'
     result = run("nexpro", "version", cwd=tmp_path)
     assert result.stdout == f"NexPro {version('nexpro')}\n"
-    assert version("nexpro") == "1.4.0"
+    assert version("nexpro") == "1.5.0"
 
 
 def test_compile_cannot_overwrite_source(tmp_path):
@@ -370,3 +373,34 @@ end
     ):
         assert result.returncode == 0, result.stderr
         assert result.stdout == "false\ntrue\nfalse\ntrue\n7\n2\n"
+
+
+@pytest.mark.parametrize(("source_text", "expected", "code"), [
+    (
+        'data = {"x": [3], "y": 2, "y": 5}\n'
+        'data["x"][0] = 7\n'
+        'for key in data say key end\n'
+        'say data["x"][0] + data["y"]\n'
+        'say len({})',
+        'x\ny\n12\n0\n',
+        0,
+    ),
+    ('say {}["missing"]', "'missing'", 1),
+    ('say {[]: 1, "unused": missing()}', "unhashable type: 'list'", 1),
+    ('text = "x"\ntext[0] = "y"', "does not support item assignment", 1),
+])
+def test_dictionary_and_item_assignment(source_text, expected, code, tmp_path):
+    source = tmp_path / "dict.pa"
+    source.write_text(source_text, encoding="utf-8")
+    compiled = run("nexpro", "compile", source, cwd=tmp_path)
+    assert compiled.returncode == 0, compiled.stderr
+    for result in (
+        run("nexpro", "run", source, cwd=tmp_path),
+        run(sys.executable, "-I", "-S", source.with_suffix(".py"), cwd=tmp_path),
+    ):
+        assert result.returncode == code, result.stderr
+        if code == 0:
+            assert result.stdout == expected
+        else:
+            assert expected in result.stderr
+            assert "Traceback" not in result.stderr

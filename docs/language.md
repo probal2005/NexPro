@@ -41,8 +41,7 @@ Python value semantics. Division produces a floating-point result.
 
 An index starts at zero. Negative indexes count from the end. An invalid
 index raises a runtime error. Use `len(value)` for the length of a string or
-list. Indexing reads an item or character. Assignment uses a variable name as
-its target.
+list. Indexing reads an item or character. Assignment targets a variable or an item in a named list or dictionary.
 
 ## Statements and functions
 
@@ -50,7 +49,7 @@ its target.
   newline. Directly printed booleans appear as `true` or `false`.
 - `if condition … else … end` chooses a block. `else` is optional.
   `while condition … end` reevaluates its condition before each iteration.
-  Zero, empty strings and lists, `false`, and a missing return value are false
+  Zero, empty strings, lists and dictionaries, `false`, and a missing return value are false
   in a condition.
 - Define functions at the top level using `function name(parameters) … end`.
   Execute the definition before calling the function. Function names and
@@ -67,7 +66,7 @@ its target.
 
 | Function | Behavior |
 | --- | --- |
-| `len(value)` | Count characters or list items. |
+| `len(value)` | Count characters, list items, or dictionary entries. |
 | `int(value)` | Convert text or a numeric value to an integer. |
 | `float(value)` | Convert text or a numeric value to a floating-point number. |
 | `input()`, `input(prompt)` | Optionally print a prompt and read one line as text. Running out of lines raises a runtime error. |
@@ -118,3 +117,15 @@ skips its right operand when the left is true.
 `continue` skips the remainder of the current iteration of the nearest
 `for` or `while` loop. Like `for`, `in`, and `break`, it can still be used
 as a variable or function name outside its control-flow syntax.
+
+
+## Dictionaries added in 1.5
+
+A dictionary maps keys to values, for example `{"name": "Ada", "score": 85}`.
+Use `{}` for an empty dictionary and `student["name"]` to read a key.
+Keys must be hashable values such as strings or numbers. Missing keys raise a
+runtime error. A repeated key keeps the last assigned value.
+
+Use `student["score"] = 90` to add or replace an entry. Indexed assignment also
+works on list items, including chained indexes such as `student["scores"][0]`.
+A `for` loop over a dictionary visits its keys in insertion order.

@@ -48,7 +48,7 @@ class ImportError(SourceError):
     stage = "Import"
 
 
-EXECUTION_ERRORS = (ArithmeticError, TypeError, ValueError, RecursionError, IndexError, EOFError)
+EXECUTION_ERRORS = (ArithmeticError, TypeError, ValueError, RecursionError, IndexError, KeyError, EOFError)
 
 
 class RuntimeError(NexProError):

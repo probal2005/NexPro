@@ -2,8 +2,9 @@
 
 from nexpro.ast import (
     Assign, Binary, Boolean, Call, Function, If, Number, Return, Say, String,
-    Unary, Variable, While, Index, ListLiteral, For, Break, Continue, Logical,
+    Unary, Variable, While, Index, ListLiteral, For, Break, Continue, Logical, Dictionary, SetItem,
 )
+from nexpro.errors import EXECUTION_ERRORS
 from nexpro.interpreter import BINARY_OPERATORS
 
 
@@ -39,6 +40,10 @@ def _call(name, *arguments):
 
 def _index(sequence, index):
     return sequence[index]
+
+
+def _set_item(sequence, index, value):
+    sequence[index] = value
 
 
 def _say(value):
@@ -82,6 +87,14 @@ def _expression(node, lines, indent):
         right = _expression(node.right, lines, inner)
         lines.emit(f"{inner}{temporary} = bool({right})", node)
         return temporary
+    if isinstance(node, Dictionary):
+        temporary = f"_value_{len(lines)}"
+        lines.append(f"{indent}{temporary} = {{}}")
+        for key, value in node.entries:
+            index = _expression(key, lines, indent)
+            item = _expression(value, lines, indent)
+            lines.emit(f"{indent}{temporary}[{index}] = {item}", node)
+        return temporary
     if isinstance(node, Variable):
         value = f"_get(_scope, {node.name!r})"
     elif isinstance(node, Binary):
@@ -118,6 +131,11 @@ def _statements(statements, lines, indent):
         if isinstance(statement, Assign):
             value = _expression(statement.value, lines, indent)
             lines.append(f"{indent}_scope[{statement.variable.name!r}] = {value}")
+        elif isinstance(statement, SetItem):
+            sequence = _expression(statement.target.sequence, lines, indent)
+            index = _expression(statement.target.index, lines, indent)
+            value = _expression(statement.value, lines, indent)
+            lines.emit(f"{indent}_set_item({sequence}, {index}, {value})", statement)
         elif isinstance(statement, Say):
             value = _expression(statement.expression, lines, indent)
             lines.emit(f"{indent}_say({value})", statement)
@@ -173,7 +191,7 @@ def compile_program(program):
     lines.append("        _scope = _globals")
     _statements(program.statements, lines, "        ")
     lines.extend([
-        "    except (ArithmeticError, TypeError, ValueError, RecursionError, IndexError, EOFError) as error:",
+        f"    except ({', '.join(error.__name__ for error in EXECUTION_ERRORS)}) as error:",
         "        print(f'NexPro Runtime Error: {error}', file=sys.stderr)",
         "        frames = []",
         "        trace = error.__traceback__",
