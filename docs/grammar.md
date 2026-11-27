@@ -16,9 +16,11 @@ expression     -> addition (comparison addition)?
 comparison     -> "==" | "!=" | "<" | "<=" | ">" | ">="
 addition       -> multiplication (("+" | "-") multiplication)*
 multiplication -> unary (("*" | "/") unary)*
-unary          -> ("+" | "-") unary | primary
+unary          -> ("+" | "-") unary | postfix
+postfix        -> primary ("[" expression "]")*
+list           -> "[" arguments? "]"
 primary        -> NUMBER | STRING | "true" | "false"
-                | call | IDENTIFIER | "(" expression ")"
+                | list | call | IDENTIFIER | "(" expression ")"
 call           -> IDENTIFIER "(" arguments? ")"
 arguments      -> expression ("," expression)*
 ```

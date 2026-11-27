@@ -58,7 +58,7 @@ def main(argv=None):
     except (NexProError, OSError, UnicodeError) as error:
         print(error, file=sys.stderr)
         return 1
-    except (ArithmeticError, TypeError, ValueError, RecursionError) as error:
+    except (ArithmeticError, TypeError, ValueError, RecursionError, IndexError, EOFError) as error:
         print(f"NexPro Runtime Error: {error}", file=sys.stderr)
         return 1
 

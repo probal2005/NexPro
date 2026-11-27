@@ -144,3 +144,14 @@ class While(Statement):
     def __init__(self, condition, body):
         self.condition = condition
         self.body = body
+
+
+class ListLiteral(Expression):
+    def __init__(self, elements):
+        self.elements = elements
+
+
+class Index(Expression):
+    def __init__(self, sequence, index):
+        self.sequence = sequence
+        self.index = index

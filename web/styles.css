@@ -58,3 +58,8 @@ footer { color: var(--muted); margin: 16px 0 28px; font-size: .875rem; }
   #gutter, textarea { height: 285px; max-height: 285px; }
   pre { height: 235px; }
 }
+
+.input-panel { padding: 14px 16px 16px; border-top: 1px solid var(--border); }
+.input-panel label { font-weight: 650; }
+.input-panel p { color: var(--muted); font-size: .875rem; margin: 4px 0 10px; }
+#program-input { height: auto; min-height: 88px; max-height: none; padding: 8px 10px; border: 1px solid var(--border); border-radius: 6px; resize: vertical; display: block; }

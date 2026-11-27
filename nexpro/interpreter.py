@@ -20,6 +20,8 @@ from nexpro.ast import (
     Boolean,
     If,
     While,
+    Index,
+    ListLiteral,
 )
 
 from nexpro.errors import RuntimeError as NexProRuntimeError
@@ -47,10 +49,11 @@ class _ReturnFromFunction(Exception):
 
 class Interpreter:
 
-    def __init__(self):
+    def __init__(self, read_input=input):
         self.globals = Runtime()
         self.runtime = self.globals
         self.functions = {}
+        self.builtins = {"len": len, "int": int, "float": float, "input": read_input}
 
     # ---------------------------------
 
@@ -73,6 +76,14 @@ class Interpreter:
 
         elif isinstance(node, Boolean):
             return node.value
+
+        elif isinstance(node, ListLiteral):
+            return [self.visit(element) for element in node.elements]
+
+        elif isinstance(node, Index):
+            sequence = self.visit(node.sequence)
+            index = self.visit(node.index)
+            return sequence[index]
 
         elif isinstance(node, If):
             body = node.then_body if self.visit(node.condition) else node.else_body
@@ -167,6 +178,8 @@ class Interpreter:
         arguments = [self.visit(argument) for argument in node.arguments]
         function = self.functions.get(node.name)
         if function is None:
+            if node.name in self.builtins:
+                return self.builtins[node.name](*arguments)
             raise NexProRuntimeError(f"Undefined function '{node.name}'")
         expected = len(function.parameters)
         if len(arguments) != expected:

@@ -2,7 +2,7 @@
 
 from nexpro.ast import (
     Assign, Binary, Boolean, Call, Function, If, Number, Return, Say, String,
-    Unary, Variable, While,
+    Unary, Variable, While, Index, ListLiteral,
 )
 from nexpro.interpreter import BINARY_OPERATORS
 
@@ -13,6 +13,7 @@ import sys
 
 _globals = {}
 _functions = {}
+_builtins = {"len": len, "int": int, "float": float, "input": input}
 
 
 def _get(scope, name):
@@ -25,12 +26,18 @@ def _get(scope, name):
 
 def _call(name, *arguments):
     if name not in _functions:
+        if name in _builtins:
+            return _builtins[name](*arguments)
         raise ValueError(f"Undefined function '{name}'")
     parameters, function = _functions[name]
     expected = len(parameters)
     if len(arguments) != expected:
         raise ValueError(f"Function '{name}' expects {expected} argument(s), got {len(arguments)}")
     return function(dict(zip(parameters, arguments)))
+
+
+def _index(sequence, index):
+    return sequence[index]
 
 
 def _say(value):
@@ -57,6 +64,13 @@ def _expression(node, lines, indent):
     elif isinstance(node, Unary):
         operand = _expression(node.operand, lines, indent)
         value = f"{node.operator}{operand}"
+    elif isinstance(node, ListLiteral):
+        elements = [_expression(element, lines, indent) for element in node.elements]
+        value = f"[{', '.join(elements)}]"
+    elif isinstance(node, Index):
+        sequence = _expression(node.sequence, lines, indent)
+        index = _expression(node.index, lines, indent)
+        value = f"_index({sequence}, {index})"
     elif isinstance(node, Call):
         arguments = [_expression(argument, lines, indent) for argument in node.arguments]
         value = f"_call({', '.join([repr(node.name), *arguments])})"
@@ -117,7 +131,7 @@ def compile_program(program):
     lines.append("        _scope = _globals")
     _statements(program.statements, lines, "        ")
     lines.extend([
-        "    except (ArithmeticError, TypeError, ValueError, RecursionError) as error:",
+        "    except (ArithmeticError, TypeError, ValueError, RecursionError, IndexError, EOFError) as error:",
         "        print(f'NexPro Runtime Error: {error}', file=sys.stderr)",
         "        sys.exit(1)",
     ])

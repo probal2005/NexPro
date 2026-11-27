@@ -18,18 +18,27 @@ class PlaygroundOutput(StringIO):
         return super().write(text)
 
 
-def run_playground(source, action):
+def run_playground(source, action, input_text=""):
     output = PlaygroundOutput()
+    input_lines = StringIO(input_text, newline=None)
+
+    def read_input(prompt=""):
+        print(prompt, end="")
+        line = input_lines.readline()
+        if line == "":
+            raise EOFError("EOF when reading a line")
+        return line.removesuffix("\n")
+
     try:
         filename = "playground.pa"
         tree = Parser(Lexer(source, filename).tokenize(), filename).parse()
         if action == "compile":
             return dumps({"ok": True, "output": compile_program(tree)})
         with redirect_stdout(output):
-            Interpreter().visit(tree)
+            Interpreter(read_input=read_input).visit(tree)
     except NexProError as error:
         return dumps({"ok": False, "output": output.getvalue(), "error": str(error)})
-    except (ArithmeticError, ValueError, TypeError, RecursionError) as error:
+    except (ArithmeticError, ValueError, TypeError, RecursionError, IndexError, EOFError) as error:
         return dumps({
             "ok": False,
             "output": output.getvalue(),

@@ -1,4 +1,6 @@
 const source = document.querySelector('#source');
+const programInput = document.querySelector('#program-input');
+const sampleInputs = new Map([['scores', '70\n85\n100'], ['input', 'Ada\n2000']]);
 const gutter = document.querySelector('#gutter');
 const examples = document.querySelector('#examples');
 const run = document.querySelector('#run');
@@ -13,6 +15,7 @@ let worker;
 let timer;
 let pythonOutput;
 let exampleRequest;
+let sampleInput = '';
 
 function syncGutter() {
   gutter.textContent = Array.from({ length: source.value.split('\n').length }, (_, i) => i + 1).join('\n');
@@ -80,7 +83,7 @@ function execute(action) {
   download.hidden = true;
   status.textContent = action === 'compile' ? 'Compiling…' : 'Running…';
   timer = setTimeout(() => failWorker('The program took too long to finish.'), 8000);
-  worker.postMessage({ action, source: source.value });
+  worker.postMessage({ action, source: source.value, input: programInput.value });
 }
 
 run.addEventListener('click', () => execute('run'));
@@ -115,6 +118,10 @@ examples.addEventListener('change', async () => {
     const code = await response.text();
     if (request.signal.aborted) return;
     source.value = code;
+    if (!programInput.value || programInput.value === sampleInput) {
+      sampleInput = sampleInputs.get(examples.value) ?? '';
+      programInput.value = sampleInput;
+    }
     syncGutter();
     source.focus();
   } catch (error) {

@@ -1,0 +1,19 @@
+# Provide three scores, one per input line.
+scores = [float(input()), float(input()), float(input())]
+total = 0
+highest = scores[0]
+position = 0
+
+while position < len(scores)
+    score = scores[position]
+    total = total + score
+    if score > highest
+        highest = score
+    end
+    position = position + 1
+end
+
+say "Average"
+say total / len(scores)
+say "Highest"
+say highest

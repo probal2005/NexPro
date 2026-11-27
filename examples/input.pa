@@ -1,0 +1,5 @@
+# Provide your name and birth year on separate input lines.
+name = input()
+birth_year = int(input())
+say "Hello, " + name + "!"
+say 2030 - birth_year

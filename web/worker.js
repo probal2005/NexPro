@@ -25,7 +25,7 @@ self.onmessage = async ({ data }) => {
       self.postMessage({ action: 'init', ok: true });
       return;
     }
-    const result = JSON.parse(execute(data.source, data.action));
+    const result = JSON.parse(execute(data.source, data.action, data.input));
     self.postMessage({ action: data.action, ...result });
   } catch (error) {
     self.postMessage({ action: data.action, ok: false, error: error.message });

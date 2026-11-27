@@ -1,0 +1,8 @@
+# Lists start at index zero. Negative indexes count from the end.
+letters = ["N", "e", "x", "P", "r", "o"]
+say len(letters)
+say letters[0] + letters[1] + letters[2]
+say letters[-1]
+
+matrix = [[10, 20], [30, 40]]
+say matrix[1][0]

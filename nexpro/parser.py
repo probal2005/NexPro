@@ -19,6 +19,8 @@ from nexpro.tokens import (
     SLASH,
     LPAREN,
     RPAREN,
+    LBRACKET,
+    RBRACKET,
     COMMA,
     FUNCTION,
     RETURN,
@@ -51,6 +53,8 @@ from nexpro.ast import (
     Boolean,
     If,
     While,
+    Index,
+    ListLiteral,
 )
 
 from nexpro.errors import ParserError
@@ -177,6 +181,11 @@ class Parser:
                 return self.call(token.value)
             return Variable(token.value)
 
+        if self.match(LBRACKET):
+            elements = self.expression_list(RBRACKET)
+            self.expect(RBRACKET, "Expected ']' after list elements")
+            return ListLiteral(elements)
+
         if self.match(LPAREN):
             node = self.expression()
             self.expect(RPAREN, "Expected ')'")
@@ -243,12 +252,16 @@ class Parser:
     # Statement
     # ==========================================================
 
-    def call(self, name):
-        arguments = []
-        if not self.check(RPAREN):
-            arguments.append(self.expression())
+    def expression_list(self, terminator):
+        expressions = []
+        if not self.check(terminator):
+            expressions.append(self.expression())
             while self.match(COMMA):
-                arguments.append(self.expression())
+                expressions.append(self.expression())
+        return expressions
+
+    def call(self, name):
+        arguments = self.expression_list(RPAREN)
         self.expect(RPAREN, "Expected ')' after arguments")
         return Call(name, arguments)
 
@@ -342,7 +355,15 @@ class Parser:
     def unary(self):
         if self.match(PLUS, MINUS):
             return Unary(self.previous().value, self.unary())
-        return self.primary()
+        return self.postfix()
+
+    def postfix(self):
+        node = self.primary()
+        while self.match(LBRACKET):
+            index = self.expression()
+            self.expect(RBRACKET, "Expected ']' after index")
+            node = Index(node, index)
+        return node
 
     def multiplication(self):
         node = self.unary()

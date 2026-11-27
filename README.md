@@ -84,6 +84,23 @@ the playground or **Ctrl+C** in your terminal to interrupt a running loop.
 See the [grade calculator](examples/grades.pa), [multiplication table](examples/multiplication_table.pa),
 and [sum from 1 to 10](examples/sum_1_to_10.pa).
 
+### Lists and program input
+
+Write a list as `[10, 20, 30]` or use `[]` for an empty list. Indexes start at
+zero. An index of `-1` reads the last item. `len()` returns the length of a
+list or string. Indexing also works on strings and nested lists.
+
+`input()` reads one line as text. Use `int(text)` or `float(text)` to convert
+it to a number. In the browser, enter the lines in **Program input** before
+running. The CLI and generated Python read from standard input.
+
+```sh
+printf '70\n85\n100\n' | nexpro run examples/scores.pa
+```
+
+See [lists](examples/lists.pa), [score statistics](examples/scores.pa), and
+[a greeting with input](examples/input.pa).
+
 The `numbers.pa`, `string.pa`, `escape.pa`, `operators.pa`, and `keywords.pa`
 examples are lexer fixtures. The `error.pa` fixture demonstrates invalid input.
 

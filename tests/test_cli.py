@@ -9,8 +9,8 @@ import pytest
 EXAMPLES = Path(__file__).resolve().parents[1] / "examples"
 
 
-def run(*args, cwd):
-    return subprocess.run(args, cwd=cwd, capture_output=True, text=True)
+def run(*args, cwd, input_text=None):
+    return subprocess.run(args, cwd=cwd, capture_output=True, text=True, input=input_text)
 
 
 @pytest.mark.parametrize(
@@ -34,6 +34,7 @@ def run(*args, cwd):
         ("grades", "A\nKeep practicing\ntrue\n"),
         ("multiplication_table", "".join(f"{n * 5}\n" for n in range(1, 11))),
         ("sum_1_to_10", "55\n"),
+        ("lists", "6\nNex\no\n30\n"),
     ],
 )
 def test_examples(example, expected, tmp_path):
@@ -62,6 +63,8 @@ def test_examples(example, expected, tmp_path):
         ("if true say 1", "Expected 'end' after if block"),
         ("while false", "Expected 'end' after while block"),
         ("if true return 1 end", "Unknown statement"),
+        ("say [1, 2", "Expected ']' after list elements"),
+        ("say [1][0", "Expected ']' after index"),
     ],
 )
 def test_invalid_source_preserves_output(source, message, tmp_path):
@@ -112,7 +115,7 @@ def test_literals_default_output_and_version(tmp_path):
     assert result.stdout == 'quoted "text"\n1.5\n'
     result = run("nexpro", "version", cwd=tmp_path)
     assert result.stdout == f"NexPro {version('nexpro')}\n"
-    assert version("nexpro") == "0.7.0"
+    assert version("nexpro") == "0.8.0"
 
 
 def test_compile_cannot_overwrite_source(tmp_path):
@@ -173,3 +176,45 @@ say 3 <= 2
     ):
         assert result.returncode == 0, result.stderr
         assert result.stdout == "3\nfalse\ntrue\ntrue\ntrue\ntrue\nfalse\n"
+
+
+@pytest.mark.parametrize(("example", "input_text", "expected"), [
+    ("scores", "70\n85\n100\n", "Average\n85.0\nHighest\n100.0\n"),
+    ("input", "Ada\n2000\n", "Hello, Ada!\n30\n"),
+])
+def test_examples_with_input(example, input_text, expected, tmp_path):
+    source = EXAMPLES / f"{example}.pa"
+    output = tmp_path / "program.py"
+    compiled = run("nexpro", "compile", source, "-o", output, cwd=tmp_path)
+    assert compiled.returncode == 0, compiled.stderr
+    for result in (
+        run("nexpro", "run", source, cwd=tmp_path, input_text=input_text),
+        run(sys.executable, "-I", "-S", output, cwd=tmp_path, input_text=input_text),
+    ):
+        assert result.returncode == 0, result.stderr
+        assert result.stdout == expected
+        assert not result.stderr
+
+
+@pytest.mark.parametrize(("source_text", "input_text", "code", "expected"), [
+    ('say len([]) say "NexPro"[0] say input("Value: ")', '\n', 0, '0\nN\nValue: \n'),
+    ('say [1][2]', '', 1, 'list index out of range'),
+    ('say 1[0]', '', 1, 'object is not subscriptable'),
+    ('say int(input())', 'abc\n', 1, 'invalid literal'),
+    ('say input()', '', 1, 'EOF when reading a line'),
+])
+def test_data_and_input_boundaries(source_text, input_text, code, expected, tmp_path):
+    source = tmp_path / "data.pa"
+    source.write_text(source_text, encoding="utf-8")
+    compiled = run("nexpro", "compile", source, cwd=tmp_path)
+    assert compiled.returncode == 0, compiled.stderr
+    for result in (
+        run("nexpro", "run", source, cwd=tmp_path, input_text=input_text),
+        run(sys.executable, "-I", "-S", source.with_suffix(".py"), cwd=tmp_path, input_text=input_text),
+    ):
+        assert result.returncode == code, result.stderr
+        if code == 0:
+            assert result.stdout == expected
+        else:
+            assert expected in result.stderr
+            assert "Traceback" not in result.stderr
