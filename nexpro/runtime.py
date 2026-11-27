@@ -5,7 +5,7 @@ Version 0.4.0
 Author: Probal Dhali
 """
 
-from nexpro.errors import NexProRuntimeError
+from nexpro.errors import RuntimeError as NexProRuntimeError
 
 
 class Runtime:

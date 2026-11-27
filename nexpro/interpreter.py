@@ -88,7 +88,7 @@ class Interpreter:
 
     def visit_say(self, node):
 
-        value = self.visit(node.value)
+        value = self.visit(node.expression)
 
         print(value)
 
