@@ -1,0 +1,4 @@
+label = "math"
+function format(value)
+    return value * value
+end

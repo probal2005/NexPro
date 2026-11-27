@@ -24,6 +24,7 @@ from nexpro.tokens import (
     LBRACE,
     RBRACE,
     COLON,
+    DOT,
     COMMA,
     FUNCTION,
     RETURN,
@@ -63,6 +64,7 @@ from nexpro.ast import (
     Index,
     ListLiteral,
     Import,
+    Member,
     For,
     Break,
     Continue,
@@ -195,6 +197,11 @@ class Parser:
 
             self.advance()
 
+            if self.match(DOT):
+                member = self.expect(IDENTIFIER, "Expected member name")
+                if self.match(LPAREN):
+                    return self.locate(self.call(member.value, token.value), token)
+                return self.locate(Member(token.value, member.value), token)
             if self.match(LPAREN):
                 return self.locate(self.call(token.value), token)
             return self.locate(Variable(token.value), token)
@@ -312,10 +319,10 @@ class Parser:
                 expressions.append(self.expression())
         return expressions
 
-    def call(self, name):
+    def call(self, name, namespace=None):
         arguments = self.expression_list(RPAREN)
         self.expect(RPAREN, "Expected ')' after arguments")
-        return Call(name, arguments)
+        return Call(name, arguments, namespace)
 
     def function(self):
         name = self.expect(IDENTIFIER, "Expected function name")
@@ -357,7 +364,11 @@ class Parser:
 
         if top_level and self.match(IMPORT):
             path = self.expect(STRING, "Expected a quoted module path")
-            return Import(path.value, path.line, path.column)
+            alias = None
+            if self.check(IDENTIFIER) and self.current.value == "as":
+                self.advance()
+                alias = self.expect(IDENTIFIER, "Expected module alias").value
+            return Import(path.value, path.line, path.column, alias)
 
         if in_function and self.match(RETURN):
             return Return(self.expression())
@@ -410,6 +421,12 @@ class Parser:
                 target = self.postfix()
                 self.expect(ASSIGN, "Expected '=' after indexed target")
                 return SetItem(target, self.expression())
+
+            if following is not None and following.type == DOT:
+                call = self.primary()
+                if not isinstance(call, Call):
+                    raise ParserError("Expected a module function call", token.line, token.column, self.filename)
+                return call
 
             if following is not None and following.type == LPAREN:
                 name = self.current.value

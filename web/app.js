@@ -155,12 +155,11 @@ examples.addEventListener('change', async () => {
     }
 
     const name = examples.value;
-    const [code, mathModule] = await Promise.all([
-      loadExample(name),
-      name === 'imports' ? loadExample('math_utils') : undefined,
-    ]);
+    const modules = { imports: ['math_utils'], namespaces: ['namespace_math', 'namespace_report'] };
+    const required = modules[name] ?? [];
+    const [code, ...sources] = await Promise.all([loadExample(name), ...required.map(loadExample)]);
     if (request.signal.aborted) return;
-    exampleModules = mathModule === undefined ? {} : { 'math_utils.pa': mathModule };
+    exampleModules = Object.fromEntries(required.map((module, i) => [module + '.pa', sources[i]]));
     source.value = code;
     if (!programInput.value || programInput.value === sampleInput) {
       sampleInput = sampleInputs.get(examples.value) ?? '';

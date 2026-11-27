@@ -159,3 +159,11 @@ that value is `0`, `false`, or the empty string.
 
 These functions require text arguments where documented. `join()` also checks
 that every item in its list is text. See the [name cleanup example](../examples/clean_names.pa).
+
+
+## Module aliases
+
+`import "module.pa" as module` initializes the file once per run in its own
+namespace. Use `module.call()` or `module.value` for its top-level definitions.
+An unaliased import continues to include statements in the importing scope.
+See the [namespace example](../examples/namespaces.pa).

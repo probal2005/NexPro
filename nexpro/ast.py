@@ -112,9 +112,10 @@ class Function(Statement):
 
 
 class Call(Expression, Statement):
-    def __init__(self, name, arguments):
+    def __init__(self, name, arguments, namespace=None):
         self.name = name
         self.arguments = arguments
+        self.namespace = namespace
 
 
 class Return(Statement):
@@ -158,7 +159,8 @@ class Index(Expression):
 
 
 class Import(Statement):
-    def __init__(self, path, line, column):
+    def __init__(self, path, line, column, alias=None):
+        self.alias = alias
         self.path = path
         self.line = line
         self.column = column
@@ -195,3 +197,15 @@ class SetItem(Statement):
     def __init__(self, target, value):
         self.target = target
         self.value = value
+
+
+class Member(Expression):
+    def __init__(self, namespace, name):
+        self.namespace = namespace
+        self.name = name
+
+
+class Module(Statement):
+    def __init__(self, alias, path):
+        self.alias = alias
+        self.path = path

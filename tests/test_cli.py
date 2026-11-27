@@ -40,6 +40,7 @@ def run(*args, cwd, input_text=None):
             "Ada\nTotal\n255\nAverage\n85.0\nHighest\n100\nLowest\n70\n"
             "Class\nUnassigned\nFields\n['name', 'scores']\n",
         ),
+        ("namespaces", "25\nreport score\nmath\nreport\n"),
         ("scorecard", "Ada\npassed\n85.0\n"),
         ("score_filter", "85.0\n"),
         ("lists", "6\nNex\no\n30\n"),
@@ -129,7 +130,7 @@ def test_literals_default_output_and_version(tmp_path):
     assert result.stdout == 'quoted "text"\n1.5\n'
     result = run("nexpro", "version", cwd=tmp_path)
     assert result.stdout == f"NexPro {version('nexpro')}\n"
-    assert version("nexpro") == "2.0.0"
+    assert version("nexpro") == "2.1.0"
 
 
 def test_compile_cannot_overwrite_source(tmp_path):

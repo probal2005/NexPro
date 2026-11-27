@@ -1,0 +1,6 @@
+import "namespace_math.pa" as math
+import "namespace_report.pa" as report
+say math.format(5)
+say report.format(5)
+say math.label
+say report.label

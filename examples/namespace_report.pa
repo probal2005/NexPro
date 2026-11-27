@@ -1,0 +1,4 @@
+label = "report"
+function format(value)
+    return label + " score"
+end

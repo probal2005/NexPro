@@ -4,7 +4,7 @@ from inspect import getsource
 
 from nexpro import data_builtins
 from nexpro.ast import (
-    Assign, Binary, Boolean, Call, Function, If, Number, Return, Say, String,
+    Member, Module, Assign, Binary, Boolean, Call, Function, If, Number, Return, Say, String,
     Unary, Variable, While, Index, ListLiteral, For, Break, Continue, Logical, Dictionary, SetItem,
 )
 from nexpro.errors import EXECUTION_ERRORS
@@ -20,27 +20,41 @@ import sys
 _source_map = {}
 _globals = {}
 _functions = {}
+_aliases = {}
+_module_cache = {}
 _builtins = {**DATA_BUILTINS, "len": len, "int": int, "float": float, "input": input, "append": list.append}
 
 
-def _get(scope, name):
+def _get(scope, global_scope, name):
     if name in scope:
         return scope[name]
-    if name in _globals:
-        return _globals[name]
+    if name in global_scope:
+        return global_scope[name]
     raise ValueError(f"Undefined variable '{name}'")
 
 
-def _call(name, *arguments):
-    if name not in _functions:
-        if name in _builtins:
+def _call(functions, allow_builtin, name, *arguments):
+    if name not in functions:
+        if allow_builtin and name in _builtins:
             return _builtins[name](*arguments)
         raise ValueError(f"Undefined function '{name}'")
-    parameters, function = _functions[name]
+    parameters, function = functions[name]
     expected = len(parameters)
     if len(arguments) != expected:
         raise ValueError(f"Function '{name}' expects {expected} argument(s), got {len(arguments)}")
     return function(dict(zip(parameters, arguments)))
+
+
+def _module(aliases, name):
+    if name not in aliases:
+        raise ValueError(f"Undefined module alias '{name}'")
+    return aliases[name]
+
+
+def _load_module(path, factory):
+    if path not in _module_cache:
+        _module_cache[path] = factory()
+    return _module_cache[path]
 
 
 def _index(sequence, index):
@@ -102,7 +116,9 @@ def _expression(node, lines, indent):
             lines.emit(f"{indent}{temporary}[{index}] = {item}", node)
         return temporary
     if isinstance(node, Variable):
-        value = f"_get(_scope, {node.name!r})"
+        value = f"_get(_scope, _globals, {node.name!r})"
+    elif isinstance(node, Member):
+        value = f"_get({{}}, _module(_aliases, {node.namespace!r})[0], {node.name!r})"
     elif isinstance(node, Binary):
         left = _expression(node.left, lines, indent)
         right = _expression(node.right, lines, indent)
@@ -120,7 +136,8 @@ def _expression(node, lines, indent):
         value = f"_index({sequence}, {index})"
     elif isinstance(node, Call):
         arguments = [_expression(argument, lines, indent) for argument in node.arguments]
-        value = f"_call({', '.join([repr(node.name), *arguments])})"
+        target = "_functions, True" if node.namespace is None else f"_module(_aliases, {node.namespace!r})[1], False"
+        value = f"_call({target}, {', '.join([repr(node.name), *arguments])})"
     else:
         raise TypeError(f"Unsupported expression {type(node).__name__}")
 
@@ -134,7 +151,10 @@ def _statements(statements, lines, indent):
     if not statements:
         lines.append(f"{indent}pass")
     for statement in statements:
-        if isinstance(statement, Assign):
+        if isinstance(statement, Module):
+            factory = lines.modules[statement.path]
+            lines.emit(f"{indent}_aliases[{statement.alias!r}] = _load_module({statement.path!r}, {factory})", statement)
+        elif isinstance(statement, Assign):
             value = _expression(statement.value, lines, indent)
             lines.append(f"{indent}_scope[{statement.variable.name!r}] = {value}")
         elif isinstance(statement, SetItem):
@@ -194,6 +214,15 @@ def _statements(statements, lines, indent):
 def compile_program(program):
     """Return Python source for a parsed NexPro program."""
     lines = GeneratedCode()
+    modules = getattr(program, "modules", {})
+    lines.modules = {path: f"_module_{i}" for i, path in enumerate(modules)}
+    for path, body in modules.items():
+        lines.append(f"        def {lines.modules[path]}():")
+        lines.append("            _scope = _globals = {}")
+        lines.append("            _functions = {}")
+        lines.append("            _aliases = {}")
+        _statements(body, lines, "            ")
+        lines.append("            return _globals, _functions")
     lines.append("        _scope = _globals")
     _statements(program.statements, lines, "        ")
     lines.extend([

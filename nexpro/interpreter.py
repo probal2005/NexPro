@@ -7,6 +7,8 @@ import operator
 
 from nexpro.ast import (
     Program,
+    Module,
+    Member,
     Assign,
     Variable,
     String,
@@ -69,6 +71,9 @@ class Interpreter:
         self.globals = Runtime()
         self.runtime = self.globals
         self.trace = trace
+        self.aliases = {}
+        self.modules = {}
+        self.module_bodies = {}
         self.functions = {}
         self.function_name = "<program>"
         self.builtins = {
@@ -98,6 +103,19 @@ class Interpreter:
 
         if isinstance(node, Program):
             return self.visit_program(node)
+
+        elif isinstance(node, Module):
+            if node.path not in self.modules:
+                module = Interpreter(read_input=self.builtins["input"], trace=self.trace)
+                module.modules = self.modules
+                module.module_bodies = self.module_bodies
+                module.visit_block(self.module_bodies[node.path])
+                self.modules[node.path] = module
+            self.aliases[node.alias] = self.modules[node.path]
+            return None
+
+        elif isinstance(node, Member):
+            return self.get_module(node.namespace).globals.get(node.name)
 
         elif isinstance(node, Assign):
             return self.visit_assign(node)
@@ -199,6 +217,7 @@ class Interpreter:
 
     def visit_program(self, node):
 
+        self.module_bodies = getattr(node, 'modules', {})
         self.visit_block(node.statements)
 
     def visit_block(self, statements):
@@ -256,12 +275,28 @@ class Interpreter:
 
         return BINARY_OPERATORS[node.operator](left, right)
 
+    def get_module(self, namespace):
+        if namespace not in self.aliases:
+            raise NexProRuntimeError(f"Undefined module alias '{namespace}'")
+        return self.aliases[namespace]
+
     def visit_call(self, node):
         arguments = [self.visit(argument) for argument in node.arguments]
-        function = self.functions.get(node.name)
+        if node.namespace is not None:
+            module = self.get_module(node.namespace)
+            try:
+                return module.call_function(node.name, arguments, node, allow_builtin=False)
+            except NexProRuntimeError as error:
+                if error.frames:
+                    error.add_frame(self.function_name, node.location)
+                raise
+        return self.call_function(node.name, arguments, node)
+
+    def call_function(self, name, arguments, node, allow_builtin=True):
+        function = self.functions.get(name)
         if function is None:
-            if node.name in self.builtins:
-                return self.builtins[node.name](*arguments)
+            if allow_builtin and name in self.builtins:
+                return self.builtins[name](*arguments)
             raise NexProRuntimeError(f"Undefined function '{node.name}'")
         expected = len(function.parameters)
         if len(arguments) != expected:
@@ -280,7 +315,8 @@ class Interpreter:
         except _ReturnFromFunction as returned:
             return returned.value
         except NexProRuntimeError as error:
-            error.add_frame(caller_name, node.location)
+            if allow_builtin:
+                error.add_frame(caller_name, node.location)
             raise
         finally:
             self.runtime = caller
