@@ -4,6 +4,10 @@ All notable changes to NexPro will be documented here.
 
 ---
 
+## v1.8.0
+
+Added JSON syntax diagnostics and VS Code checks on save.
+
 ## v1.7.0
 
 Added `trim()`, `lower()`, `upper()`, `split()`, and `join()`.

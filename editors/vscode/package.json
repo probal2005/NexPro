@@ -2,10 +2,14 @@
   "name": "nexpro",
   "displayName": "NexPro",
   "description": "Syntax highlighting and syntax checks for NexPro .pa programs.",
-  "version": "1.7.0",
+  "version": "1.8.0",
   "publisher": "probal2005",
-  "engines": { "vscode": "^1.85.0" },
-  "categories": ["Programming Languages"],
+  "engines": {
+    "vscode": "^1.85.0"
+  },
+  "categories": [
+    "Programming Languages"
+  ],
   "repository": {
     "type": "git",
     "url": "https://github.com/probal2005/NexPro.git",
@@ -16,8 +20,13 @@
     "languages": [
       {
         "id": "nexpro",
-        "aliases": ["NexPro", "nexpro"],
-        "extensions": [".pa"],
+        "aliases": [
+          "NexPro",
+          "nexpro"
+        ],
+        "extensions": [
+          ".pa"
+        ],
         "configuration": "./language-configuration.json"
       }
     ],
@@ -43,24 +52,17 @@
           "default": "nexpro",
           "scope": "machine",
           "description": "Path to the NexPro CLI executable. The default uses PATH."
+        },
+        "nexpro.checkOnSave": {
+          "type": "boolean",
+          "default": true,
+          "scope": "resource",
+          "description": "Check saved NexPro files in trusted workspaces."
         }
       }
-    },
-    "problemMatchers": [
-      {
-        "name": "nexpro",
-        "owner": "nexpro",
-        "source": "NexPro",
-        "fileLocation": "absolute",
-        "severity": "error",
-        "pattern": [
-          { "regexp": "^File +: (.+)$", "file": 1 },
-          { "regexp": "^Line +: (\\d+)$", "line": 1 },
-          { "regexp": "^Column ?: (\\d+)$", "column": 1 },
-          { "regexp": "^\\s*$" },
-          { "regexp": "^(.+)$", "message": 1 }
-        ]
-      }
-    ]
-  }
+    }
+  },
+  "activationEvents": [
+    "onLanguage:nexpro"
+  ]
 }

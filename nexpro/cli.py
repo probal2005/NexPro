@@ -1,12 +1,13 @@
 """Command-line tools for running and compiling NexPro programs."""
 
 import argparse
+import json
 import sys
 from pathlib import Path
 
 from nexpro import __version__
 from nexpro.compiler import compile_program
-from nexpro.errors import NexProError
+from nexpro.errors import NexProError, SourceError
 from nexpro.interpreter import Interpreter
 from nexpro.loader import load_program as load_modules
 
@@ -37,6 +38,24 @@ def run_file(filename):
     Interpreter().visit(load_program(Path(filename)))
 
 
+def check_json(path):
+    try:
+        load_program(path)
+    except (NexProError, OSError, UnicodeError, ValueError, RecursionError) as error:
+        diagnostic = {"message": str(error)}
+        if isinstance(error, SourceError):
+            diagnostic = {
+                "message": error.message,
+                "filename": error.filename,
+                "line": error.line,
+                "column": error.column,
+            }
+        print(json.dumps({"ok": False, "diagnostics": [diagnostic]}))
+        return 1
+    print(json.dumps({"ok": True, "diagnostics": []}))
+    return 0
+
+
 def main(argv=None):
     parser = argparse.ArgumentParser(prog="nexpro", description="NexPro language tools")
     parser.add_argument("--version", action="version", version=f"NexPro {__version__}")
@@ -45,6 +64,7 @@ def main(argv=None):
     run.add_argument("source", type=Path)
     check = commands.add_parser("check", help="Check syntax and imports without running")
     check.add_argument("source", type=Path)
+    check.add_argument("--json", action="store_true", help="Print machine-readable diagnostics")
     compiler = commands.add_parser("compile", help="Compile a NexPro program to Python")
     compiler.add_argument("source", type=Path)
     compiler.add_argument("-o", "--output", type=Path, help="Output path (default: SOURCE.py)")
@@ -63,6 +83,8 @@ def main(argv=None):
         if args.command == "run":
             run_file(args.source)
         elif args.command == "check":
+            if args.json:
+                return check_json(args.source)
             load_program(args.source)
             print("Syntax OK")
         else:

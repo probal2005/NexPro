@@ -1,3 +1,4 @@
+import json
 from importlib.metadata import version
 from pathlib import Path
 import subprocess
@@ -128,7 +129,7 @@ def test_literals_default_output_and_version(tmp_path):
     assert result.stdout == 'quoted "text"\n1.5\n'
     result = run("nexpro", "version", cwd=tmp_path)
     assert result.stdout == f"NexPro {version('nexpro')}\n"
-    assert version("nexpro") == "1.7.0"
+    assert version("nexpro") == "1.8.0"
 
 
 def test_compile_cannot_overwrite_source(tmp_path):
@@ -470,3 +471,27 @@ def test_text_builtins(code, expected, status, tmp_path):
             assert result.stdout == expected
         else:
             assert expected in result.stderr
+
+
+def test_check_json_reports_import_diagnostic(tmp_path):
+    entry = tmp_path / "main.pa"
+    entry.write_text('import "math helpers.pa"\nsay 7\n', encoding="utf-8")
+    module = tmp_path / "math helpers.pa"
+    module.write_text("say @\n", encoding="utf-8")
+    invalid = run("nexpro", "check", "--json", entry, cwd=tmp_path)
+    assert invalid.returncode == 1
+    assert not invalid.stderr
+    assert json.loads(invalid.stdout) == {
+        "ok": False,
+        "diagnostics": [{
+            "message": "Unknown character '@'",
+            "filename": str(module),
+            "line": 1,
+            "column": 5,
+        }],
+    }
+    module.write_text('say "would be printed only when run"\n', encoding="utf-8")
+    valid = run("nexpro", "check", "--json", entry, cwd=tmp_path)
+    assert valid.returncode == 0
+    assert not valid.stderr
+    assert json.loads(valid.stdout) == {"ok": True, "diagnostics": []}
