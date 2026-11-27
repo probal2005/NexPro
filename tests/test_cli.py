@@ -34,6 +34,7 @@ def run(*args, cwd, input_text=None):
         ("grades", "A\nKeep practicing\ntrue\n"),
         ("multiplication_table", "".join(f"{n * 5}\n" for n in range(1, 11))),
         ("sum_1_to_10", "55\n"),
+        ("score_filter", "85.0\n"),
         ("lists", "6\nNex\no\n30\n"),
         ("imports", "49\n20.0\n"),
     ],
@@ -63,6 +64,7 @@ def test_examples(example, expected, tmp_path):
         ("function f(x) return x", "Expected 'end'"),
         ("return 1", "Unknown statement"),
         ("break", "only be used inside a loop"),
+        ("continue", "only be used inside a loop"),
         ("if true say 1", "Expected 'end' after if block"),
         ("while false", "Expected 'end' after while block"),
         ("if true return 1 end", "Unknown statement"),
@@ -118,7 +120,7 @@ def test_literals_default_output_and_version(tmp_path):
     assert result.stdout == 'quoted "text"\n1.5\n'
     result = run("nexpro", "version", cwd=tmp_path)
     assert result.stdout == f"NexPro {version('nexpro')}\n"
-    assert version("nexpro") == "1.3.0"
+    assert version("nexpro") == "1.4.0"
 
 
 def test_compile_cannot_overwrite_source(tmp_path):
@@ -340,3 +342,31 @@ def test_runtime_stack_points_to_imported_source(tmp_path):
             f"  at outer ({module}:5)",
             f"  at <program> ({entry}:2)",
         ]
+
+
+def test_short_circuit_precedence_and_continue(tmp_path):
+    source = tmp_path / "logic.pa"
+    source.write_text("""
+say false and missing()
+say true or missing()
+say not 1 == 1 or false and missing()
+say not [] and (true or missing())
+continue = 7
+say continue
+i = 0
+while i < 3
+    i = i + 1
+    if i != 2
+        continue
+    end
+    say i
+end
+""", encoding="utf-8")
+    compiled = run("nexpro", "compile", source, cwd=tmp_path)
+    assert compiled.returncode == 0, compiled.stderr
+    for result in (
+        run("nexpro", "run", source, cwd=tmp_path),
+        run(sys.executable, "-I", "-S", source.with_suffix(".py"), cwd=tmp_path),
+    ):
+        assert result.returncode == 0, result.stderr
+        assert result.stdout == "false\ntrue\nfalse\ntrue\n7\n2\n"

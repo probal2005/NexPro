@@ -33,6 +33,9 @@ from nexpro.tokens import (
     FALSE,
     EQUAL,
     NOT_EQUAL,
+    AND,
+    OR,
+    NOT,
     LESS,
     LESS_EQUAL,
     GREATER,
@@ -59,6 +62,8 @@ from nexpro.ast import (
     Import,
     For,
     Break,
+    Continue,
+    Logical,
 )
 
 from nexpro.errors import ParserError
@@ -211,7 +216,29 @@ class Parser:
     # ==========================================================
 
     def expression(self):
+        return self.logical_or()
 
+    def logical_or(self):
+        node = self.logical_and()
+        while self.match(OR):
+            operator = self.previous()
+            node = self.locate(Logical(node, operator.value, self.logical_and()), operator)
+        return node
+
+    def logical_and(self):
+        node = self.logical_not()
+        while self.match(AND):
+            operator = self.previous()
+            node = self.locate(Logical(node, operator.value, self.logical_not()), operator)
+        return node
+
+    def logical_not(self):
+        if self.match(NOT):
+            token = self.previous()
+            return self.locate(Unary(token.value, self.logical_not()), token)
+        return self.comparison()
+
+    def comparison(self):
         left = self.addition()
         if self.match(EQUAL, NOT_EQUAL, LESS, LESS_EQUAL, GREATER, GREATER_EQUAL):
             operator = self.previous()
@@ -353,14 +380,14 @@ class Parser:
                 self.expect(END, "Expected 'end' after for block")
                 return For(name.value, iterable, body)
 
-            if token.value == "break" and (following is None or following.type not in (ASSIGN, LPAREN)):
+            if token.value in ("break", "continue") and (following is None or following.type not in (ASSIGN, LPAREN)):
                 if not in_loop:
                     raise ParserError(
-                        "'break' can only be used inside a loop",
+                        f"'{token.value}' can only be used inside a loop",
                         token.line, token.column, self.filename,
                     )
                 self.advance()
-                return Break()
+                return Break() if token.value == "break" else Continue()
 
             if following is not None and following.type == LPAREN:
                 name = self.current.value

@@ -34,10 +34,10 @@
     },
     {
       "name": "keyword.control.nexpro",
-      "match": "\\b(?:say|return|import|if|else|while|end)\\b"
+      "match": "\\b(?:say|return|import|if|else|while|end|and|or|not)\\b"
     },
     {
-      "match": "^\\s*(break)\\b(?!\\s*[=(])",
+      "match": "^\\s*(break|continue)\\b(?!\\s*[=(])",
       "captures": {
         "1": {
           "name": "keyword.control.nexpro"

@@ -24,6 +24,8 @@ from nexpro.ast import (
     ListLiteral,
     For,
     Break,
+    Continue,
+    Logical,
 )
 
 from nexpro.errors import EXECUTION_ERRORS
@@ -51,6 +53,10 @@ class _ReturnFromFunction(Exception):
 
 
 class _BreakLoop(Exception):
+    pass
+
+
+class _ContinueLoop(Exception):
     pass
 
 
@@ -112,7 +118,10 @@ class Interpreter:
         elif isinstance(node, While):
             try:
                 while self.visit(node.condition):
-                    self.visit_block(node.body)
+                    try:
+                        self.visit_block(node.body)
+                    except _ContinueLoop:
+                        continue
             except _BreakLoop:
                 pass
             return None
@@ -121,13 +130,19 @@ class Interpreter:
             try:
                 for value in self.visit(node.iterable):
                     self.runtime.set(node.name, value)
-                    self.visit_block(node.body)
+                    try:
+                        self.visit_block(node.body)
+                    except _ContinueLoop:
+                        continue
             except _BreakLoop:
                 pass
             return None
 
         elif isinstance(node, Break):
             raise _BreakLoop
+
+        elif isinstance(node, Continue):
+            raise _ContinueLoop
 
         elif isinstance(node, Return):
             raise _ReturnFromFunction(self.visit(node.value))
@@ -145,8 +160,16 @@ class Interpreter:
         elif isinstance(node, Call):
             return self.visit_call(node)
 
+        elif isinstance(node, Logical):
+            left = bool(self.visit(node.left))
+            if node.operator == "and":
+                return left and bool(self.visit(node.right))
+            return left or bool(self.visit(node.right))
+
         elif isinstance(node, Unary):
             value = self.visit(node.operand)
+            if node.operator == "not":
+                return not value
             return -value if node.operator == "-" else +value
 
         raise Exception(f"Unknown node: {type(node)}")

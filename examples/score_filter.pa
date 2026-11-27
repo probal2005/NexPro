@@ -1,0 +1,15 @@
+scores = [-5, 70, 135, 85, 100]
+count = 0
+total = 0
+
+for score in scores
+    if score < 0 or score > 100
+        continue
+    end
+    total = total + score
+    count = count + 1
+end
+
+if count > 0 and not (total < 0)
+    say total / count
+end

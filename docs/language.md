@@ -18,8 +18,7 @@ UTF-8 text, typically saved with a `.pa` extension.
 - Boolean literals are `true` and `false`. A list uses square brackets and
   comma-separated expressions, including `[]` for an empty list.
 - Reserved words are `say`, `function`, `return`, `import`, `if`, `else`,
-  `end`, `while`, `true`, and `false`. `repeat`, `and`, `or`, and `not`
-  are also reserved for future syntax.
+  `end`, `while`, `true`, and `false`. `and`, `or`, and `not` are also keywords. `repeat` is reserved.
 
 ## Expressions
 
@@ -31,6 +30,9 @@ UTF-8 text, typically saved with a `.pa` extension.
 | Multiplicative operators | `*`, `/` |
 | Additive operators | `+`, `-` |
 | Comparison | `==`, `!=`, `<`, `<=`, `>`, `>=` |
+| Logical negation | `not` |
+| Logical conjunction | `and` |
+| Logical disjunction | `or` |
 
 Arithmetic at the same precedence groups left to right. Parentheses override
 precedence. A comparison expression has one comparison operator. Operands and
@@ -105,3 +107,14 @@ If execution fails, the first frame points to the failing operation in a
 function. Imported file names are preserved when running or compiling the
 entry file. Compiled scripts embed the locations so the original files
 are unnecessary when running the generated Python.
+
+
+## Logic and loop continuation added in 1.4
+
+`and`, `or`, and `not` produce boolean values using the same truth rules
+as conditions. `and` skips its right operand when the left is false. `or`
+skips its right operand when the left is true.
+
+`continue` skips the remainder of the current iteration of the nearest
+`for` or `while` loop. Like `for`, `in`, and `break`, it can still be used
+as a variable or function name outside its control-flow syntax.

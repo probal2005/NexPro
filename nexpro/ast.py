@@ -173,3 +173,14 @@ class For(Statement):
 
 class Break(Statement):
     pass
+
+
+class Logical(Expression):
+    def __init__(self, left, operator, right):
+        self.left = left
+        self.operator = operator
+        self.right = right
+
+
+class Continue(Statement):
+    pass

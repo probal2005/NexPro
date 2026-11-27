@@ -12,11 +12,14 @@ statement      -> IDENTIFIER "=" expression
                 | "if" expression block ("else" block)? "end"
                 | "while" expression block "end"
                 | "for" IDENTIFIER "in" expression block "end"
-                | "break"
+                | "break" | "continue"
                 | "return" expression
                 | call
-expression     -> addition (comparison addition)?
-comparison     -> "==" | "!=" | "<" | "<=" | ">" | ">="
+expression     -> logical_and ("or" logical_and)*
+logical_and    -> logical_not ("and" logical_not)*
+logical_not    -> "not" logical_not | comparison
+comparison     -> addition (comparison_op addition)?
+comparison_op  -> "==" | "!=" | "<" | "<=" | ">" | ">="
 addition       -> multiplication (("+" | "-") multiplication)*
 multiplication -> unary (("*" | "/") unary)*
 unary          -> ("+" | "-") unary | postfix
@@ -31,4 +34,4 @@ arguments      -> expression ("," expression)*
 A `return` statement is valid only inside a function, including a nested
 `if` or `while` block within that function.
 
-A `break` statement is valid only inside a loop.
+`break` and `continue` are valid only inside a loop.

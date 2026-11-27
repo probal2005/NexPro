@@ -4,6 +4,10 @@ All notable changes to NexPro will be documented here.
 
 ---
 
+## v1.4.0
+
+Added short-circuit logical operators and `continue`.
+
 ## v1.3.0
 
 Added a VS Code extension with syntax highlighting and the **Check Syntax** command.

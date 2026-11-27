@@ -2,7 +2,7 @@
 
 from nexpro.ast import (
     Assign, Binary, Boolean, Call, Function, If, Number, Return, Say, String,
-    Unary, Variable, While, Index, ListLiteral, For, Break,
+    Unary, Variable, While, Index, ListLiteral, For, Break, Continue, Logical,
 )
 from nexpro.interpreter import BINARY_OPERATORS
 
@@ -72,6 +72,16 @@ def _expression(node, lines, indent):
         if isinstance(node, Number) and node.value == float("inf"):
             return "float('inf')"
         return repr(node.value)
+    if isinstance(node, Logical):
+        left = _expression(node.left, lines, indent)
+        temporary = f"_value_{len(lines)}"
+        lines.emit(f"{indent}{temporary} = bool({left})", node)
+        test = temporary if node.operator == "and" else f"not {temporary}"
+        lines.append(f"{indent}if {test}:")
+        inner = indent + "    "
+        right = _expression(node.right, lines, inner)
+        lines.emit(f"{inner}{temporary} = bool({right})", node)
+        return temporary
     if isinstance(node, Variable):
         value = f"_get(_scope, {node.name!r})"
     elif isinstance(node, Binary):
@@ -80,7 +90,8 @@ def _expression(node, lines, indent):
         value = f"{left} {node.operator} {right}"
     elif isinstance(node, Unary):
         operand = _expression(node.operand, lines, indent)
-        value = f"{node.operator}{operand}"
+        operator = "not " if node.operator == "not" else node.operator
+        value = f"{operator}{operand}"
     elif isinstance(node, ListLiteral):
         elements = [_expression(element, lines, indent) for element in node.elements]
         value = f"[{', '.join(elements)}]"
@@ -138,6 +149,8 @@ def _statements(statements, lines, indent):
             _statements(statement.body, lines, body_indent)
         elif isinstance(statement, Break):
             lines.append(f"{indent}break")
+        elif isinstance(statement, Continue):
+            lines.append(f"{indent}continue")
         elif isinstance(statement, Function):
             name = f"_function_{len(lines)}"
             lines.append(f"{indent}def {name}(_scope):")

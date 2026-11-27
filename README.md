@@ -6,12 +6,12 @@ interpreter and a compiler that generates standalone Python scripts.
 ## Get started
 
 Try the [online playground](https://nexpro-playground.vercel.app/) or install
-the CLI with Python 3.11 or later. Download `nexpro-1.3.0-py3-none-any.whl` from
-the [1.3.0 release](https://github.com/probal2005/NexPro/releases/tag/v1.3.0).
+the CLI with Python 3.11 or later. Download `nexpro-1.4.0-py3-none-any.whl` from
+the [1.4.0 release](https://github.com/probal2005/NexPro/releases/tag/v1.4.0).
 From your download directory, run:
 
 ```sh
-python -m pip install ./nexpro-1.3.0-py3-none-any.whl
+python -m pip install ./nexpro-1.4.0-py3-none-any.whl
 nexpro version
 ```
 
