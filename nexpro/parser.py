@@ -17,6 +17,8 @@ from nexpro.tokens import (
     MINUS,
     STAR,
     SLASH,
+    LPAREN,
+    RPAREN,
 )
 
 from nexpro.ast import (
@@ -34,8 +36,9 @@ from nexpro.errors import ParserError
 
 class Parser:
 
-    def __init__(self, tokens):
+    def __init__(self, tokens, filename=None):
 
+        self.filename = filename
         self.tokens = tokens
         self.position = 0
         self.current = self.tokens[0]
@@ -118,6 +121,7 @@ class Parser:
             message,
             line=self.current.line,
             column=self.current.column,
+            filename=self.filename,
         )
 
     # ==========================================================
@@ -146,10 +150,16 @@ class Parser:
 
             return Variable(token.value)
 
+        if self.match(LPAREN):
+            node = self.expression()
+            self.expect(RPAREN, "Expected ')'")
+            return node
+
         raise ParserError(
             "Expected expression",
             line=token.line,
             column=token.column,
+            filename=self.filename,
         )
 
     # ==========================================================
@@ -214,6 +224,7 @@ class Parser:
             "Unknown statement",
             line=self.current.line,
             column=self.current.column,
+            filename=self.filename,
         )
 
     # ==========================================================
@@ -233,57 +244,18 @@ class Parser:
         return Program(statements)
 
 
-    # ==========================================================
-# Multiplication / Division
-# ==========================================================
 
-def multiplication(self):
-
-    node = self.primary()
-
-    while self.current.type in (
-        STAR,
-        SLASH,
-    ):
-
-        operator = self.current.value
-
-        self.advance()
-
-        right = self.primary()
-
-        node = Binary(
-            node,
-            operator,
-            right,
-        )
-
-    return node
+    def multiplication(self):
+        node = self.primary()
+        while self.match(STAR, SLASH):
+            operator = self.previous().value
+            node = Binary(node, operator, self.primary())
+        return node
 
 
-    # ==========================================================
-# Addition / Subtraction
-# ==========================================================
-
-def addition(self):
-
-    node = self.multiplication()
-
-    while self.current.type in (
-        PLUS,
-        MINUS,
-    ):
-
-        operator = self.current.value
-
-        self.advance()
-
-        right = self.multiplication()
-
-        node = Binary(
-            node,
-            operator,
-            right,
-        )
-
-    return node 
+    def addition(self):
+        node = self.multiplication()
+        while self.match(PLUS, MINUS):
+            operator = self.previous().value
+            node = Binary(node, operator, self.multiplication())
+        return node

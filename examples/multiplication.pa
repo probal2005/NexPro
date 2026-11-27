@@ -1,1 +1,3 @@
-examples/multiplication.pa
+product = 6 * 7
+say product
+say product / 2

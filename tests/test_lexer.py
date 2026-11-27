@@ -32,7 +32,7 @@ def print_header(title):
 
 # -------------------------------------------------------
 
-def test_lexer(filename):
+def show_lexer_tokens(filename):
 
     print_header(f"Testing : {filename}")
 
@@ -104,7 +104,7 @@ python tests/test_lexer.py examples/while.pa
 
     filename = sys.argv[1]
 
-    test_lexer(filename)
+    show_lexer_tokens(filename)
 
 
 # -------------------------------------------------------
