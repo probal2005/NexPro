@@ -3,25 +3,44 @@
 NexPro is a small programming language for `.pa` source files. It comes with an
 interpreter and a compiler that generates standalone Python scripts.
 
-## Install
+## Get started
 
-With Python 3.11 or later, run this from the repository root:
-
-```sh
-python -m pip install .
-```
-
-## Run or compile a program
+Try the [online playground](https://nexpro-playground.vercel.app/) or install
+the CLI with Python 3.11 or later. Download `nexpro-1.0.0-py3-none-any.whl` from
+the [1.0.0 release](https://github.com/probal2005/NexPro/releases/tag/v1.0.0).
+From your download directory, run:
 
 ```sh
-nexpro run examples/hello.pa
-nexpro compile examples/math.pa -o math_program.py
-python math_program.py
+python -m pip install ./nexpro-1.0.0-py3-none-any.whl
+nexpro version
 ```
 
-Without `-o`, the compiler replaces the source extension with `.py` in the
-output path. The generated script runs with Python alone. Use `nexpro help` or
-`nexpro compile --help` for command options.
+You can also run `python -m pip install .` from a checkout of this repository.
+See the [installation guide](docs/HELP.md) for virtual environments and
+Windows commands.
+
+Create a UTF-8 file named `hello.pa` with this line:
+
+```text
+say "Hello NexPro!"
+```
+
+Then check, run, and compile it:
+
+```sh
+nexpro check hello.pa
+nexpro run hello.pa
+nexpro compile hello.pa -o hello.py
+python hello.py
+```
+
+Both run commands print `Hello NexPro!`. The generated script needs Python
+and includes any imported modules. Without `-o`, compilation writes a
+sibling file with the `.py` extension.
+
+Follow the [first-program tutorial](docs/tutorial.md) to build a small score
+calculator. See the [language reference](docs/language.md) and the
+[grammar](docs/grammar.md) for the 1.0 syntax and behavior.
 
 ## Language
 
@@ -77,8 +96,8 @@ end
 ```
 
 Comparisons (`==`, `!=`, `<`, `<=`, `>`, `>=`) evaluate after arithmetic and
-produce `true` or `false`. A condition treats zero, an empty string, `false`,
-and a missing return value as false. Other values are true. Use **Stop** in
+produce `true` or `false`. A condition treats zero, an empty string or list,
+`false`, and a missing return value as false. Other values are true. Use **Stop** in
 the playground or **Ctrl+C** in your terminal to interrupt a running loop.
 
 See the [grade calculator](examples/grades.pa), [multiplication table](examples/multiplication_table.pa),

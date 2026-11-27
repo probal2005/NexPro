@@ -1,10 +1,16 @@
-import { cp, mkdir, readdir } from 'node:fs/promises';
+import { cp, mkdir, readFile, readdir, writeFile } from 'node:fs/promises';
 
 await mkdir('dist/nexpro', { recursive: true });
 await mkdir('dist/examples', { recursive: true });
-for (const name of ['index.html', 'styles.css', 'app.js', 'worker.js', 'playground.py']) {
+for (const name of ['styles.css', 'app.js', 'worker.js', 'playground.py']) {
   await cp(`web/${name}`, `dist/${name}`);
 }
+const versionFile = await readFile('nexpro/__version__.py', 'utf8');
+const version = versionFile.match(/^VERSION = "([^"]+)"/m)?.[1];
+if (!version) throw new Error('NexPro version not found');
+const template = await readFile('web/index.html', 'utf8');
+await writeFile('dist/index.html', template.replaceAll('__NEXPRO_VERSION__', version));
+
 for (const name of await readdir('nexpro')) {
   if (name.endsWith('.py')) await cp(`nexpro/${name}`, `dist/nexpro/${name}`);
 }

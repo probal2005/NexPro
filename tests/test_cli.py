@@ -58,6 +58,7 @@ def test_examples(example, expected, tmp_path):
     [
         ("say (2 + 3", "Expected ')'"),
         ("say @", "Unknown character"),
+        ("say ²", "Unknown character"),
         ("function f(x, x) return x end", "Duplicate parameter 'x'"),
         ("function f(x) return x", "Expected 'end'"),
         ("return 1", "Unknown statement"),
@@ -116,7 +117,7 @@ def test_literals_default_output_and_version(tmp_path):
     assert result.stdout == 'quoted "text"\n1.5\n'
     result = run("nexpro", "version", cwd=tmp_path)
     assert result.stdout == f"NexPro {version('nexpro')}\n"
-    assert version("nexpro") == "0.9.0"
+    assert version("nexpro") == "1.0.0"
 
 
 def test_compile_cannot_overwrite_source(tmp_path):

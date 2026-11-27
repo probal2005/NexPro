@@ -1,11 +1,16 @@
 [project]
 name = "nexpro"
 dynamic = ["version"]
-description = "The Next Generation Programming Language"
+description = "The NexPro language interpreter and Python compiler"
+readme = "README.md"
 authors = [
     {name = "Probal Dhali"}
 ]
 requires-python = ">=3.11"
+
+[project.urls]
+Repository = "https://github.com/probal2005/NexPro"
+Playground = "https://nexpro-playground.vercel.app/"
 
 [project.scripts]
 nexpro = "nexpro.cli:main"

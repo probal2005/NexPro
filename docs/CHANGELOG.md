@@ -4,7 +4,16 @@ All notable changes to NexPro will be documented here.
 
 ---
 
-# v0.3.0
+## v1.0.0
+
+First stable release. The language reference, grammar, installation guide, and
+tutorial describe the supported 1.0 behavior.
+
+- Interpret, syntax-check, and compile `.pa` programs with the CLI or playground.
+- Use functions, control flow, lists, program input, and relative module imports.
+- Install the universal Python wheel from the GitHub release.
+
+## v0.3.0
 
 Release Date:
 2026

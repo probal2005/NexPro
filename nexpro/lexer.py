@@ -158,7 +158,7 @@ class Lexer:
 
     def is_digit(self, char):
 
-        return char.isdigit()
+        return char.isdecimal()
 
     # =================================================
 
@@ -206,7 +206,7 @@ class Lexer:
 
         while self.current is not None:
 
-            if self.current.isdigit():
+            if self.current.isdecimal():
 
                 text += self.current
                 self.advance()
@@ -224,10 +224,15 @@ class Lexer:
             else:
                 break
 
-        if decimal_found:
-            value = float(text)
-        else:
-            value = int(text)
+        try:
+            value = float(text) if decimal_found else int(text)
+        except ValueError as error:
+            raise LexerError(
+                "Invalid numeric literal",
+                line=start_line,
+                column=start_column,
+                filename=self.filename,
+            ) from error
 
         return Token(
             NUMBER,
@@ -262,7 +267,7 @@ class Lexer:
                 continue
 
             # Number
-            if self.current.isdigit():
+            if self.current.isdecimal():
                 tokens.append(
                     self.number()
                 )
@@ -530,7 +535,7 @@ class Lexer:
             return self.identifier()
 
         # Number
-        if self.current.isdigit():
+        if self.current.isdecimal():
             return self.number()
 
         # String
