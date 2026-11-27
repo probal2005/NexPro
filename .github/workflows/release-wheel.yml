@@ -1,0 +1,29 @@
+name: Build release wheel
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  wheel:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v6
+      - uses: actions/setup-python@v6
+        with:
+          python-version: "3.12"
+      - name: Build and install the release package
+        run: |
+          python -m pip wheel --no-deps --wheel-dir dist .
+          python -m pip install pytest dist/nexpro-*.whl
+          python -m pytest -q
+      - name: Attach the verified wheel to its draft release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          tag="v$(python -c 'from importlib.metadata import version; print(version("nexpro"))')"
+          target="$(gh release view "$tag" --json isDraft,targetCommitish --jq 'select(.isDraft) | .targetCommitish')"
+          test "$target" = "$GITHUB_SHA"
+          gh release upload "$tag" dist/nexpro-*.whl
