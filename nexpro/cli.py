@@ -11,6 +11,7 @@ from nexpro.errors import NexProError, SourceError
 from nexpro.interpreter import Interpreter
 from nexpro.loader import load_program as load_modules
 from nexpro.project import find_project, init_project
+from nexpro.standard import _configure_stdio
 
 
 def load_program(path, output=None, project_root=None):
@@ -84,6 +85,7 @@ def test_project():
 
 
 def main(argv=None):
+    _configure_stdio()
     parser = argparse.ArgumentParser(prog="nexpro", description="NexPro language tools")
     parser.add_argument("--version", action="version", version=f"NexPro {__version__}")
     commands = parser.add_subparsers(dest="command")

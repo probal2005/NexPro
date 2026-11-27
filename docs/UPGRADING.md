@@ -66,3 +66,5 @@ supplied with the launch configuration's `input` string.
 
 Run `python scripts/benchmark.py` from a checkout with NexPro installed
 to measure list creation, multi-file imports, and a loop workload.
+
+On Windows, NexPro CLI input and output and standalone generated Python use UTF-8.

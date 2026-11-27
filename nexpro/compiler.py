@@ -73,6 +73,7 @@ def _say(value):
 
 
 if __name__ == '__main__':
+    _configure_stdio()
     try:
 """
 

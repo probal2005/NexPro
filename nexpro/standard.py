@@ -2,6 +2,15 @@
 
 import json
 import math
+import sys
+
+
+def _configure_stdio():
+    """Keep Unicode input and output available when redirected on Windows."""
+    if sys.platform == "win32":
+        for stream in (sys.stdin, sys.stdout, sys.stderr):
+            if hasattr(stream, "reconfigure"):
+                stream.reconfigure(encoding="utf-8")
 
 
 def _json_parse(text):
