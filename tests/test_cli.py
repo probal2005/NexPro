@@ -131,7 +131,7 @@ def test_literals_default_output_and_version(tmp_path):
     assert result.stdout == 'quoted "text"\n1.5\n'
     result = run("nexpro", "version", cwd=tmp_path)
     assert result.stdout == f"NexPro {version('nexpro')}\n"
-    assert version("nexpro") == "2.8.0"
+    assert version("nexpro") == "2.9.0"
 
 
 def test_compile_cannot_overwrite_source(tmp_path):
@@ -551,3 +551,40 @@ def test_new_language_errors_match_backends(code, message, tmp_path):
         assert result.returncode == 1
         assert message in result.stderr
         assert str(entry) in result.stderr
+
+
+def test_project_upgrade_flow(tmp_path):
+    project = tmp_path / "report"
+    created = run("nexpro", "init", project, cwd=tmp_path)
+    assert created.returncode == 0, created.stderr
+    source = project / "main.pa"
+    source.write_text(
+        'import "std/json" as json\nimport "math.pa" as math\nsay math.total(json.parse(input())["scores"])\n',
+        encoding="utf-8",
+    )
+    (project / "math.pa").write_text("function total(scores) return sum(scores) end\n", encoding="utf-8")
+    tests = project / "tests"
+    tests.mkdir()
+    sample = tests / "test_report.pa"
+    sample.write_text('import "../math.pa" as math\nassert math.total([1, 2]) == 4\n', encoding="utf-8")
+    failure = run("nexpro", "test", cwd=tests)
+    assert failure.returncode == 1
+    assert "Assertion failed" in failure.stderr
+    assert f"{sample}:2" in failure.stderr
+    sample.write_text('import "../math.pa" as math\nassert math.total([1, 2]) == 3\n', encoding="utf-8")
+    passed = run("nexpro", "test", cwd=project)
+    assert passed.returncode == 0, passed.stderr
+    assert "1 passed, 0 failed" in passed.stdout
+    check = run("nexpro", "check", "--json", cwd=project)
+    assert json.loads(check.stdout) == {"ok": True, "diagnostics": []}
+    compiled = run("nexpro", "compile", cwd=project)
+    assert compiled.returncode == 0, compiled.stderr
+    for result in (
+        run("nexpro", "run", cwd=project, input_text='{"scores":[1,2]}\n'),
+        run(sys.executable, "-I", "-S", source.with_suffix(".py"), cwd=project, input_text='{"scores":[1,2]}\n'),
+    ):
+        assert result.returncode == 0, result.stderr
+        assert result.stdout == "3\n"
+    existing = run("nexpro", "init", project, cwd=tmp_path)
+    assert existing.returncode == 1
+    assert 'import "std/json"' in source.read_text(encoding="utf-8")
