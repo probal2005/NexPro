@@ -1,0 +1,9 @@
+# A zero-argument function can read global variables and print
+name = "NexPro"
+
+function greet()
+    message = "Hello, " + name + "!"
+    say message
+end
+
+greet()

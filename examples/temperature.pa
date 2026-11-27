@@ -1,0 +1,8 @@
+# Use a function and signed numbers in a formula
+function to_fahrenheit(celsius)
+    return celsius * 9 / 5 + 32
+end
+
+say to_fahrenheit(-40)
+say to_fahrenheit(0)
+say to_fahrenheit(37)

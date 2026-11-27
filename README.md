@@ -33,9 +33,31 @@ say 2 + 3 * 4
 say (2 + 3) * 4
 ```
 
-NexPro 0.5 supports assignments, `say`, strings, integers, decimals, comments,
+NexPro supports assignments, `say`, strings, integers, decimals, comments,
 and the four basic arithmetic operators. Multiplication and division bind more
 tightly than addition and subtraction. Parentheses override that order.
+
+### Functions and scope
+
+```text
+rate = 2
+
+function total(quantity, price)
+    subtotal = quantity * price
+    return subtotal + rate
+end
+
+say total(3, 5)
+```
+
+Define a function before calling it. Parameters and assignments inside a
+function are local to that call. Functions can also read global variables.
+A local assignment shadows a global of the same name. Use `return expression`
+to pass a value back to the caller. A function that reaches `end` returns
+`None` when printed. Use `+` or `-` before an expression for unary signs.
+
+See [functions](examples/functions.pa), [scope](examples/scope.pa),
+[temperature conversion](examples/temperature.pa), and [greeting](examples/greeting.pa).
 
 The `numbers.pa`, `string.pa`, `escape.pa`, `operators.pa`, and `keywords.pa`
 examples are lexer fixtures. The `error.pa` fixture demonstrates invalid input.

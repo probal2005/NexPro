@@ -8,6 +8,8 @@ for (const name of ['index.html', 'styles.css', 'app.js', 'worker.js', 'playgrou
 for (const name of await readdir('nexpro')) {
   if (name.endsWith('.py')) await cp(`nexpro/${name}`, `dist/nexpro/${name}`);
 }
-for (const name of ['hello', 'variables', 'precedence']) {
+for (const name of [
+  'hello', 'variables', 'precedence', 'functions', 'scope', 'temperature', 'greeting',
+]) {
   await cp(`examples/${name}.pa`, `dist/examples/${name}.pa`);
 }

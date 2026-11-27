@@ -27,6 +27,10 @@ def run(*args, cwd):
         ("parser1", "Probal\n25\n"),
         ("parser2", "Probal\n20\n"),
         ("strings", "Nex\nPro\n"),
+        ("functions", "14\n"),
+        ("scope", "17\n10\n100\n"),
+        ("temperature", "-40.0\n32.0\n98.6\n"),
+        ("greeting", "Hello, NexPro!\n"),
     ],
 )
 def test_examples(example, expected, tmp_path):
@@ -49,6 +53,9 @@ def test_examples(example, expected, tmp_path):
     [
         ("say (2 + 3", "Expected ')'"),
         ("say @", "Unknown character"),
+        ("function f(x, x) return x end", "Duplicate parameter 'x'"),
+        ("function f(x) return x", "Expected 'end'"),
+        ("return 1", "Unknown statement"),
     ],
 )
 def test_invalid_source_preserves_output(source, message, tmp_path):
@@ -69,10 +76,12 @@ def test_invalid_source_preserves_output(source, message, tmp_path):
 @pytest.mark.parametrize(("expression", "message"), [
     ("unknown", "Undefined variable 'unknown'"),
     ("1 / 0", "division by zero"),
+    ("missing()", "Undefined function 'missing'"),
+    ("twice(1, 2)", "expects 1 argument(s), got 2"),
 ])
 def test_runtime_errors(expression, message, tmp_path):
     source = tmp_path / "broken.pa"
-    source.write_text(f"say {expression}", encoding="utf-8")
+    source.write_text(f"function twice(x) return x * 2 end\nsay {expression}", encoding="utf-8")
     compiled = run("nexpro", "compile", source, cwd=tmp_path)
     assert compiled.returncode == 0, compiled.stderr
 
@@ -97,7 +106,7 @@ def test_literals_default_output_and_version(tmp_path):
     assert result.stdout == 'quoted "text"\n1.5\n'
     result = run("nexpro", "version", cwd=tmp_path)
     assert result.stdout == f"NexPro {version('nexpro')}\n"
-    assert version("nexpro") == "0.5.0"
+    assert version("nexpro") == "0.6.0"
 
 
 def test_compile_cannot_overwrite_source(tmp_path):

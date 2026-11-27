@@ -19,6 +19,10 @@ from nexpro.tokens import (
     SLASH,
     LPAREN,
     RPAREN,
+    COMMA,
+    FUNCTION,
+    RETURN,
+    END,
 )
 
 from nexpro.ast import (
@@ -29,6 +33,10 @@ from nexpro.ast import (
     Number,
     Say,
     Binary,
+    Call,
+    Function,
+    Return,
+    Unary,
 )
 
 from nexpro.errors import ParserError
@@ -148,6 +156,8 @@ class Parser:
 
             self.advance()
 
+            if self.match(LPAREN):
+                return self.call(token.value)
             return Variable(token.value)
 
         if self.match(LPAREN):
@@ -212,12 +222,56 @@ class Parser:
     # Statement
     # ==========================================================
 
-    def statement(self):
+    def call(self, name):
+        arguments = []
+        if not self.check(RPAREN):
+            arguments.append(self.expression())
+            while self.match(COMMA):
+                arguments.append(self.expression())
+        self.expect(RPAREN, "Expected ')' after arguments")
+        return Call(name, arguments)
+
+    def function(self):
+        name = self.expect(IDENTIFIER, "Expected function name")
+        self.expect(LPAREN, "Expected '(' after function name")
+        parameters = []
+        if not self.check(RPAREN):
+            while True:
+                parameter = self.expect(IDENTIFIER, "Expected parameter name")
+                if parameter.value in parameters:
+                    raise ParserError(
+                        f"Duplicate parameter '{parameter.value}'",
+                        parameter.line,
+                        parameter.column,
+                        self.filename,
+                    )
+                parameters.append(parameter.value)
+                if not self.match(COMMA):
+                    break
+        self.expect(RPAREN, "Expected ')' after parameters")
+
+        body = []
+        while not self.check(END) and not self.is_end():
+            body.append(self.statement(in_function=True))
+        self.expect(END, "Expected 'end' after function body")
+        return Function(name.value, parameters, body)
+
+    def statement(self, in_function=False):
+        if not in_function and self.match(FUNCTION):
+            return self.function()
+
+        if in_function and self.match(RETURN):
+            return Return(self.expression())
 
         if self.check(SAY):
             return self.say_statement()
 
         if self.check(IDENTIFIER):
+            if self.peek() is not None and self.peek().type == LPAREN:
+                name = self.current.value
+                self.advance()
+                self.advance()
+                return self.call(name)
             return self.assignment()
 
         raise ParserError(
@@ -245,11 +299,16 @@ class Parser:
 
 
 
+    def unary(self):
+        if self.match(PLUS, MINUS):
+            return Unary(self.previous().value, self.unary())
+        return self.primary()
+
     def multiplication(self):
-        node = self.primary()
+        node = self.unary()
         while self.match(STAR, SLASH):
             operator = self.previous().value
-            node = Binary(node, operator, self.primary())
+            node = Binary(node, operator, self.unary())
         return node
 
 

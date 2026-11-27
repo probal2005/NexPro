@@ -1,0 +1,12 @@
+# Each call gets its own local variables
+tax = 2
+total = 100
+
+function price(quantity, unit_price)
+    total = quantity * unit_price
+    return total + tax
+end
+
+say price(3, 5)
+say price(2, 4)
+say total

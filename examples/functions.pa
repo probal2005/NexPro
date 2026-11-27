@@ -1,0 +1,11 @@
+# Parameters, return values, and nested calls
+function add(left, right)
+    return left + right
+end
+
+function double(value)
+    return add(value, value)
+end
+
+result = double(add(3, 4))
+say result

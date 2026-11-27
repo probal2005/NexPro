@@ -102,3 +102,27 @@ class Binary(Expression):
         self.left = left
         self.operator = operator
         self.right = right
+
+
+class Function(Statement):
+    def __init__(self, name, parameters, body):
+        self.name = name
+        self.parameters = parameters
+        self.body = body
+
+
+class Call(Expression, Statement):
+    def __init__(self, name, arguments):
+        self.name = name
+        self.arguments = arguments
+
+
+class Return(Statement):
+    def __init__(self, value):
+        self.value = value
+
+
+class Unary(Expression):
+    def __init__(self, operator, operand):
+        self.operator = operator
+        self.operand = operand

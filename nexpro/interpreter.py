@@ -11,15 +11,22 @@ from nexpro.ast import (
     Number,
     Say,
     Binary,
+    Call,
+    Function,
+    Return,
+    Unary,
 )
 
+from nexpro.errors import RuntimeError as NexProRuntimeError
 from nexpro.runtime import Runtime
 
 
 class Interpreter:
 
     def __init__(self):
-        self.runtime = Runtime()
+        self.globals = Runtime()
+        self.runtime = self.globals
+        self.functions = {}
 
     # ---------------------------------
 
@@ -46,6 +53,17 @@ class Interpreter:
         elif isinstance(node, Binary):
             return self.visit_binary(node)
 
+        elif isinstance(node, Function):
+            self.functions[node.name] = node
+            return None
+
+        elif isinstance(node, Call):
+            return self.visit_call(node)
+
+        elif isinstance(node, Unary):
+            value = self.visit(node.operand)
+            return -value if node.operator == "-" else +value
+
         raise Exception(f"Unknown node: {type(node)}")
 
     # ---------------------------------
@@ -70,7 +88,9 @@ class Interpreter:
 
     def visit_variable(self, node):
 
-        return self.runtime.get(node.name)
+        if self.runtime.exists(node.name):
+            return self.runtime.get(node.name)
+        return self.globals.get(node.name)
 
     # ---------------------------------
 
@@ -114,3 +134,27 @@ class Interpreter:
         raise Exception(
             f"Unknown operator {node.operator}"
         )
+
+    def visit_call(self, node):
+        arguments = [self.visit(argument) for argument in node.arguments]
+        function = self.functions.get(node.name)
+        if function is None:
+            raise NexProRuntimeError(f"Undefined function '{node.name}'")
+        expected = len(function.parameters)
+        if len(arguments) != expected:
+            raise NexProRuntimeError(
+                f"Function '{node.name}' expects {expected} argument(s), got {len(arguments)}"
+            )
+
+        caller = self.runtime
+        self.runtime = Runtime()
+        try:
+            for name, value in zip(function.parameters, arguments):
+                self.runtime.set(name, value)
+            for statement in function.body:
+                if isinstance(statement, Return):
+                    return self.visit(statement.value)
+                self.visit(statement)
+        finally:
+            self.runtime = caller
+        return None

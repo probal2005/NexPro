@@ -64,6 +64,8 @@ IF = "IF"
 ELSE = "ELSE"
 
 END = "END"
+FUNCTION = "FUNCTION"
+RETURN = "RETURN"
 
 REPEAT = "REPEAT"
 
@@ -162,6 +164,8 @@ KEYWORDS = {
     "else": ELSE,
 
     "end": END,
+    "function": FUNCTION,
+    "return": RETURN,
 
     "repeat": REPEAT,
 
