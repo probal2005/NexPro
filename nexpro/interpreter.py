@@ -69,10 +69,11 @@ class _ContinueLoop(Exception):
 
 class Interpreter:
 
-    def __init__(self, read_input=input, trace=None):
+    def __init__(self, read_input=input, trace=None, observer=None):
         self.globals = Runtime()
         self.runtime = self.globals
         self.trace = trace
+        self.observer = observer
         self.aliases = {}
         self.modules = {}
         self.module_bodies = {}
@@ -108,7 +109,7 @@ class Interpreter:
 
         elif isinstance(node, Module):
             if node.path not in self.modules:
-                module = Interpreter(read_input=self.builtins["input"], trace=self.trace)
+                module = Interpreter(read_input=self.builtins["input"], trace=self.trace, observer=self.observer)
                 module.modules = self.modules
                 module.module_bodies = self.module_bodies
                 if node.path in STANDARD_MODULES:
@@ -166,6 +167,8 @@ class Interpreter:
         elif isinstance(node, While):
             try:
                 while self.visit(node.condition):
+                    if self.observer is not None and not node.body:
+                        self.observer(self, node)
                     try:
                         self.visit_block(node.body)
                     except _ContinueLoop:
@@ -231,6 +234,8 @@ class Interpreter:
 
     def visit_block(self, statements):
         for statement in statements:
+            if self.observer is not None:
+                self.observer(self, statement)
             if self.trace is not None and statement.location is not None:
                 filename, line = statement.location
                 self.trace(f"[trace] {filename}:{line} in {self.function_name}")

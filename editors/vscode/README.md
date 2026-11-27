@@ -7,9 +7,9 @@ file and its imports using the installed NexPro CLI.
 
 1. Install the NexPro CLI with Python 3.11 or later. See the
    [CLI installation guide](https://github.com/probal2005/NexPro/blob/main/docs/HELP.md).
-2. Download `nexpro-2.3.0.vsix` from the
-   [NexPro 2.3.0 release](https://github.com/probal2005/NexPro/releases/tag/v2.3.0).
-3. Run `code --install-extension nexpro-2.3.0.vsix`, or choose
+2. Download `nexpro-2.4.0.vsix` from the
+   [NexPro 2.4.0 release](https://github.com/probal2005/NexPro/releases/tag/v2.4.0).
+3. Run `code --install-extension nexpro-2.4.0.vsix`, or choose
    **Extensions → … → Install from VSIX…**.
 
 Open a `.pa` file and select **NexPro: Check Syntax** from the Command Palette.
@@ -23,3 +23,11 @@ environment. Paths containing spaces are passed directly to the executable.
 
 Use **NexPro: Run with Trace** with CLI 1.9 or later to see executed
 source locations and function names in the integrated terminal.
+
+
+## Debug a program
+
+Set a breakpoint in a `.pa` file and use **Run and Debug → NexPro**. The
+debugger supports Continue, Step In, and viewing the current local and
+global variables. To supply input, add an `input` string to the launch
+configuration with one line for each `input()` call.

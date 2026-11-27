@@ -70,6 +70,7 @@ def main(argv=None):
     compiler.add_argument("source", type=Path)
     compiler.add_argument("-o", "--output", type=Path, help="Output path (default: SOURCE.py)")
     commands.add_parser("version", help="Show the NexPro version")
+    commands.add_parser("debug-adapter", help="Start the VS Code debug adapter")
     commands.add_parser("help", help="Show this help message")
     args = parser.parse_args(argv)
 
@@ -78,6 +79,11 @@ def main(argv=None):
         return 0
     if args.command == "version":
         print(f"NexPro {__version__}")
+        return 0
+
+    if args.command == "debug-adapter":
+        from nexpro.debug_adapter import serve_debug_adapter
+        serve_debug_adapter(load_program)
         return 0
 
     try:

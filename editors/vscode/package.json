@@ -2,7 +2,7 @@
   "name": "nexpro",
   "displayName": "NexPro",
   "description": "Syntax highlighting and syntax checks for NexPro .pa programs.",
-  "version": "2.3.0",
+  "version": "2.4.0",
   "publisher": "probal2005",
   "engines": {
     "vscode": "^1.85.0"
@@ -65,9 +65,54 @@
           "description": "Check saved NexPro files in trusted workspaces."
         }
       }
-    }
+    },
+    "breakpoints": [
+      {
+        "language": "nexpro"
+      }
+    ],
+    "debuggers": [
+      {
+        "type": "nexpro",
+        "label": "NexPro",
+        "languages": [
+          "nexpro"
+        ],
+        "configurationAttributes": {
+          "launch": {
+            "required": [
+              "program"
+            ],
+            "properties": {
+              "program": {
+                "type": "string",
+                "description": "Path to the NexPro entry file."
+              },
+              "stopOnEntry": {
+                "type": "boolean",
+                "default": false
+              },
+              "input": {
+                "type": "string",
+                "description": "Program input, one line per input() call.",
+                "default": ""
+              }
+            }
+          }
+        },
+        "initialConfigurations": [
+          {
+            "type": "nexpro",
+            "request": "launch",
+            "name": "Debug NexPro file",
+            "program": "${file}"
+          }
+        ]
+      }
+    ]
   },
   "activationEvents": [
-    "onLanguage:nexpro"
+    "onLanguage:nexpro",
+    "onDebugResolve:nexpro"
   ]
 }

@@ -87,6 +87,22 @@ function activate(context) {
 
   context.subscriptions.push(
     diagnostics,
+    vscode.debug.registerDebugAdapterDescriptorFactory('nexpro', {
+      createDebugAdapterDescriptor(session) {
+        const config = vscode.workspace.getConfiguration('nexpro', session.workspaceFolder?.uri);
+        return new vscode.DebugAdapterExecutable(config.get('executablePath'), ['debug-adapter']);
+      },
+    }),
+    vscode.debug.registerDebugConfigurationProvider('nexpro', {
+      resolveDebugConfiguration(_folder, config) {
+        if (config.type) return config;
+        const document = vscode.window.activeTextEditor?.document;
+        if (document?.languageId === 'nexpro' && document.uri.scheme === 'file') {
+          return { type: 'nexpro', request: 'launch', name: 'Debug NexPro file', program: document.uri.fsPath };
+        }
+        return undefined;
+      },
+    }),
     vscode.commands.registerCommand('nexpro.check', async () => {
       const document = await getSavedDocument();
       if (document) await check(document, true);
