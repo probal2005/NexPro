@@ -33,3 +33,15 @@ VS Code checks saved `.pa` files in trusted workspaces. Disable automatic
 checks with `nexpro.checkOnSave`, or run **NexPro: Check Syntax** from the
 Command Palette. **NexPro: Run with Trace** starts the program in the
 integrated terminal.
+
+
+## New tools in 2.1–2.5
+
+Existing unaliased imports still share their importing scope. Use an alias
+when modules contain names that should stay separate. Ranges, slices, and
+the math and JSON modules are available on all execution paths.
+
+The VS Code extension offers completion and hover help for built-ins and
+standard modules. For breakpoints and variable inspection, launch the NexPro
+debugger. The debugger uses the interpreter and handles program input from
+the launch configuration.

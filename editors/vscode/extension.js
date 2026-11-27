@@ -1,10 +1,12 @@
 const { execFile } = require('node:child_process');
 const { promisify } = require('node:util');
 const vscode = require('vscode');
+const { registerCompletion } = require('./completion');
 
 const run = promisify(execFile);
 
 function activate(context) {
+  registerCompletion(context);
   const diagnostics = vscode.languages.createDiagnosticCollection('nexpro');
   const checks = new Map();
   const requests = new Map();
