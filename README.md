@@ -25,11 +25,11 @@ Enter one line per `input()` call in **Program input**. Attach imported sibling
 ### Install the CLI
 
 Use Python 3.11 or later. Download the wheel from the
-[1.9.0 release](https://github.com/probal2005/NexPro/releases/tag/v1.9.0),
+[2.0.0 release](https://github.com/probal2005/NexPro/releases/tag/v2.0.0),
 then run these commands from your download directory.
 
 ```sh
-python -m pip install ./nexpro-1.9.0-py3-none-any.whl
+python -m pip install ./nexpro-2.0.0-py3-none-any.whl
 nexpro version
 ```
 
@@ -96,7 +96,7 @@ Ada
 | Command | What it does |
 | --- | --- |
 | `nexpro run file.pa` | Run a program. Add `--trace` to see executed source locations on standard error. |
-| `nexpro check file.pa` | Check syntax and imports without running the program. |
+| `nexpro check file.pa` | Check syntax and imports without running the program. Add `--json` for editor integration. |
 | `nexpro compile file.pa -o file.py` | Generate standalone Python. Omit `-o` to write a sibling `.py` file. |
 | `nexpro version` | Print the installed version. |
 | `nexpro help` | List the available commands. |
@@ -109,9 +109,9 @@ before selecting **Run code**.
 
 ## Documentation and editor support
 
-- [First-program tutorial](docs/tutorial.md)
+- [First-program tutorial](docs/tutorial.md) and [upgrade guide](docs/UPGRADING.md)
 - [Language reference](docs/language.md) and [formal grammar](docs/grammar.md)
-- [VS Code installation and setup](editors/vscode/README.md) for `.pa` syntax highlighting and the **NexPro: Check Syntax** command
+- [VS Code installation and setup](editors/vscode/README.md) for `.pa` syntax highlighting and the **NexPro: Check Syntax** and **NexPro: Run with Trace** commands
 - [Changelog](docs/CHANGELOG.md) and [release downloads](https://github.com/probal2005/NexPro/releases)
 
 ## Development

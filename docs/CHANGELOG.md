@@ -4,6 +4,12 @@ All notable changes to NexPro will be documented here.
 
 ---
 
+## v2.0.0
+
+Stable release of the text functions, editor diagnostics, and execution
+tracing introduced in 1.7 through 1.9. See the [upgrade guide](UPGRADING.md)
+for compatibility and tooling details.
+
 ## v1.9.0
 
 Added execution tracing in the CLI, browser playground, and VS Code.
