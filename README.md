@@ -25,11 +25,11 @@ Enter one line per `input()` call in **Program input**. Attach imported sibling
 ### Install the CLI
 
 Use Python 3.11 or later. Download the wheel from the
-[1.5.0 release](https://github.com/probal2005/NexPro/releases/tag/v1.5.0),
+[1.6.0 release](https://github.com/probal2005/NexPro/releases/tag/v1.6.0),
 then run these commands from your download directory.
 
 ```sh
-python -m pip install ./nexpro-1.5.0-py3-none-any.whl
+python -m pip install ./nexpro-1.6.0-py3-none-any.whl
 nexpro version
 ```
 
@@ -65,6 +65,7 @@ imports other `.pa` files.
 | Conditions, short-circuit logic, and loops with `break` and `continue` | [Grade calculator](examples/grades.pa) · [Score filter](examples/score_filter.pa) |
 | Lists, dictionaries, and indexed assignment | [Lists](examples/lists.pa) · [Student scorecard](examples/scorecard.pa) |
 | Text input, numeric conversion, and list growth with `append()` | [Variable-length score input](examples/score_series.pa) |
+| Numeric summaries and dictionary helpers | [Student report](examples/student_report.pa) |
 | Relative imports from other `.pa` files | [Import math functions](examples/imports.pa) |
 
 The example below stores a student's name and scores in a dictionary, then uses

@@ -16,7 +16,7 @@ for (const name of await readdir('nexpro')) {
 }
 for (const name of [
   'hello', 'variables', 'precedence', 'functions', 'scope', 'temperature', 'greeting',
-  'grades', 'multiplication_table', 'sum_1_to_10', 'lists', 'scores', 'input', 'imports', 'math_utils', 'score_series', 'score_filter', 'scorecard',
+  'grades', 'multiplication_table', 'sum_1_to_10', 'lists', 'scores', 'input', 'imports', 'math_utils', 'score_series', 'score_filter', 'scorecard', 'student_report',
 ]) {
   await cp(`examples/${name}.pa`, `dist/examples/${name}.pa`);
 }

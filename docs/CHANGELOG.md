@@ -4,6 +4,10 @@ All notable changes to NexPro will be documented here.
 
 ---
 
+## v1.6.0
+
+Added `sum()`, `min()`, `max()`, `keys()`, and `get()`, plus a student report example.
+
 ## v1.5.0
 
 Added dictionaries and indexed assignment for dictionary entries and list items.

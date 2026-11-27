@@ -129,3 +129,20 @@ runtime error. A repeated key keeps the last assigned value.
 Use `student["score"] = 90` to add or replace an entry. Indexed assignment also
 works on list items, including chained indexes such as `student["scores"][0]`.
 A `for` loop over a dictionary visits its keys in insertion order.
+
+
+## Data built-ins added in 1.6
+
+| Function | Behavior |
+| --- | --- |
+| `sum(items)` | Add the numbers in a list from left to right. An empty list returns `0`. |
+| `min(items)` | Return the smallest number in a non-empty list. |
+| `max(items)` | Return the largest number in a non-empty list. |
+| `keys(record)` | Return a new list of dictionary keys in insertion order. An empty dictionary returns `[]`. |
+| `get(record, key, default)` | Return the value for a key, or the supplied default if the key is absent. |
+
+The numeric functions take a list of integers or decimals. Strings and
+booleans raise a runtime error. An empty list raises an error for `min()`
+and `max()`. The dictionary functions require a dictionary. `get()` requires
+all three arguments and a hashable key. It keeps an existing value even if
+that value is `0`, `false`, or the empty string.

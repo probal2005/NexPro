@@ -30,6 +30,7 @@ from nexpro.ast import (
     SetItem,
 )
 
+from nexpro.data_builtins import DATA_BUILTINS
 from nexpro.errors import EXECUTION_ERRORS
 from nexpro.errors import RuntimeError as NexProRuntimeError
 from nexpro.runtime import Runtime
@@ -69,7 +70,14 @@ class Interpreter:
         self.runtime = self.globals
         self.functions = {}
         self.function_name = "<program>"
-        self.builtins = {"len": len, "int": int, "float": float, "input": read_input, "append": list.append}
+        self.builtins = {
+            **DATA_BUILTINS,
+            "len": len,
+            "int": int,
+            "float": float,
+            "input": read_input,
+            "append": list.append,
+        }
 
     # ---------------------------------
 

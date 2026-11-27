@@ -34,6 +34,11 @@ def run(*args, cwd, input_text=None):
         ("grades", "A\nKeep practicing\ntrue\n"),
         ("multiplication_table", "".join(f"{n * 5}\n" for n in range(1, 11))),
         ("sum_1_to_10", "55\n"),
+        (
+            "student_report",
+            "Ada\nTotal\n255\nAverage\n85.0\nHighest\n100\nLowest\n70\n"
+            "Class\nUnassigned\nFields\n['name', 'scores']\n",
+        ),
         ("scorecard", "Ada\npassed\n85.0\n"),
         ("score_filter", "85.0\n"),
         ("lists", "6\nNex\no\n30\n"),
@@ -123,7 +128,7 @@ def test_literals_default_output_and_version(tmp_path):
     assert result.stdout == 'quoted "text"\n1.5\n'
     result = run("nexpro", "version", cwd=tmp_path)
     assert result.stdout == f"NexPro {version('nexpro')}\n"
-    assert version("nexpro") == "1.5.0"
+    assert version("nexpro") == "1.6.0"
 
 
 def test_compile_cannot_overwrite_source(tmp_path):
@@ -403,4 +408,38 @@ def test_dictionary_and_item_assignment(source_text, expected, code, tmp_path):
             assert result.stdout == expected
         else:
             assert expected in result.stderr
+            assert "Traceback" not in result.stderr
+
+
+@pytest.mark.parametrize(("code", "expected", "status"), [
+    ('say sum([]) say sum([1, -2, 0.5])', '0\n-0.5\n', 0),
+    ('say keys({}) say keys({"z": 1, "a": 2})', "[]\n['z', 'a']\n", 0),
+    ('say get({"x": 0}, "x", 9) say get({}, "x", 9)', '0\n9\n', 0),
+    ('function sum(items) return 9 end say sum([])', '9\n', 0),
+    ('say min([])', 'min() requires at least one item', 1),
+    ('say max([])', 'max() requires at least one item', 1),
+    ('say sum([true])', 'sum() expects a list of numbers', 1),
+    ('say min(["2", 3])', 'min() expects a list of numbers', 1),
+    ('say max("text")', 'max() expects a list of numbers', 1),
+    ('say keys([])', 'keys() expects a dictionary', 1),
+    ('say get([], "x", 0)', 'get() expects a dictionary', 1),
+    ('say get({}, [], 0)', "unhashable type: 'list'", 1),
+    ('say get({}, "x")', 'missing 1 required positional argument', 1),
+])
+def test_data_builtins(code, expected, status, tmp_path):
+    source = tmp_path / "data.pa"
+    source.write_text(code, encoding="utf-8")
+    compiled = run("nexpro", "compile", source, cwd=tmp_path)
+    assert compiled.returncode == 0, compiled.stderr
+    for result in (
+        run("nexpro", "run", source, cwd=tmp_path),
+        run(sys.executable, "-I", "-S", source.with_suffix(".py"), cwd=tmp_path),
+    ):
+        assert result.returncode == status, result.stderr
+        if status == 0:
+            assert result.stdout == expected
+            assert not result.stderr
+        else:
+            assert expected in result.stderr
+            assert f"({source}:1)" in result.stderr
             assert "Traceback" not in result.stderr

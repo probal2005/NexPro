@@ -1,0 +1,16 @@
+student = {"name": "Ada", "scores": [70, 85, 100]}
+scores = student["scores"]
+
+say student["name"]
+say "Total"
+say sum(scores)
+say "Average"
+say sum(scores) / len(scores)
+say "Highest"
+say max(scores)
+say "Lowest"
+say min(scores)
+say "Class"
+say get(student, "class", "Unassigned")
+say "Fields"
+say keys(student)
