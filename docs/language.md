@@ -97,3 +97,12 @@ An empty iterable leaves the loop variable untouched. `break` exits the nearest
 `append(list, value)` mutates the list and returns the missing value. Other
 variables referring to the same list see the added item. A loop iterating
 over a list can see items appended before that iteration ends.
+
+
+## Runtime errors added in 1.2
+
+If execution fails, the first frame points to the failing operation in a
+`.pa` file. Each following frame points to the call that entered the previous
+function. Imported file names are preserved when running or compiling the
+entry file. Compiled scripts embed the locations so the original files
+are unnecessary when running the generated Python.

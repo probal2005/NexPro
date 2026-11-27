@@ -118,7 +118,7 @@ def test_literals_default_output_and_version(tmp_path):
     assert result.stdout == 'quoted "text"\n1.5\n'
     result = run("nexpro", "version", cwd=tmp_path)
     assert result.stdout == f"NexPro {version('nexpro')}\n"
-    assert version("nexpro") == "1.1.0"
+    assert version("nexpro") == "1.2.0"
 
 
 def test_compile_cannot_overwrite_source(tmp_path):
@@ -316,3 +316,27 @@ say for + break + in
     ):
         assert result.returncode == 0, result.stderr
         assert result.stdout == "['a', 'b']\n24\n"
+
+
+def test_runtime_stack_points_to_imported_source(tmp_path):
+    entry = tmp_path / "main.pa"
+    module = tmp_path / "math.pa"
+    entry.write_text('import "math.pa"\nsay outer()\n', encoding="utf-8")
+    module.write_text(
+        "function inner()\n    return 1 / 0\nend\n"
+        "function outer()\n    return inner()\nend\n",
+        encoding="utf-8",
+    )
+    compiled = run("nexpro", "compile", entry, cwd=tmp_path)
+    assert compiled.returncode == 0, compiled.stderr
+    for result in (
+        run("nexpro", "run", entry, cwd=tmp_path),
+        run(sys.executable, "-I", "-S", entry.with_suffix(".py"), cwd=tmp_path),
+    ):
+        assert result.returncode == 1
+        assert result.stderr.splitlines() == [
+            "NexPro Runtime Error: division by zero",
+            f"  at inner ({module}:2)",
+            f"  at outer ({module}:5)",
+            f"  at <program> ({entry}:2)",
+        ]

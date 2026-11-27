@@ -26,6 +26,7 @@ from nexpro.ast import (
     Break,
 )
 
+from nexpro.errors import EXECUTION_ERRORS
 from nexpro.errors import RuntimeError as NexProRuntimeError
 from nexpro.runtime import Runtime
 
@@ -59,11 +60,24 @@ class Interpreter:
         self.globals = Runtime()
         self.runtime = self.globals
         self.functions = {}
+        self.function_name = "<program>"
         self.builtins = {"len": len, "int": int, "float": float, "input": read_input, "append": list.append}
 
     # ---------------------------------
 
     def visit(self, node):
+        try:
+            return self._visit(node)
+        except NexProRuntimeError as error:
+            if not error.frames:
+                error.add_frame(self.function_name, node.location)
+            raise
+        except EXECUTION_ERRORS as error:
+            runtime_error = NexProRuntimeError(str(error))
+            runtime_error.add_frame(self.function_name, node.location)
+            raise runtime_error from error
+
+    def _visit(self, node):
 
         if isinstance(node, Program):
             return self.visit_program(node)
@@ -209,13 +223,19 @@ class Interpreter:
             )
 
         caller = self.runtime
+        caller_name = self.function_name
         self.runtime = Runtime()
+        self.function_name = function.name
         try:
             for name, value in zip(function.parameters, arguments):
                 self.runtime.set(name, value)
             self.visit_block(function.body)
         except _ReturnFromFunction as returned:
             return returned.value
+        except NexProRuntimeError as error:
+            error.add_frame(caller_name, node.location)
+            raise
         finally:
             self.runtime = caller
+            self.function_name = caller_name
         return None

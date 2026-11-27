@@ -158,6 +158,10 @@ class Parser:
     # Primary Expressions
     # ==========================================================
 
+    def locate(self, node, token):
+        node.location = (self.filename or "<input>", token.line)
+        return node
+
     def primary(self):
 
         token = self.current
@@ -182,13 +186,13 @@ class Parser:
             self.advance()
 
             if self.match(LPAREN):
-                return self.call(token.value)
-            return Variable(token.value)
+                return self.locate(self.call(token.value), token)
+            return self.locate(Variable(token.value), token)
 
         if self.match(LBRACKET):
             elements = self.expression_list(RBRACKET)
             self.expect(RBRACKET, "Expected ']' after list elements")
-            return ListLiteral(elements)
+            return self.locate(ListLiteral(elements), token)
 
         if self.match(LPAREN):
             node = self.expression()
@@ -210,8 +214,8 @@ class Parser:
 
         left = self.addition()
         if self.match(EQUAL, NOT_EQUAL, LESS, LESS_EQUAL, GREATER, GREATER_EQUAL):
-            operator = self.previous().value
-            return Binary(left, operator, self.addition())
+            operator = self.previous()
+            return self.locate(Binary(left, operator.value, self.addition()), operator)
         return left
 
     # ==========================================================
@@ -299,6 +303,11 @@ class Parser:
         return body
 
     def statement(self, in_function=False, top_level=False, in_loop=False):
+        token = self.current
+        node = self.parse_statement(in_function, top_level, in_loop)
+        return self.locate(node, token)
+
+    def parse_statement(self, in_function, top_level, in_loop):
         if top_level and self.match(FUNCTION):
             return self.function()
 
@@ -387,28 +396,30 @@ class Parser:
 
     def unary(self):
         if self.match(PLUS, MINUS):
-            return Unary(self.previous().value, self.unary())
+            operator = self.previous()
+            return self.locate(Unary(operator.value, self.unary()), operator)
         return self.postfix()
 
     def postfix(self):
         node = self.primary()
         while self.match(LBRACKET):
+            bracket = self.previous()
             index = self.expression()
             self.expect(RBRACKET, "Expected ']' after index")
-            node = Index(node, index)
+            node = self.locate(Index(node, index), bracket)
         return node
 
     def multiplication(self):
         node = self.unary()
         while self.match(STAR, SLASH):
-            operator = self.previous().value
-            node = Binary(node, operator, self.unary())
+            operator = self.previous()
+            node = self.locate(Binary(node, operator.value, self.unary()), operator)
         return node
 
 
     def addition(self):
         node = self.multiplication()
         while self.match(PLUS, MINUS):
-            operator = self.previous().value
-            node = Binary(node, operator, self.multiplication())
+            operator = self.previous()
+            node = self.locate(Binary(node, operator.value, self.multiplication()), operator)
         return node

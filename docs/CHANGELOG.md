@@ -4,6 +4,10 @@ All notable changes to NexPro will be documented here.
 
 ---
 
+## v1.2.0
+
+Runtime errors include NexPro file names, line numbers, and function call frames.
+
 ## v1.1.0
 
 Added `for`, `break`, and `append()`.

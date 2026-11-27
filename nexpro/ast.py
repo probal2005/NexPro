@@ -12,7 +12,7 @@ Author: Probal Dhali
 
 class Node:
     """Base class for every AST node."""
-    pass
+    location = None
 
 
 # ==========================================================

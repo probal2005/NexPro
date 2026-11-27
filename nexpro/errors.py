@@ -48,11 +48,20 @@ class ImportError(SourceError):
     stage = "Import"
 
 
+EXECUTION_ERRORS = (ArithmeticError, TypeError, ValueError, RecursionError, IndexError, EOFError)
+
+
 class RuntimeError(NexProError):
     def __init__(self, message):
         super().__init__(message)
         self.message = message
+        self.frames = []
+
+    def add_frame(self, function, location):
+        if location is not None:
+            self.frames.append((function, *location))
 
     def __str__(self):
-        rule = "=" * 50
-        return "\n".join([rule, " NexPro Runtime Error", rule, "", self.message, rule])
+        lines = [f"NexPro Runtime Error: {self.message}"]
+        lines.extend(f"  at {function} ({filename}:{line})" for function, filename, line in self.frames)
+        return "\n".join(lines)
