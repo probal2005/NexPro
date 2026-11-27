@@ -131,7 +131,7 @@ def test_literals_default_output_and_version(tmp_path):
     assert result.stdout == 'quoted "text"\n1.5\n'
     result = run("nexpro", "version", cwd=tmp_path)
     assert result.stdout == f"NexPro {version('nexpro')}\n"
-    assert version("nexpro") == "2.9.0"
+    assert version("nexpro") == "3.0.0"
 
 
 def test_compile_cannot_overwrite_source(tmp_path):
@@ -570,7 +570,7 @@ def test_project_upgrade_flow(tmp_path):
     failure = run("nexpro", "test", cwd=tests)
     assert failure.returncode == 1
     assert "Assertion failed" in failure.stderr
-    assert f"{sample}:2" in failure.stderr
+    assert f"{sample.resolve()}:2" in failure.stderr
     sample.write_text('import "../math.pa" as math\nassert math.total([1, 2]) == 3\n', encoding="utf-8")
     passed = run("nexpro", "test", cwd=project)
     assert passed.returncode == 0, passed.stderr

@@ -33,6 +33,9 @@ class DebugAdapter:
         self.worker = None
         self.paused = False
         self.stepping = False
+        self.step_depth = None
+        self.current_depth = 0
+        self.stop_reason = "step"
         self.cancelled = False
         self.snapshot = None
 
@@ -81,15 +84,19 @@ class DebugAdapter:
             if self.cancelled:
                 raise InterruptedError("Debug session ended")
             at_breakpoint = line in self.breakpoints.get(filename, ())
-            if not self.stepping and not at_breakpoint:
+            eligible_step = self.stepping and (
+                self.step_depth is None or interpreter.function_depth <= self.step_depth
+            )
+            if not eligible_step and not at_breakpoint:
                 return
             self.stepping = False
+            self.current_depth = interpreter.function_depth
             self.paused = True
             local = interpreter.runtime.dump()
             global_values = interpreter.globals.dump()
             self.snapshot = filename, line, interpreter.function_name, local, global_values
             self.event("stopped", {
-                "reason": "breakpoint" if at_breakpoint else "step",
+                "reason": "breakpoint" if at_breakpoint else self.stop_reason,
                 "threadId": 1, "allThreadsStopped": True,
             })
             self.condition.wait_for(lambda: not self.paused or self.cancelled)
@@ -131,6 +138,7 @@ class DebugAdapter:
                 raise ValueError("A NexPro program path is required")
             self.launch = args
             self.stepping = bool(args.get("stopOnEntry"))
+            self.stop_reason = "entry"
             self.response(request)
             self.event("initialized")
         elif command == "setBreakpoints":
@@ -151,9 +159,14 @@ class DebugAdapter:
             self.worker.start()
         elif command == "threads":
             self.response(request, {"threads": [{"id": 1, "name": "NexPro"}]})
-        elif command in ("continue", "stepIn", "next", "pause"):
+        elif command in ("continue", "stepIn", "stepOut", "next", "pause"):
             with self.condition:
                 self.stepping = command != "continue"
+                self.stop_reason = "pause" if command == "pause" else "step"
+                self.step_depth = {
+                    "next": self.current_depth,
+                    "stepOut": self.current_depth - 1,
+                }.get(command)
                 self.response(request, {"allThreadsContinued": True} if command == "continue" else {})
                 if command != "pause":
                     self.paused = False

@@ -75,6 +75,7 @@ class Interpreter:
         self.runtime = self.globals
         self.trace = trace
         self.observer = observer
+        self.function_depth = 0
         self.aliases = {}
         self.modules = {}
         self.module_bodies = {}
@@ -113,6 +114,7 @@ class Interpreter:
                 module = Interpreter(read_input=self.builtins["input"], trace=self.trace, observer=self.observer)
                 module.modules = self.modules
                 module.module_bodies = self.module_bodies
+                module.function_depth = self.function_depth
                 if node.path in STANDARD_MODULES:
                     module.functions.update(STANDARD_MODULES[node.path])
                 else:
@@ -304,12 +306,16 @@ class Interpreter:
         arguments = [self.visit(argument) for argument in node.arguments]
         if node.namespace is not None:
             module = self.get_module(node.namespace)
+            previous_depth = module.function_depth
+            module.function_depth = self.function_depth
             try:
                 return module.call_function(node.name, arguments, node, allow_builtin=False)
             except NexProRuntimeError as error:
                 if error.frames:
                     error.add_frame(self.function_name, node.location)
                 raise
+            finally:
+                module.function_depth = previous_depth
         return self.call_function(node.name, arguments, node)
 
     def call_function(self, name, arguments, node, allow_builtin=True):
@@ -330,6 +336,7 @@ class Interpreter:
         caller_name = self.function_name
         self.runtime = Runtime()
         self.function_name = function.name
+        self.function_depth += 1
         try:
             for name, value in zip(function.parameters, arguments):
                 self.runtime.set(name, value)
@@ -343,4 +350,5 @@ class Interpreter:
         finally:
             self.runtime = caller
             self.function_name = caller_name
+            self.function_depth -= 1
         return None

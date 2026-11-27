@@ -2,7 +2,7 @@
 
 ```text
 program        -> (import | function | statement)* EOF
-import         -> "import" STRING
+import         -> "import" STRING ("as" IDENTIFIER)?
 function       -> "function" IDENTIFIER "(" parameters? ")" function_body "end"
 parameters     -> IDENTIFIER ("," IDENTIFIER)*
 function_body  -> statement*
@@ -13,6 +13,7 @@ statement      -> assignment
                 | "while" expression block "end"
                 | "for" IDENTIFIER "in" expression block "end"
                 | "break" | "continue"
+                | "assert" expression
                 | "return" expression
                 | call
 assignment     -> IDENTIFIER ("[" expression "]")* "=" expression
@@ -24,13 +25,15 @@ comparison_op  -> "==" | "!=" | "<" | "<=" | ">" | ">="
 addition       -> multiplication (("+" | "-") multiplication)*
 multiplication -> unary (("*" | "/") unary)*
 unary          -> ("+" | "-") unary | postfix
-postfix        -> primary ("[" expression "]")*
+postfix        -> primary ("[" subscript "]")*
+subscript      -> expression | expression? ":" expression? (":" expression?)?
 list           -> "[" arguments? "]"
 dictionary     -> "{" (entry ("," entry)*)? "}"
 entry          -> expression ":" expression
 primary        -> NUMBER | STRING | "true" | "false"
-                | dictionary | list | call | IDENTIFIER | "(" expression ")"
-call           -> IDENTIFIER "(" arguments? ")"
+                | dictionary | list | call | member | IDENTIFIER | "(" expression ")"
+member         -> IDENTIFIER "." IDENTIFIER
+call           -> (IDENTIFIER | member) "(" arguments? ")"
 arguments      -> expression ("," expression)*
 ```
 

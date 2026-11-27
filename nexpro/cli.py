@@ -17,7 +17,7 @@ def load_program(path, output=None, project_root=None):
     if path.suffix != ".pa":
         raise NexProError("NexPro source files must end with '.pa'")
     root = project_root or path.parent.resolve()
-    entry = path.resolve().relative_to(root).as_posix()
+    entry = (path.parent.resolve() / path.name).relative_to(root).as_posix()
     destination = output.resolve() if output is not None else None
 
     def read_source(name):
@@ -113,7 +113,11 @@ def main(argv=None):
 
     if args.command == "debug-adapter":
         from nexpro.debug_adapter import serve_debug_adapter
-        serve_debug_adapter(load_program)
+        def load_for_debug(path):
+            project = find_project(path.parent)
+            return load_program(path, project_root=project.root if project else None)
+
+        serve_debug_adapter(load_for_debug)
         return 0
 
     try:
@@ -123,7 +127,7 @@ def main(argv=None):
             return 0
         if args.command == "test":
             return test_project()
-        project = find_project() if args.source is None else None
+        project = find_project(args.source.parent if args.source is not None else None)
         if args.source is None:
             if project is None:
                 raise NexProError("Provide a .pa file or run inside a NexPro project")

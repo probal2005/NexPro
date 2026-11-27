@@ -1,13 +1,13 @@
-# Upgrade to NexPro 2.0
+# Upgrade to NexPro 3.0
 
-NexPro 2.0 keeps the existing `.pa` syntax, relative imports, and CLI commands.
+NexPro 3.0 keeps the existing `.pa` syntax, relative imports, and CLI commands.
 Existing programs can keep their entry files and module paths. Existing
 user-defined functions still take precedence over built-ins.
 
 ## Update the CLI and editor
 
-1. Download and install the 2.0 Python wheel. [Release downloads](https://github.com/probal2005/NexPro/releases/tag/v2.0.0)
-2. Run `nexpro version` and confirm it prints `NexPro 2.0.0`.
+1. Download and install the 3.0 Python wheel. [Release downloads](https://github.com/probal2005/NexPro/releases/tag/v3.0.0)
+2. Run `nexpro version` and confirm it prints `NexPro 3.0.0`.
 3. Install the matching VSIX if you use VS Code. [Extension guide](../editors/vscode/README.md)
 
 Previously generated Python scripts remain standalone. To use new language
@@ -45,3 +45,24 @@ The VS Code extension offers completion and hover help for built-ins and
 standard modules. For breakpoints and variable inspection, launch the NexPro
 debugger. The debugger uses the interpreter and handles program input from
 the launch configuration.
+
+
+## Projects and tests
+
+Run `nexpro init my-project` to create `main.pa` and `nexpro.toml`. The
+manifest's `[project]` table sets `entry` and `tests` relative to the project
+directory. From that project, `nexpro run`, `nexpro check`, and `nexpro compile`
+use the configured entry when you omit the filename.
+
+Write `test_*.pa` files under the configured test directory. Run `nexpro test`
+to execute each file independently. A false `assert expression` fails the
+test and reports its source location. Test files can import other project
+files using relative paths.
+
+To debug a failing test, open the test file in VS Code, put a breakpoint on
+the failing assertion, and start the NexPro debugger. Step In, Step Over,
+and Continue are available in the debug toolbar. Program input can be
+supplied with the launch configuration's `input` string.
+
+Run `python scripts/benchmark.py` from a checkout with NexPro installed
+to measure list creation, multi-file imports, and a loop workload.

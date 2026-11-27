@@ -25,11 +25,11 @@ Enter one line per `input()` call in **Program input**. Attach imported sibling
 ### Install the CLI
 
 Use Python 3.11 or later. Download the wheel from the
-[2.9.0 release](https://github.com/probal2005/NexPro/releases/tag/v2.9.0),
+[3.0.0 release](https://github.com/probal2005/NexPro/releases/tag/v3.0.0),
 then run these commands from your download directory.
 
 ```sh
-python -m pip install ./nexpro-2.9.0-py3-none-any.whl
+python -m pip install ./nexpro-3.0.0-py3-none-any.whl
 nexpro version
 ```
 
@@ -67,7 +67,9 @@ imports other `.pa` files.
 | Text input, numeric conversion, and list growth with `append()` | [Variable-length score input](examples/score_series.pa) |
 | Numeric summaries and dictionary helpers | [Student report](examples/student_report.pa) |
 | Unicode text cleanup, splitting, and joining | [Clean up a list of names](examples/clean_names.pa) |
-| Relative imports from other `.pa` files | [Import math functions](examples/imports.pa) |
+| Relative imports and independent module namespaces | [Import math functions](examples/imports.pa) · [Module aliases](examples/namespaces.pa) |
+| Ranges, slicing, and list sorting | [Ranked scores](examples/ranked_scores.pa) |
+| Standard math and JSON modules | [JSON student report](examples/json_report.pa) |
 
 The example below stores a student's name and scores in a dictionary, then uses
 a function and a loop to calculate the average.
@@ -98,6 +100,8 @@ Ada
 | `nexpro run file.pa` | Run a program. Add `--trace` to see executed source locations on standard error. |
 | `nexpro check file.pa` | Check syntax and imports without running the program. Add `--json` for editor integration. |
 | `nexpro compile file.pa -o file.py` | Generate standalone Python. Omit `-o` to write a sibling `.py` file. |
+| `nexpro init my-project` | Create a starter file and project manifest. |
+| `nexpro test` | Run a project’s `test_*.pa` files. |
 | `nexpro version` | Print the installed version. |
 | `nexpro help` | List the available commands. |
 

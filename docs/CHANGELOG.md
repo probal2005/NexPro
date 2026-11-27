@@ -4,6 +4,13 @@ All notable changes to NexPro will be documented here.
 
 ---
 
+## v3.0.0
+
+- Added aliased modules with isolated globals, slices, ranges, and standard math and JSON modules.
+- Added VS Code source debugging, completion, hover help, and cross-platform CLI validation.
+- Added project manifests, a starter command, and a NexPro test runner.
+- Added execution benchmarks and regression tests for upgrading from 2.0.
+
 ## v2.0.0
 
 Stable release of the text functions, editor diagnostics, and execution
