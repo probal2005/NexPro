@@ -126,3 +126,21 @@ class Unary(Expression):
     def __init__(self, operator, operand):
         self.operator = operator
         self.operand = operand
+
+
+class Boolean(Expression):
+    def __init__(self, value):
+        self.value = value
+
+
+class If(Statement):
+    def __init__(self, condition, then_body, else_body):
+        self.condition = condition
+        self.then_body = then_body
+        self.else_body = else_body
+
+
+class While(Statement):
+    def __init__(self, condition, body):
+        self.condition = condition
+        self.body = body

@@ -2,6 +2,7 @@ const source = document.querySelector('#source');
 const gutter = document.querySelector('#gutter');
 const examples = document.querySelector('#examples');
 const run = document.querySelector('#run');
+const stop = document.querySelector('#stop');
 const compile = document.querySelector('#compile');
 const heading = document.querySelector('#result-heading');
 const result = document.querySelector('#result');
@@ -19,6 +20,7 @@ function syncGutter() {
 }
 
 function setReady(ready) {
+  stop.hidden = true;
   run.disabled = !ready;
   compile.disabled = !ready;
 }
@@ -42,19 +44,21 @@ function failWorker(message) {
   retry.hidden = false;
 }
 
-function startWorker() {
+function startWorker(stopped = false) {
   retry.hidden = true;
   status.textContent = 'Loading NexPro…';
   setReady(false);
-  worker = new Worker('worker.js');
-  worker.onmessage = ({ data }) => {
+  const current = new Worker('worker.js');
+  worker = current;
+  current.onmessage = ({ data }) => {
+    if (current !== worker) return;
     clearTimeout(timer);
     if (data.action === 'init') {
       if (!data.ok) {
         failWorker(data.error);
         return;
       }
-      result.textContent = 'Run your program to see its output.';
+      result.textContent = stopped ? 'Execution stopped.' : 'Run your program to see its output.';
       result.removeAttribute('data-error');
       status.textContent = 'Ready';
     } else {
@@ -62,7 +66,9 @@ function startWorker() {
     }
     setReady(true);
   };
-  worker.onerror = () => failWorker('The NexPro runtime could not start.');
+  current.onerror = () => {
+    if (current === worker) failWorker('The NexPro runtime could not start.');
+  };
   timer = setTimeout(() => failWorker('Loading the NexPro runtime timed out.'), 45000);
   worker.postMessage({ action: 'init' });
 }
@@ -70,6 +76,7 @@ function startWorker() {
 function execute(action) {
   if (run.disabled) return;
   setReady(false);
+  stop.hidden = action !== 'run';
   download.hidden = true;
   status.textContent = action === 'compile' ? 'Compiling…' : 'Running…';
   timer = setTimeout(() => failWorker('The program took too long to finish.'), 8000);
@@ -77,8 +84,16 @@ function execute(action) {
 }
 
 run.addEventListener('click', () => execute('run'));
+stop.addEventListener('click', () => {
+  clearTimeout(timer);
+  worker.terminate();
+  heading.textContent = 'Output';
+  result.textContent = 'Execution stopped. Restarting the runtime…';
+  result.removeAttribute('data-error');
+  startWorker(true);
+});
 compile.addEventListener('click', () => execute('compile'));
-retry.addEventListener('click', startWorker);
+retry.addEventListener('click', () => startWorker());
 source.addEventListener('input', () => {
   exampleRequest?.abort();
   syncGutter();

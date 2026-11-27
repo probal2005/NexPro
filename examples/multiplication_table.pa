@@ -1,0 +1,7 @@
+# Print the first ten multiples of five
+number = 5
+row = 1
+while row <= 10
+    say number * row
+    row = row + 1
+end

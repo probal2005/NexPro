@@ -3,6 +3,8 @@ NexPro Interpreter
 Version 0.3.0
 """
 
+import operator
+
 from nexpro.ast import (
     Program,
     Assign,
@@ -15,10 +17,32 @@ from nexpro.ast import (
     Function,
     Return,
     Unary,
+    Boolean,
+    If,
+    While,
 )
 
 from nexpro.errors import RuntimeError as NexProRuntimeError
 from nexpro.runtime import Runtime
+
+
+BINARY_OPERATORS = {
+    "+": operator.add,
+    "-": operator.sub,
+    "*": operator.mul,
+    "/": operator.truediv,
+    "==": operator.eq,
+    "!=": operator.ne,
+    "<": operator.lt,
+    "<=": operator.le,
+    ">": operator.gt,
+    ">=": operator.ge,
+}
+
+
+class _ReturnFromFunction(Exception):
+    def __init__(self, value):
+        self.value = value
 
 
 class Interpreter:
@@ -47,6 +71,21 @@ class Interpreter:
         elif isinstance(node, Number):
             return self.visit_number(node)
 
+        elif isinstance(node, Boolean):
+            return node.value
+
+        elif isinstance(node, If):
+            body = node.then_body if self.visit(node.condition) else node.else_body
+            return self.visit_block(body or [])
+
+        elif isinstance(node, While):
+            while self.visit(node.condition):
+                self.visit_block(node.body)
+            return None
+
+        elif isinstance(node, Return):
+            raise _ReturnFromFunction(self.visit(node.value))
+
         elif isinstance(node, Say):
             return self.visit_say(node)
 
@@ -70,7 +109,10 @@ class Interpreter:
 
     def visit_program(self, node):
 
-        for statement in node.statements:
+        self.visit_block(node.statements)
+
+    def visit_block(self, statements):
+        for statement in statements:
             self.visit(statement)
 
     # ---------------------------------
@@ -110,7 +152,7 @@ class Interpreter:
 
         value = self.visit(node.expression)
 
-        print(value)
+        print(str(value).lower() if isinstance(value, bool) else value)
 
     # ---------------------------------
 
@@ -119,21 +161,7 @@ class Interpreter:
         left = self.visit(node.left)
         right = self.visit(node.right)
 
-        if node.operator == "+":
-            return left + right
-
-        elif node.operator == "-":
-            return left - right
-
-        elif node.operator == "*":
-            return left * right
-
-        elif node.operator == "/":
-            return left / right
-
-        raise Exception(
-            f"Unknown operator {node.operator}"
-        )
+        return BINARY_OPERATORS[node.operator](left, right)
 
     def visit_call(self, node):
         arguments = [self.visit(argument) for argument in node.arguments]
@@ -151,10 +179,9 @@ class Interpreter:
         try:
             for name, value in zip(function.parameters, arguments):
                 self.runtime.set(name, value)
-            for statement in function.body:
-                if isinstance(statement, Return):
-                    return self.visit(statement.value)
-                self.visit(statement)
+            self.visit_block(function.body)
+        except _ReturnFromFunction as returned:
+            return returned.value
         finally:
             self.runtime = caller
         return None

@@ -4,15 +4,24 @@
 program        -> (function | statement)* EOF
 function       -> "function" IDENTIFIER "(" parameters? ")" function_body "end"
 parameters     -> IDENTIFIER ("," IDENTIFIER)*
-function_body  -> (statement | "return" expression)*
+function_body  -> statement*
+block          -> statement*
 statement      -> IDENTIFIER "=" expression
                 | "say" expression
+                | "if" expression block ("else" block)? "end"
+                | "while" expression block "end"
+                | "return" expression
                 | call
-expression     -> addition
+expression     -> addition (comparison addition)?
+comparison     -> "==" | "!=" | "<" | "<=" | ">" | ">="
 addition       -> multiplication (("+" | "-") multiplication)*
 multiplication -> unary (("*" | "/") unary)*
 unary          -> ("+" | "-") unary | primary
-primary        -> NUMBER | STRING | call | IDENTIFIER | "(" expression ")"
+primary        -> NUMBER | STRING | "true" | "false"
+                | call | IDENTIFIER | "(" expression ")"
 call           -> IDENTIFIER "(" arguments? ")"
 arguments      -> expression ("," expression)*
 ```
+
+A `return` statement is valid only inside a function, including a nested
+`if` or `while` block within that function.

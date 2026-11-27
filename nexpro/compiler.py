@@ -1,6 +1,10 @@
 """Generate standalone Python from a NexPro syntax tree."""
 
-from nexpro.ast import Assign, Binary, Call, Function, Number, Return, Say, String, Unary, Variable
+from nexpro.ast import (
+    Assign, Binary, Boolean, Call, Function, If, Number, Return, Say, String,
+    Unary, Variable, While,
+)
+from nexpro.interpreter import BINARY_OPERATORS
 
 
 _RUNTIME = """\
@@ -29,13 +33,17 @@ def _call(name, *arguments):
     return function(dict(zip(parameters, arguments)))
 
 
+def _say(value):
+    print(str(value).lower() if isinstance(value, bool) else value)
+
+
 if __name__ == '__main__':
     try:
 """
 
 
 def _expression(node, lines, indent):
-    if isinstance(node, (String, Number)):
+    if isinstance(node, (String, Number, Boolean)):
         # Python exposes infinity through float() and has no literal for it.
         if isinstance(node, Number) and node.value == float("inf"):
             return "float('inf')"
@@ -62,18 +70,34 @@ def _expression(node, lines, indent):
 
 
 def _statements(statements, lines, indent):
+    if not statements:
+        lines.append(f"{indent}pass")
     for statement in statements:
         if isinstance(statement, Assign):
             value = _expression(statement.value, lines, indent)
             lines.append(f"{indent}_scope[{statement.variable.name!r}] = {value}")
         elif isinstance(statement, Say):
             value = _expression(statement.expression, lines, indent)
-            lines.append(f"{indent}print({value})")
+            lines.append(f"{indent}_say({value})")
         elif isinstance(statement, Call):
             _expression(statement, lines, indent)
         elif isinstance(statement, Return):
             value = _expression(statement.value, lines, indent)
             lines.append(f"{indent}return {value}")
+        elif isinstance(statement, If):
+            condition = _expression(statement.condition, lines, indent)
+            lines.append(f"{indent}if {condition}:")
+            _statements(statement.then_body, lines, indent + "    ")
+            if statement.else_body is not None:
+                lines.append(f"{indent}else:")
+                _statements(statement.else_body, lines, indent + "    ")
+        elif isinstance(statement, While):
+            lines.append(f"{indent}while True:")
+            body_indent = indent + "    "
+            condition = _expression(statement.condition, lines, body_indent)
+            lines.append(f"{body_indent}if not {condition}:")
+            lines.append(f"{body_indent}    break")
+            _statements(statement.body, lines, body_indent)
         elif isinstance(statement, Function):
             name = f"_function_{len(lines)}"
             lines.append(f"{indent}def {name}(_scope):")

@@ -31,6 +31,9 @@ def run(*args, cwd):
         ("scope", "17\n10\n100\n"),
         ("temperature", "-40.0\n32.0\n98.6\n"),
         ("greeting", "Hello, NexPro!\n"),
+        ("grades", "A\nKeep practicing\ntrue\n"),
+        ("multiplication_table", "".join(f"{n * 5}\n" for n in range(1, 11))),
+        ("sum_1_to_10", "55\n"),
     ],
 )
 def test_examples(example, expected, tmp_path):
@@ -56,6 +59,9 @@ def test_examples(example, expected, tmp_path):
         ("function f(x, x) return x end", "Duplicate parameter 'x'"),
         ("function f(x) return x", "Expected 'end'"),
         ("return 1", "Unknown statement"),
+        ("if true say 1", "Expected 'end' after if block"),
+        ("while false", "Expected 'end' after while block"),
+        ("if true return 1 end", "Unknown statement"),
     ],
 )
 def test_invalid_source_preserves_output(source, message, tmp_path):
@@ -106,7 +112,7 @@ def test_literals_default_output_and_version(tmp_path):
     assert result.stdout == 'quoted "text"\n1.5\n'
     result = run("nexpro", "version", cwd=tmp_path)
     assert result.stdout == f"NexPro {version('nexpro')}\n"
-    assert version("nexpro") == "0.6.0"
+    assert version("nexpro") == "0.7.0"
 
 
 def test_compile_cannot_overwrite_source(tmp_path):
@@ -126,3 +132,44 @@ def test_long_expression(tmp_path):
     result = run(sys.executable, source.with_suffix(".py"), cwd=tmp_path)
     assert result.returncode == 0, result.stderr
     assert result.stdout == "250\n"
+
+
+def test_nested_control_flow_and_booleans(tmp_path):
+    source = tmp_path / "control.pa"
+    source.write_text(
+        """
+function find()
+    index = 0
+    while index < 5
+        index = index + 1
+        if index == 3
+            return index
+        end
+    end
+    return 0
+end
+
+if false
+else
+    say find()
+end
+while false
+    say "unreachable"
+end
+say false
+say 2 + 3 * 4 == 14
+say 2 != 3
+say 3 > 2
+say 2 >= 2
+say 3 <= 2
+""",
+        encoding="utf-8",
+    )
+    compilation = run("nexpro", "compile", source, cwd=tmp_path)
+    assert compilation.returncode == 0, compilation.stderr
+    for result in (
+        run("nexpro", "run", source, cwd=tmp_path),
+        run(sys.executable, source.with_suffix(".py"), cwd=tmp_path),
+    ):
+        assert result.returncode == 0, result.stderr
+        assert result.stdout == "3\nfalse\ntrue\ntrue\ntrue\ntrue\nfalse\n"

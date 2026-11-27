@@ -11,8 +11,15 @@ from nexpro.lexer import Lexer
 from nexpro.parser import Parser
 
 
+class PlaygroundOutput(StringIO):
+    def write(self, text):
+        if self.tell() + len(text) > 65536:
+            raise NexProError("Playground output limit reached.")
+        return super().write(text)
+
+
 def run_playground(source, action):
-    output = StringIO()
+    output = PlaygroundOutput()
     try:
         filename = "playground.pa"
         tree = Parser(Lexer(source, filename).tokenize(), filename).parse()

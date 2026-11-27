@@ -59,6 +59,31 @@ to pass a value back to the caller. A function that reaches `end` returns
 See [functions](examples/functions.pa), [scope](examples/scope.pa),
 [temperature conversion](examples/temperature.pa), and [greeting](examples/greeting.pa).
 
+### Decisions and loops
+
+Use `if` with an optional `else` to choose a block, and `while` to repeat a
+block while its condition holds. Both end with `end`.
+
+```text
+number = 1
+while number <= 3
+    if number == 2
+        say "two"
+    else
+        say number
+    end
+    number = number + 1
+end
+```
+
+Comparisons (`==`, `!=`, `<`, `<=`, `>`, `>=`) evaluate after arithmetic and
+produce `true` or `false`. A condition treats zero, an empty string, `false`,
+and a missing return value as false. Other values are true. Use **Stop** in
+the playground or **Ctrl+C** in your terminal to interrupt a running loop.
+
+See the [grade calculator](examples/grades.pa), [multiplication table](examples/multiplication_table.pa),
+and [sum from 1 to 10](examples/sum_1_to_10.pa).
+
 The `numbers.pa`, `string.pa`, `escape.pa`, `operators.pa`, and `keywords.pa`
 examples are lexer fixtures. The `error.pa` fixture demonstrates invalid input.
 

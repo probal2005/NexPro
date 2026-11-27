@@ -23,6 +23,17 @@ from nexpro.tokens import (
     FUNCTION,
     RETURN,
     END,
+    IF,
+    ELSE,
+    WHILE,
+    TRUE,
+    FALSE,
+    EQUAL,
+    NOT_EQUAL,
+    LESS,
+    LESS_EQUAL,
+    GREATER,
+    GREATER_EQUAL,
 )
 
 from nexpro.ast import (
@@ -37,6 +48,9 @@ from nexpro.ast import (
     Function,
     Return,
     Unary,
+    Boolean,
+    If,
+    While,
 )
 
 from nexpro.errors import ParserError
@@ -152,6 +166,9 @@ class Parser:
 
             return Number(token.value)
 
+        if self.match(TRUE, FALSE):
+            return Boolean(token.type == TRUE)
+
         if token.type == IDENTIFIER:
 
             self.advance()
@@ -178,7 +195,11 @@ class Parser:
 
     def expression(self):
 
-        return self.addition()
+        left = self.addition()
+        if self.match(EQUAL, NOT_EQUAL, LESS, LESS_EQUAL, GREATER, GREATER_EQUAL):
+            operator = self.previous().value
+            return Binary(left, operator, self.addition())
+        return left
 
     # ==========================================================
     # Assignment
@@ -250,18 +271,37 @@ class Parser:
                     break
         self.expect(RPAREN, "Expected ')' after parameters")
 
-        body = []
-        while not self.check(END) and not self.is_end():
-            body.append(self.statement(in_function=True))
+        body = self.block(END, in_function=True)
         self.expect(END, "Expected 'end' after function body")
         return Function(name.value, parameters, body)
 
-    def statement(self, in_function=False):
-        if not in_function and self.match(FUNCTION):
+    def block(self, *terminators, in_function):
+        body = []
+        while not self.is_end() and self.current.type not in terminators:
+            body.append(self.statement(in_function=in_function))
+        return body
+
+    def statement(self, in_function=False, top_level=False):
+        if top_level and self.match(FUNCTION):
             return self.function()
 
         if in_function and self.match(RETURN):
             return Return(self.expression())
+
+        if self.match(IF):
+            condition = self.expression()
+            then_body = self.block(ELSE, END, in_function=in_function)
+            else_body = None
+            if self.match(ELSE):
+                else_body = self.block(END, in_function=in_function)
+            self.expect(END, "Expected 'end' after if block")
+            return If(condition, then_body, else_body)
+
+        if self.match(WHILE):
+            condition = self.expression()
+            body = self.block(END, in_function=in_function)
+            self.expect(END, "Expected 'end' after while block")
+            return While(condition, body)
 
         if self.check(SAY):
             return self.say_statement()
@@ -292,7 +332,7 @@ class Parser:
         while not self.is_end():
 
             statements.append(
-                self.statement()
+                self.statement(top_level=True)
             )
 
         return Program(statements)

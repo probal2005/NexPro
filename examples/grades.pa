@@ -1,0 +1,12 @@
+# Return from inside an if/else block
+function grade(score)
+    if score >= 80
+        return "A"
+    else
+        return "Keep practicing"
+    end
+end
+
+say grade(85)
+say grade(70)
+say 85 >= 80
