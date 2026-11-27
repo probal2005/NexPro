@@ -34,8 +34,8 @@ def load_program(path, output=None):
     return load_modules(path.name, read_source, filename_for=lambda name: str(path.parent / name))
 
 
-def run_file(filename):
-    Interpreter().visit(load_program(Path(filename)))
+def run_file(filename, trace=None):
+    Interpreter(trace=trace).visit(load_program(Path(filename)))
 
 
 def check_json(path):
@@ -62,6 +62,7 @@ def main(argv=None):
     commands = parser.add_subparsers(dest="command")
     run = commands.add_parser("run", help="Run a NexPro program")
     run.add_argument("source", type=Path)
+    run.add_argument("--trace", action="store_true", help="Print executed NexPro statements to stderr")
     check = commands.add_parser("check", help="Check syntax and imports without running")
     check.add_argument("source", type=Path)
     check.add_argument("--json", action="store_true", help="Print machine-readable diagnostics")
@@ -81,7 +82,8 @@ def main(argv=None):
 
     try:
         if args.command == "run":
-            run_file(args.source)
+            trace = (lambda line: print(line, file=sys.stderr)) if args.trace else None
+            run_file(args.source, trace=trace)
         elif args.command == "check":
             if args.json:
                 return check_json(args.source)

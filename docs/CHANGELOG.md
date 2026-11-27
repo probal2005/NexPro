@@ -4,6 +4,10 @@ All notable changes to NexPro will be documented here.
 
 ---
 
+## v1.9.0
+
+Added execution tracing in the CLI, browser playground, and VS Code.
+
 ## v1.8.0
 
 Added JSON syntax diagnostics and VS Code checks on save.

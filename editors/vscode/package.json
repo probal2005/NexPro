@@ -2,7 +2,7 @@
   "name": "nexpro",
   "displayName": "NexPro",
   "description": "Syntax highlighting and syntax checks for NexPro .pa programs.",
-  "version": "1.8.0",
+  "version": "1.9.0",
   "publisher": "probal2005",
   "engines": {
     "vscode": "^1.85.0"
@@ -41,6 +41,11 @@
       {
         "command": "nexpro.check",
         "title": "NexPro: Check Syntax",
+        "enablement": "editorLangId == nexpro"
+      },
+      {
+        "command": "nexpro.trace",
+        "title": "NexPro: Run with Trace",
         "enablement": "editorLangId == nexpro"
       }
     ],

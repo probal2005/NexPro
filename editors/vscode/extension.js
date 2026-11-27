@@ -75,16 +75,35 @@ function activate(context) {
     }
   }
 
+  async function getSavedDocument() {
+    const document = vscode.window.activeTextEditor?.document;
+    if (!document || document.languageId !== 'nexpro' || document.uri.scheme !== 'file') {
+      await vscode.window.showInformationMessage('Save a NexPro .pa file first.');
+      return undefined;
+    }
+    if (document.isDirty && !(await document.save())) return undefined;
+    return document;
+  }
+
   context.subscriptions.push(
     diagnostics,
     vscode.commands.registerCommand('nexpro.check', async () => {
-      const document = vscode.window.activeTextEditor?.document;
-      if (!document || document.languageId !== 'nexpro' || document.uri.scheme !== 'file') {
-        await vscode.window.showInformationMessage('Save a NexPro .pa file before checking syntax.');
-        return;
-      }
-      if (document.isDirty && !(await document.save())) return;
-      await check(document, true);
+      const document = await getSavedDocument();
+      if (document) await check(document, true);
+    }),
+    vscode.commands.registerCommand('nexpro.trace', async () => {
+      const document = await getSavedDocument();
+      if (!document) return;
+      const uri = document.uri;
+      const executable = vscode.workspace.getConfiguration('nexpro', uri).get('executablePath');
+      const task = new vscode.Task(
+        { type: 'nexpro', sourceFile: uri.fsPath },
+        vscode.workspace.getWorkspaceFolder(uri) ?? vscode.TaskScope.Global,
+        'Run with Trace',
+        'NexPro',
+        new vscode.ProcessExecution(executable, ['run', '--trace', uri.fsPath]),
+      );
+      await vscode.tasks.executeTask(task);
     }),
     vscode.workspace.onDidSaveTextDocument(document => {
       if (document.languageId !== 'nexpro') return;

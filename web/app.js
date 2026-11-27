@@ -2,6 +2,9 @@ const source = document.querySelector('#source');
 const programInput = document.querySelector('#program-input');
 const moduleFiles = document.querySelector('#module-files');
 const check = document.querySelector('#check');
+const traceEnabled = document.querySelector('#trace');
+const traceDetails = document.querySelector('#execution-trace');
+const traceOutput = document.querySelector('#trace-output');
 const sampleInputs = new Map([['clean_names', '  Ada, GRACE, Linus  '], ['scores', '70\n85\n100'], ['input', 'Ada\n2000'], ['score_series', '70\n85\n100\n\n']]);
 const gutter = document.querySelector('#gutter');
 const examples = document.querySelector('#examples');
@@ -32,7 +35,10 @@ function setReady(ready) {
   compile.disabled = !ready;
 }
 
-function show(action, { ok, output = '', error = '' }) {
+function show(action, { ok, output = '', error = '', trace = '' }) {
+  traceOutput.textContent = trace;
+  traceDetails.hidden = !trace;
+  traceDetails.open = Boolean(trace);
   heading.textContent = action === 'compile' && ok ? 'Generated Python' : 'Output';
   result.textContent = ok ? output || '(No output)' : [output.trimEnd(), error].filter(Boolean).join('\n\n');
   result.toggleAttribute('data-error', !ok);
@@ -86,10 +92,12 @@ async function execute(action) {
   const current = worker;
   const code = source.value;
   const input = programInput.value;
+  const trace = action === 'run' && traceEnabled.checked;
   const files = [...moduleFiles.files];
   const modules = { ...exampleModules };
   setReady(false);
   stop.hidden = action !== 'run';
+  traceDetails.hidden = true;
   download.hidden = true;
   const pending = { check: 'Checking…', compile: 'Compiling…', run: 'Running…' };
   status.textContent = pending[action];
@@ -103,7 +111,7 @@ async function execute(action) {
       names.add(file.name);
       modules[file.name] = await file.text();
     }
-    if (current === worker) current.postMessage({ action, source: code, input, modules: JSON.stringify(modules) });
+    if (current === worker) current.postMessage({ action, source: code, input, modules: JSON.stringify(modules), trace });
   } catch (error) {
     if (current !== worker) return;
     clearTimeout(timer);

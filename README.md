@@ -25,11 +25,11 @@ Enter one line per `input()` call in **Program input**. Attach imported sibling
 ### Install the CLI
 
 Use Python 3.11 or later. Download the wheel from the
-[1.8.0 release](https://github.com/probal2005/NexPro/releases/tag/v1.8.0),
+[1.9.0 release](https://github.com/probal2005/NexPro/releases/tag/v1.9.0),
 then run these commands from your download directory.
 
 ```sh
-python -m pip install ./nexpro-1.8.0-py3-none-any.whl
+python -m pip install ./nexpro-1.9.0-py3-none-any.whl
 nexpro version
 ```
 
@@ -95,7 +95,7 @@ Ada
 
 | Command | What it does |
 | --- | --- |
-| `nexpro run file.pa` | Run a program and read from standard input when needed. |
+| `nexpro run file.pa` | Run a program. Add `--trace` to see executed source locations on standard error. |
 | `nexpro check file.pa` | Check syntax and imports without running the program. |
 | `nexpro compile file.pa -o file.py` | Generate standalone Python. Omit `-o` to write a sibling `.py` file. |
 | `nexpro version` | Print the installed version. |
@@ -103,7 +103,9 @@ Ada
 
 Syntax diagnostics show the source file, line, and column. Runtime errors in
 the interpreter and generated Python report NexPro source locations and
-function call frames.
+function call frames. Execution traces show statements as they run, including
+statements inside imported functions. In the browser, enable **Trace execution**
+before selecting **Run code**.
 
 ## Documentation and editor support
 

@@ -65,9 +65,10 @@ class _ContinueLoop(Exception):
 
 class Interpreter:
 
-    def __init__(self, read_input=input):
+    def __init__(self, read_input=input, trace=None):
         self.globals = Runtime()
         self.runtime = self.globals
+        self.trace = trace
         self.functions = {}
         self.function_name = "<program>"
         self.builtins = {
@@ -202,6 +203,9 @@ class Interpreter:
 
     def visit_block(self, statements):
         for statement in statements:
+            if self.trace is not None and statement.location is not None:
+                filename, line = statement.location
+                self.trace(f"[trace] {filename}:{line} in {self.function_name}")
             self.visit(statement)
 
     # ---------------------------------

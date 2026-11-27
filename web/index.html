@@ -48,6 +48,7 @@
           </select>
         </div>
         <div class="actions">
+          <label class="trace-toggle"><input id="trace" type="checkbox"> Trace execution</label>
           <button id="run" class="primary" type="button" disabled>Run code</button>
           <button id="stop" type="button" hidden>Stop</button>
           <button id="check" type="button" disabled>Check syntax</button>
@@ -74,6 +75,10 @@ say (2 + 3) * 4
             <button id="download" type="button" hidden>Download .py</button>
           </div>
           <pre id="result" tabindex="0" aria-labelledby="result-heading">Run your program to see its output.</pre>
+          <details id="execution-trace" hidden>
+            <summary>Execution trace</summary>
+            <pre id="trace-output"></pre>
+          </details>
           <div class="panel-footer result-footer">
             <span id="status" role="status">Loading NexPro…</span>
             <button id="retry" type="button" hidden>Retry</button>

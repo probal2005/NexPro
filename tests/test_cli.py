@@ -129,7 +129,7 @@ def test_literals_default_output_and_version(tmp_path):
     assert result.stdout == 'quoted "text"\n1.5\n'
     result = run("nexpro", "version", cwd=tmp_path)
     assert result.stdout == f"NexPro {version('nexpro')}\n"
-    assert version("nexpro") == "1.8.0"
+    assert version("nexpro") == "1.9.0"
 
 
 def test_compile_cannot_overwrite_source(tmp_path):
@@ -495,3 +495,21 @@ def test_check_json_reports_import_diagnostic(tmp_path):
     assert valid.returncode == 0
     assert not valid.stderr
     assert json.loads(valid.stdout) == {"ok": True, "diagnostics": []}
+
+
+def test_run_trace_includes_imported_calls_without_changing_stdout(tmp_path):
+    entry = tmp_path / "main.pa"
+    entry.write_text('import "math.pa"\nsay twice(3)\n', encoding="utf-8")
+    module = tmp_path / "math.pa"
+    module.write_text("function twice(n)\n    return n * 2\nend\n", encoding="utf-8")
+    result = run("nexpro", "run", "--trace", entry, cwd=tmp_path)
+    assert result.returncode == 0
+    assert result.stdout == "6\n"
+    assert result.stderr.splitlines() == [
+        f"[trace] {module}:1 in <program>",
+        f"[trace] {entry}:2 in <program>",
+        f"[trace] {module}:2 in twice",
+    ]
+    plain = run("nexpro", "run", entry, cwd=tmp_path)
+    assert plain.stdout == result.stdout
+    assert not plain.stderr

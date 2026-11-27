@@ -66,3 +66,8 @@ footer { color: var(--muted); margin: 16px 0 28px; font-size: .875rem; }
 #program-input { height: auto; min-height: 88px; max-height: none; padding: 8px 10px; border: 1px solid var(--border); border-radius: 6px; resize: vertical; display: block; }
 
 #module-files { max-width: 100%; color: var(--muted); }
+
+.trace-toggle { display: inline-flex; align-items: center; gap: 4px; padding: 4px; }
+#execution-trace { padding: 10px 16px; border-top: 1px solid var(--border); }
+#execution-trace summary { cursor: pointer; font-size: .875rem; }
+#trace-output { height: auto; max-height: 180px; margin-top: 8px; padding: 10px; }

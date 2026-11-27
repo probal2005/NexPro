@@ -17,8 +17,23 @@ class PlaygroundOutput(StringIO):
         return super().write(text)
 
 
-def run_playground(source, action, input_text="", modules_json="{}"):
+def run_playground(source, action, input_text="", modules_json="{}", trace_enabled=False):
     output = PlaygroundOutput()
+    trace_lines = []
+
+    def trace(line):
+        if len(trace_lines) < 500:
+            trace_lines.append(line)
+        elif len(trace_lines) == 500:
+            trace_lines.append("Trace limited to 500 statements.")
+
+    def response(ok, error=None):
+        result = {"ok": ok, "output": output.getvalue()}
+        if error is not None:
+            result["error"] = error
+        if trace_enabled:
+            result["trace"] = "\n".join(trace_lines)
+        return dumps(result)
     input_lines = StringIO(input_text, newline=None)
 
     def read_input(prompt=""):
@@ -44,13 +59,9 @@ def run_playground(source, action, input_text="", modules_json="{}"):
         if action == "compile":
             return dumps({"ok": True, "output": compile_program(tree)})
         with redirect_stdout(output):
-            Interpreter(read_input=read_input).visit(tree)
+            Interpreter(read_input=read_input, trace=trace if trace_enabled else None).visit(tree)
     except NexProError as error:
-        return dumps({"ok": False, "output": output.getvalue(), "error": str(error)})
+        return response(False, str(error))
     except (ArithmeticError, ValueError, TypeError, RecursionError, IndexError, EOFError) as error:
-        return dumps({
-            "ok": False,
-            "output": output.getvalue(),
-            "error": f"NexPro Runtime Error: {error}",
-        })
-    return dumps({"ok": True, "output": output.getvalue()})
+        return response(False, f"NexPro Runtime Error: {error}")
+    return response(True)
