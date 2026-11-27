@@ -2,7 +2,7 @@ import { cp, mkdir, readFile, readdir, writeFile } from 'node:fs/promises';
 
 await mkdir('dist/nexpro', { recursive: true });
 await mkdir('dist/examples', { recursive: true });
-for (const name of ['styles.css', 'app.js', 'worker.js', 'playground.py']) {
+for (const name of ['styles.css', 'app.js', 'worker.js', 'playground.py', 'nexpro-icon.png', 'favicon.png']) {
   await cp(`web/${name}`, `dist/${name}`);
 }
 const versionFile = await readFile('nexpro/__version__.py', 'utf8');

@@ -1,3 +1,5 @@
+<img src="web/nexpro-icon.png" alt="" width="64" height="64" align="left">
+
 # NexPro
 
 NexPro is a small programming language for `.pa` source files. It comes with an

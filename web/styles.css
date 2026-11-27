@@ -17,7 +17,7 @@ body { margin: 0; }
 .header-inner { min-height: 64px; display: flex; align-items: center; justify-content: space-between; gap: 16px; }
 a { color: inherit; }
 .brand { display: inline-flex; align-items: center; gap: 10px; font-weight: 750; text-decoration: none; }
-.mark { background: var(--accent); color: #102719; font: 800 18px/1 var(--mono); padding: 8px; border-radius: 6px; }
+.mark { display: block; width: 40px; height: 40px; }
 .source-link { color: var(--muted); font-size: .875rem; text-underline-offset: 4px; }
 .intro { margin: 42px 0 28px; }
 h1 { font-size: clamp(2rem, 5vw, 3.25rem); letter-spacing: -.055em; margin: 0 0 10px; line-height: 1.1; }
