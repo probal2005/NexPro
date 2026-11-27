@@ -24,6 +24,7 @@ from nexpro.tokens import (
     COMMA,
     FUNCTION,
     RETURN,
+    IMPORT,
     END,
     IF,
     ELSE,
@@ -55,6 +56,7 @@ from nexpro.ast import (
     While,
     Index,
     ListLiteral,
+    Import,
 )
 
 from nexpro.errors import ParserError
@@ -297,6 +299,10 @@ class Parser:
     def statement(self, in_function=False, top_level=False):
         if top_level and self.match(FUNCTION):
             return self.function()
+
+        if top_level and self.match(IMPORT):
+            path = self.expect(STRING, "Expected a quoted module path")
+            return Import(path.value, path.line, path.column)
 
         if in_function and self.match(RETURN):
             return Return(self.expression())

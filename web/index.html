@@ -38,11 +38,13 @@
             <option value="lists">Lists and indexing</option>
             <option value="scores">Score average and highest score</option>
             <option value="input">Greeting with input</option>
+            <option value="imports">Import math functions</option>
           </select>
         </div>
         <div class="actions">
           <button id="run" class="primary" type="button" disabled>Run code</button>
           <button id="stop" type="button" hidden>Stop</button>
+          <button id="check" type="button" disabled>Check syntax</button>
           <button id="compile" type="button" disabled>Compile to Python</button>
         </div>
       </div>
@@ -71,6 +73,11 @@ say (2 + 3) * 4
             <button id="retry" type="button" hidden>Retry</button>
           </div>
         </section>
+      </div>
+      <div class="input-panel">
+        <label for="module-files">Module files</label>
+        <p id="module-help">Add .pa files referenced by import statements.</p>
+        <input id="module-files" type="file" accept=".pa" multiple aria-describedby="module-help">
       </div>
       <div class="input-panel">
         <label for="program-input">Program input</label>

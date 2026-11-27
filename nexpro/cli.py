@@ -8,16 +8,29 @@ from nexpro import __version__
 from nexpro.compiler import compile_program
 from nexpro.errors import NexProError
 from nexpro.interpreter import Interpreter
-from nexpro.lexer import Lexer
-from nexpro.parser import Parser
+from nexpro.loader import load_program as load_modules
 
 
-def load_program(path):
+def load_program(path, output=None):
     if path.suffix != ".pa":
         raise NexProError("NexPro source files must end with '.pa'")
-    source = path.read_text(encoding="utf-8")
-    filename = str(path)
-    return Parser(Lexer(source, filename).tokenize(), filename).parse()
+    root = path.parent.resolve()
+    destination = output.resolve() if output is not None else None
+
+    def read_source(name):
+        source = root / name
+        resolved = source.resolve()
+        if not resolved.is_relative_to(root):
+            raise OSError("Module must stay inside the entry file's directory")
+        if destination is not None and (
+            resolved == destination or (
+                output.exists() and source.exists() and output.samefile(source)
+            )
+        ):
+            raise OSError("Output path must differ from every source path")
+        return source.read_text(encoding="utf-8")
+
+    return load_modules(path.name, read_source, filename_for=lambda name: str(path.parent / name))
 
 
 def run_file(filename):
@@ -30,6 +43,8 @@ def main(argv=None):
     commands = parser.add_subparsers(dest="command")
     run = commands.add_parser("run", help="Run a NexPro program")
     run.add_argument("source", type=Path)
+    check = commands.add_parser("check", help="Check syntax and imports without running")
+    check.add_argument("source", type=Path)
     compiler = commands.add_parser("compile", help="Compile a NexPro program to Python")
     compiler.add_argument("source", type=Path)
     compiler.add_argument("-o", "--output", type=Path, help="Output path (default: SOURCE.py)")
@@ -47,13 +62,12 @@ def main(argv=None):
     try:
         if args.command == "run":
             run_file(args.source)
+        elif args.command == "check":
+            load_program(args.source)
+            print("Syntax OK")
         else:
             output = args.output or args.source.with_suffix(".py")
-            if output.resolve() == args.source.resolve() or (
-                output.exists() and args.source.exists() and output.samefile(args.source)
-            ):
-                raise NexProError("Output path must differ from the source path")
-            python_source = compile_program(load_program(args.source))
+            python_source = compile_program(load_program(args.source, output=output))
             output.write_text(python_source, encoding="utf-8")
     except (NexProError, OSError, UnicodeError) as error:
         print(error, file=sys.stderr)

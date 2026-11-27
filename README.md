@@ -101,6 +101,27 @@ printf '70\n85\n100\n' | nexpro run examples/scores.pa
 See [lists](examples/lists.pa), [score statistics](examples/scores.pa), and
 [a greeting with input](examples/input.pa).
 
+### Syntax checks and modules
+
+```sh
+nexpro check examples/imports.pa
+nexpro run examples/imports.pa
+nexpro compile examples/imports.pa -o imports.py
+```
+
+`check` validates the entry file and its imports without executing any code.
+Syntax errors show the filename, line, column, and a caret under the source.
+
+Use `import "math_utils.pa"` at the top level. Paths are relative to the file
+containing the import and stay within the entry file's directory. An imported
+file is included once at its first import. Its functions and variables are
+available in the program's global scope. Circular imports produce an error.
+Compiled Python includes the modules and can run by itself.
+
+In the playground, select **Import math functions** for a preloaded example,
+or attach your own sibling `.pa` files under **Module files**. Use **Check
+syntax** to check the editor and its imports without running the program.
+
 The `numbers.pa`, `string.pa`, `escape.pa`, `operators.pa`, and `keywords.pa`
 examples are lexer fixtures. The `error.pa` fixture demonstrates invalid input.
 

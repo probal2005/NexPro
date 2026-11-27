@@ -1,7 +1,8 @@
 # NexPro grammar
 
 ```text
-program        -> (function | statement)* EOF
+program        -> (import | function | statement)* EOF
+import         -> "import" STRING
 function       -> "function" IDENTIFIER "(" parameters? ")" function_body "end"
 parameters     -> IDENTIFIER ("," IDENTIFIER)*
 function_body  -> statement*

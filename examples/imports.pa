@@ -1,0 +1,5 @@
+# Reuse the functions from a second NexPro file.
+import "math_utils.pa"
+
+say square(7)
+say average([10, 20, 30])

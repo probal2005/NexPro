@@ -2,13 +2,12 @@
 
 from contextlib import redirect_stdout
 from io import StringIO
-from json import dumps
+from json import dumps, loads
 
 from nexpro.compiler import compile_program
 from nexpro.errors import NexProError
 from nexpro.interpreter import Interpreter
-from nexpro.lexer import Lexer
-from nexpro.parser import Parser
+from nexpro.loader import load_program
 
 
 class PlaygroundOutput(StringIO):
@@ -18,7 +17,7 @@ class PlaygroundOutput(StringIO):
         return super().write(text)
 
 
-def run_playground(source, action, input_text=""):
+def run_playground(source, action, input_text="", modules_json="{}"):
     output = PlaygroundOutput()
     input_lines = StringIO(input_text, newline=None)
 
@@ -30,8 +29,18 @@ def run_playground(source, action, input_text=""):
         return line.removesuffix("\n")
 
     try:
-        filename = "playground.pa"
-        tree = Parser(Lexer(source, filename).tokenize(), filename).parse()
+        modules = loads(modules_json)
+
+        def read_source(name):
+            if name == "playground.pa":
+                return source
+            if name not in modules:
+                raise FileNotFoundError("Add this .pa file under Module files")
+            return modules[name]
+
+        tree = load_program("playground.pa", read_source)
+        if action == "check":
+            return dumps({"ok": True, "output": "Syntax OK"})
         if action == "compile":
             return dumps({"ok": True, "output": compile_program(tree)})
         with redirect_stdout(output):

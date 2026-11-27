@@ -35,6 +35,7 @@ def run(*args, cwd, input_text=None):
         ("multiplication_table", "".join(f"{n * 5}\n" for n in range(1, 11))),
         ("sum_1_to_10", "55\n"),
         ("lists", "6\nNex\no\n30\n"),
+        ("imports", "49\n20.0\n"),
     ],
 )
 def test_examples(example, expected, tmp_path):
@@ -115,7 +116,7 @@ def test_literals_default_output_and_version(tmp_path):
     assert result.stdout == 'quoted "text"\n1.5\n'
     result = run("nexpro", "version", cwd=tmp_path)
     assert result.stdout == f"NexPro {version('nexpro')}\n"
-    assert version("nexpro") == "0.8.0"
+    assert version("nexpro") == "0.9.0"
 
 
 def test_compile_cannot_overwrite_source(tmp_path):
@@ -218,3 +219,67 @@ def test_data_and_input_boundaries(source_text, input_text, code, expected, tmp_
         else:
             assert expected in result.stderr
             assert "Traceback" not in result.stderr
+
+
+def test_check_does_not_execute_modules(tmp_path):
+    source = tmp_path / "main.pa"
+    source.write_text('import "module.pa"\nsay input()\n', encoding="utf-8")
+    (tmp_path / "module.pa").write_text("say missing()\n", encoding="utf-8")
+    result = run("nexpro", "check", source, cwd=tmp_path, input_text="")
+    assert result.returncode == 0, result.stderr
+    assert result.stdout == "Syntax OK\n"
+    assert not result.stderr
+
+
+def test_nested_modules_are_included_once_and_compiled_inline(tmp_path):
+    source = tmp_path / "main.pa"
+    source.write_text(
+        'import "math/outer.pa"\nimport "./math/inner.pa"\nsay answer()\n',
+        encoding="utf-8",
+    )
+    modules = tmp_path / "math"
+    modules.mkdir()
+    (modules / "outer.pa").write_text('import "inner.pa"\n', encoding="utf-8")
+    (modules / "inner.pa").write_text(
+        'say "loaded"\nfunction answer() return 42 end\n', encoding="utf-8",
+    )
+    compiled = run("nexpro", "compile", source, cwd=tmp_path)
+    assert compiled.returncode == 0, compiled.stderr
+    assert run("nexpro", "run", source, cwd=tmp_path).stdout == "loaded\n42\n"
+    (modules / "inner.pa").unlink()
+    (modules / "outer.pa").unlink()
+    standalone = run(sys.executable, "-I", "-S", source.with_suffix(".py"), cwd=tmp_path)
+    assert standalone.returncode == 0, standalone.stderr
+    assert standalone.stdout == "loaded\n42\n"
+
+
+@pytest.mark.parametrize(("entry_text", "module_text", "location", "message", "excerpt"), [
+    ('import "missing.pa"', '', 'main.pa', "Cannot read module 'missing.pa'", 'import "missing.pa"\n       ^'),
+    ('import "../outside.pa"', '', 'main.pa', "inside the entry directory", 'import "../outside.pa"\n       ^'),
+    ('import "module.pa"', 'import "main.pa"', 'module.pa', "Circular import", 'import "main.pa"\n       ^'),
+    ('import "module.pa"', 'say @', 'module.pa', "Unknown character", 'say @\n    ^'),
+    ('import "module.pa"', 'say (3', 'module.pa', "Expected ')'", 'say (3\n      ^'),
+])
+def test_import_diagnostics(entry_text, module_text, location, message, excerpt, tmp_path):
+    source = tmp_path / "main.pa"
+    source.write_text(entry_text, encoding="utf-8")
+    (tmp_path / "module.pa").write_text(module_text, encoding="utf-8")
+    for command in ("check", "run", "compile"):
+        result = run("nexpro", command, source, cwd=tmp_path)
+        assert result.returncode == 1
+        assert not result.stdout
+        assert str(tmp_path / location) in result.stderr
+        assert message in result.stderr
+        assert excerpt in result.stderr
+    assert not source.with_suffix(".py").exists()
+
+
+def test_compile_cannot_overwrite_an_import(tmp_path):
+    source = tmp_path / "main.pa"
+    module = tmp_path / "module.pa"
+    source.write_text('import "module.pa"', encoding="utf-8")
+    module.write_text("say 7", encoding="utf-8")
+    result = run("nexpro", "compile", source, "-o", module, cwd=tmp_path)
+    assert result.returncode == 1
+    assert "Output path must differ" in result.stderr
+    assert module.read_text(encoding="utf-8") == "say 7"

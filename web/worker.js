@@ -1,7 +1,7 @@
 const CDN = 'https://cdn.jsdelivr.net/pyodide/v0.28.3/full/';
 const MODULES = [
   '__init__', '__version__', 'ast', 'compiler', 'errors',
-  'interpreter', 'lexer', 'parser', 'runtime', 'tokens',
+  'interpreter', 'lexer', 'loader', 'parser', 'runtime', 'tokens',
 ];
 
 async function loadFile(path) {
@@ -25,7 +25,7 @@ self.onmessage = async ({ data }) => {
       self.postMessage({ action: 'init', ok: true });
       return;
     }
-    const result = JSON.parse(execute(data.source, data.action, data.input));
+    const result = JSON.parse(execute(data.source, data.action, data.input, data.modules));
     self.postMessage({ action: data.action, ...result });
   } catch (error) {
     self.postMessage({ action: data.action, ok: false, error: error.message });

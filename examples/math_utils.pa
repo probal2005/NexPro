@@ -1,0 +1,13 @@
+function square(value)
+    return value * value
+end
+
+function average(values)
+    total = 0
+    position = 0
+    while position < len(values)
+        total = total + values[position]
+        position = position + 1
+    end
+    return total / len(values)
+end

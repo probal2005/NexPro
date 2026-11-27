@@ -1,5 +1,7 @@
 const source = document.querySelector('#source');
 const programInput = document.querySelector('#program-input');
+const moduleFiles = document.querySelector('#module-files');
+const check = document.querySelector('#check');
 const sampleInputs = new Map([['scores', '70\n85\n100'], ['input', 'Ada\n2000']]);
 const gutter = document.querySelector('#gutter');
 const examples = document.querySelector('#examples');
@@ -16,6 +18,7 @@ let timer;
 let pythonOutput;
 let exampleRequest;
 let sampleInput = '';
+let exampleModules = {};
 
 function syncGutter() {
   gutter.textContent = Array.from({ length: source.value.split('\n').length }, (_, i) => i + 1).join('\n');
@@ -25,6 +28,7 @@ function syncGutter() {
 function setReady(ready) {
   stop.hidden = true;
   run.disabled = !ready;
+  check.disabled = !ready;
   compile.disabled = !ready;
 }
 
@@ -34,7 +38,8 @@ function show(action, { ok, output = '', error = '' }) {
   result.toggleAttribute('data-error', !ok);
   pythonOutput = action === 'compile' && ok ? output : undefined;
   download.hidden = pythonOutput === undefined;
-  status.textContent = ok ? (action === 'compile' ? 'Compiled successfully' : 'Run complete') : 'Program failed';
+  const completed = { check: 'Check complete', compile: 'Compiled successfully', run: 'Run complete' };
+  status.textContent = ok ? completed[action] : 'Program failed';
 }
 
 function failWorker(message) {
@@ -76,14 +81,35 @@ function startWorker(stopped = false) {
   worker.postMessage({ action: 'init' });
 }
 
-function execute(action) {
+async function execute(action) {
   if (run.disabled) return;
+  const current = worker;
+  const code = source.value;
+  const input = programInput.value;
+  const files = [...moduleFiles.files];
+  const modules = { ...exampleModules };
   setReady(false);
   stop.hidden = action !== 'run';
   download.hidden = true;
-  status.textContent = action === 'compile' ? 'Compiling…' : 'Running…';
+  const pending = { check: 'Checking…', compile: 'Compiling…', run: 'Running…' };
+  status.textContent = pending[action];
   timer = setTimeout(() => failWorker('The program took too long to finish.'), 8000);
-  worker.postMessage({ action, source: source.value, input: programInput.value });
+  try {
+    const names = new Set();
+    for (const file of files) {
+      if (!file.name.endsWith('.pa') || file.name === 'playground.pa' || names.has(file.name)) {
+        throw new Error("Choose .pa modules with unique names other than playground.pa.");
+      }
+      names.add(file.name);
+      modules[file.name] = await file.text();
+    }
+    if (current === worker) current.postMessage({ action, source: code, input, modules: JSON.stringify(modules) });
+  } catch (error) {
+    if (current !== worker) return;
+    clearTimeout(timer);
+    show(action, { ok: false, error: error.message });
+    setReady(true);
+  }
 }
 
 run.addEventListener('click', () => execute('run'));
@@ -96,6 +122,7 @@ stop.addEventListener('click', () => {
   startWorker(true);
 });
 compile.addEventListener('click', () => execute('compile'));
+check.addEventListener('click', () => execute('check'));
 retry.addEventListener('click', () => startWorker());
 source.addEventListener('input', () => {
   exampleRequest?.abort();
@@ -113,10 +140,19 @@ examples.addEventListener('change', async () => {
   const request = new AbortController();
   exampleRequest = request;
   try {
-    const response = await fetch(`examples/${examples.value}.pa`, { signal: request.signal });
-    if (!response.ok) throw new Error('The example could not be loaded.');
-    const code = await response.text();
+    async function loadExample(name) {
+      const response = await fetch(`examples/${name}.pa`, { signal: request.signal });
+      if (!response.ok) throw new Error('The example could not be loaded.');
+      return response.text();
+    }
+
+    const name = examples.value;
+    const [code, mathModule] = await Promise.all([
+      loadExample(name),
+      name === 'imports' ? loadExample('math_utils') : undefined,
+    ]);
     if (request.signal.aborted) return;
+    exampleModules = mathModule === undefined ? {} : { 'math_utils.pa': mathModule };
     source.value = code;
     if (!programInput.value || programInput.value === sampleInput) {
       sampleInput = sampleInputs.get(examples.value) ?? '';

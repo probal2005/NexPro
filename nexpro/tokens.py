@@ -66,6 +66,7 @@ ELSE = "ELSE"
 END = "END"
 FUNCTION = "FUNCTION"
 RETURN = "RETURN"
+IMPORT = "IMPORT"
 
 REPEAT = "REPEAT"
 
@@ -166,6 +167,7 @@ KEYWORDS = {
     "end": END,
     "function": FUNCTION,
     "return": RETURN,
+    "import": IMPORT,
 
     "repeat": REPEAT,
 

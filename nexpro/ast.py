@@ -155,3 +155,10 @@ class Index(Expression):
     def __init__(self, sequence, index):
         self.sequence = sequence
         self.index = index
+
+
+class Import(Statement):
+    def __init__(self, path, line, column):
+        self.path = path
+        self.line = line
+        self.column = column
