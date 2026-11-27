@@ -2,7 +2,7 @@
 
 from inspect import getsource
 
-from nexpro import data_builtins
+from nexpro import data_builtins, standard
 from nexpro.ast import (
     Member, Module, Slice, Assign, Binary, Boolean, Call, Function, If, Number, Return, Say, String,
     Unary, Variable, While, Index, ListLiteral, For, Break, Continue, Logical, Dictionary, SetItem,
@@ -16,6 +16,7 @@ _RUNTIME = """\
 import sys
 
 # NexPro data built-ins
+# NexPro standard modules
 
 _source_map = {}
 _globals = {}
@@ -38,6 +39,8 @@ def _call(functions, allow_builtin, name, *arguments):
         if allow_builtin and name in _builtins:
             return _builtins[name](*arguments)
         raise ValueError(f"Undefined function '{name}'")
+    if callable(functions[name]):
+        return functions[name](*arguments)
     parameters, function = functions[name]
     expected = len(parameters)
     if len(arguments) != expected:
@@ -77,6 +80,7 @@ if __name__ == '__main__':
 class GeneratedCode(list):
     def __init__(self):
         runtime = _RUNTIME.replace("# NexPro data built-ins", getsource(data_builtins).rstrip())
+        runtime = runtime.replace("# NexPro standard modules", getsource(standard).rstrip())
         super().__init__(runtime.splitlines())
         self.locations = {}
         self.function = "<program>"
@@ -156,8 +160,12 @@ def _statements(statements, lines, indent):
         lines.append(f"{indent}pass")
     for statement in statements:
         if isinstance(statement, Module):
-            factory = lines.modules[statement.path]
-            lines.emit(f"{indent}_aliases[{statement.alias!r}] = _load_module({statement.path!r}, {factory})", statement)
+            path = statement.path
+            target = (
+                f"({{}}, STANDARD_MODULES[{path!r}])" if path in standard.STANDARD_MODULES
+                else f"_load_module({path!r}, {lines.modules[path]})"
+            )
+            lines.emit(f"{indent}_aliases[{statement.alias!r}] = {target}", statement)
         elif isinstance(statement, Assign):
             value = _expression(statement.value, lines, indent)
             lines.append(f"{indent}_scope[{statement.variable.name!r}] = {value}")

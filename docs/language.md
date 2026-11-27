@@ -179,3 +179,11 @@ new lists.
 Use `items[start:stop]` or `items[start:stop:step]` on lists and strings.
 Omitted bounds and negative offsets follow Python slice semantics. A list
 slice can also be assigned using a list value.
+
+
+## Standard modules
+
+Import `"std/math"` with an alias for `abs()`, `round()`, and `sqrt()`.
+Import `"std/json"` with an alias for `parse(text)` and `stringify(value)`.
+The JSON module preserves Unicode and rejects non-finite numeric values.
+See the [JSON student report](../examples/json_report.pa).

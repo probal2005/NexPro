@@ -131,7 +131,7 @@ def test_literals_default_output_and_version(tmp_path):
     assert result.stdout == 'quoted "text"\n1.5\n'
     result = run("nexpro", "version", cwd=tmp_path)
     assert result.stdout == f"NexPro {version('nexpro')}\n"
-    assert version("nexpro") == "2.2.0"
+    assert version("nexpro") == "2.3.0"
 
 
 def test_compile_cannot_overwrite_source(tmp_path):
@@ -195,6 +195,7 @@ say 3 <= 2
 
 
 @pytest.mark.parametrize(("example", "input_text", "expected"), [
+    ("json_report", '{"name":"আদা","scores":[70,85,100]}\n', '9.0\n{"name": "আদা", "average": 85.0}\n'),
     ("clean_names", "  Ada, GRACE, Linus  \n", "ada | grace | linus\n"),
     ("scores", "70\n85\n100\n", "Average\n85.0\nHighest\n100.0\n"),
     ("score_series", "70\n85\n100\n\n", "Average\n85.0\nHighest\n100.0\n"),

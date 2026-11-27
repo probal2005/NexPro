@@ -1,7 +1,7 @@
 const CDN = 'https://cdn.jsdelivr.net/pyodide/v0.28.3/full/';
 const MODULES = [
   '__init__', '__version__', 'ast', 'compiler', 'data_builtins', 'errors',
-  'interpreter', 'lexer', 'loader', 'parser', 'runtime', 'tokens',
+  'interpreter', 'lexer', 'loader', 'parser', 'runtime', 'standard', 'tokens',
 ];
 
 async function loadFile(path) {

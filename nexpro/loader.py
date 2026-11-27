@@ -6,6 +6,7 @@ from nexpro.ast import Import, Module, Program
 from nexpro.errors import ImportError, SourceError
 from nexpro.lexer import Lexer
 from nexpro.parser import Parser
+from nexpro.standard import STANDARD_MODULES
 
 
 def load_program(entry, read_source, filename_for=str):
@@ -42,6 +43,13 @@ def load_program(entry, read_source, filename_for=str):
             error = ImportError(message, node.line, node.column, filename_for(importer))
             error.locate(source)
             return error
+
+        if module.startswith("std/"):
+            if module not in STANDARD_MODULES or node.alias is None:
+                raise diagnostic("Use a known standard module with an alias")
+            imported = Module(node.alias, module)
+            imported.location = node.location
+            return [imported]
 
         if (
             not module.endswith(".pa") or isabs(module) or "\\" in module

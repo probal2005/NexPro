@@ -1,0 +1,6 @@
+import "std/math" as math
+import "std/json" as json
+report = json.parse(input())
+scores = report["scores"]
+say math.sqrt(81)
+say json.stringify({"name": report["name"], "average": sum(scores) / len(scores)})

@@ -37,6 +37,7 @@ from nexpro.data_builtins import DATA_BUILTINS
 from nexpro.errors import EXECUTION_ERRORS
 from nexpro.errors import RuntimeError as NexProRuntimeError
 from nexpro.runtime import Runtime
+from nexpro.standard import STANDARD_MODULES
 
 
 BINARY_OPERATORS = {
@@ -110,7 +111,10 @@ class Interpreter:
                 module = Interpreter(read_input=self.builtins["input"], trace=self.trace)
                 module.modules = self.modules
                 module.module_bodies = self.module_bodies
-                module.visit_block(self.module_bodies[node.path])
+                if node.path in STANDARD_MODULES:
+                    module.functions.update(STANDARD_MODULES[node.path])
+                else:
+                    module.visit_block(self.module_bodies[node.path])
                 self.modules[node.path] = module
             self.aliases[node.alias] = self.modules[node.path]
             return None
@@ -303,6 +307,8 @@ class Interpreter:
             if allow_builtin and name in self.builtins:
                 return self.builtins[name](*arguments)
             raise NexProRuntimeError(f"Undefined function '{node.name}'")
+        if callable(function):
+            return function(*arguments)
         expected = len(function.parameters)
         if len(arguments) != expected:
             raise NexProRuntimeError(
