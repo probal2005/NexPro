@@ -162,3 +162,14 @@ class Import(Statement):
         self.path = path
         self.line = line
         self.column = column
+
+
+class For(Statement):
+    def __init__(self, name, iterable, body):
+        self.name = name
+        self.iterable = iterable
+        self.body = body
+
+
+class Break(Statement):
+    pass

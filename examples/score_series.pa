@@ -1,0 +1,26 @@
+# Enter scores one per line, then enter a blank line.
+scores = []
+while true
+    text = input()
+    if text == ""
+        break
+    end
+    append(scores, float(text))
+end
+
+if len(scores) == 0
+    say "No scores"
+else
+    total = 0
+    highest = scores[0]
+    for score in scores
+        total = total + score
+        if score > highest
+            highest = score
+        end
+    end
+    say "Average"
+    say total / len(scores)
+    say "Highest"
+    say highest
+end

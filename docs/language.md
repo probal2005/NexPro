@@ -85,3 +85,15 @@ share the program's top-level scope. Circular imports are errors.
 The browser playground accepts sibling modules through its file picker.
 The CLI supports nested module paths. Compiled Python includes imported
 definitions and statements in a standalone script.
+
+
+## Lists and loops added in 1.1
+
+`for name in value … end` evaluates the iterable once and visits each list
+item or string character in order. Each item is assigned in the current scope.
+An empty iterable leaves the loop variable untouched. `break` exits the nearest
+`for` or `while` loop and can appear inside a nested conditional.
+
+`append(list, value)` mutates the list and returns the missing value. Other
+variables referring to the same list see the added item. A loop iterating
+over a list can see items appended before that iteration ends.

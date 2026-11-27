@@ -22,6 +22,8 @@ from nexpro.ast import (
     While,
     Index,
     ListLiteral,
+    For,
+    Break,
 )
 
 from nexpro.errors import RuntimeError as NexProRuntimeError
@@ -47,13 +49,17 @@ class _ReturnFromFunction(Exception):
         self.value = value
 
 
+class _BreakLoop(Exception):
+    pass
+
+
 class Interpreter:
 
     def __init__(self, read_input=input):
         self.globals = Runtime()
         self.runtime = self.globals
         self.functions = {}
-        self.builtins = {"len": len, "int": int, "float": float, "input": read_input}
+        self.builtins = {"len": len, "int": int, "float": float, "input": read_input, "append": list.append}
 
     # ---------------------------------
 
@@ -90,9 +96,24 @@ class Interpreter:
             return self.visit_block(body or [])
 
         elif isinstance(node, While):
-            while self.visit(node.condition):
-                self.visit_block(node.body)
+            try:
+                while self.visit(node.condition):
+                    self.visit_block(node.body)
+            except _BreakLoop:
+                pass
             return None
+
+        elif isinstance(node, For):
+            try:
+                for value in self.visit(node.iterable):
+                    self.runtime.set(node.name, value)
+                    self.visit_block(node.body)
+            except _BreakLoop:
+                pass
+            return None
+
+        elif isinstance(node, Break):
+            raise _BreakLoop
 
         elif isinstance(node, Return):
             raise _ReturnFromFunction(self.visit(node.value))

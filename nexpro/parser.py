@@ -57,6 +57,8 @@ from nexpro.ast import (
     Index,
     ListLiteral,
     Import,
+    For,
+    Break,
 )
 
 from nexpro.errors import ParserError
@@ -290,13 +292,13 @@ class Parser:
         self.expect(END, "Expected 'end' after function body")
         return Function(name.value, parameters, body)
 
-    def block(self, *terminators, in_function):
+    def block(self, *terminators, in_function, in_loop=False):
         body = []
         while not self.is_end() and self.current.type not in terminators:
-            body.append(self.statement(in_function=in_function))
+            body.append(self.statement(in_function=in_function, in_loop=in_loop))
         return body
 
-    def statement(self, in_function=False, top_level=False):
+    def statement(self, in_function=False, top_level=False, in_loop=False):
         if top_level and self.match(FUNCTION):
             return self.function()
 
@@ -309,16 +311,16 @@ class Parser:
 
         if self.match(IF):
             condition = self.expression()
-            then_body = self.block(ELSE, END, in_function=in_function)
+            then_body = self.block(ELSE, END, in_function=in_function, in_loop=in_loop)
             else_body = None
             if self.match(ELSE):
-                else_body = self.block(END, in_function=in_function)
+                else_body = self.block(END, in_function=in_function, in_loop=in_loop)
             self.expect(END, "Expected 'end' after if block")
             return If(condition, then_body, else_body)
 
         if self.match(WHILE):
             condition = self.expression()
-            body = self.block(END, in_function=in_function)
+            body = self.block(END, in_function=in_function, in_loop=True)
             self.expect(END, "Expected 'end' after while block")
             return While(condition, body)
 
@@ -326,7 +328,32 @@ class Parser:
             return self.say_statement()
 
         if self.check(IDENTIFIER):
-            if self.peek() is not None and self.peek().type == LPAREN:
+            token = self.current
+            following = self.peek()
+            if token.value == "for" and following is not None and following.type == IDENTIFIER:
+                self.advance()
+                name = self.expect(IDENTIFIER, "Expected loop variable")
+                if not self.check(IDENTIFIER) or self.current.value != "in":
+                    raise ParserError(
+                        "Expected 'in' after loop variable",
+                        self.current.line, self.current.column, self.filename,
+                    )
+                self.advance()
+                iterable = self.expression()
+                body = self.block(END, in_function=in_function, in_loop=True)
+                self.expect(END, "Expected 'end' after for block")
+                return For(name.value, iterable, body)
+
+            if token.value == "break" and (following is None or following.type not in (ASSIGN, LPAREN)):
+                if not in_loop:
+                    raise ParserError(
+                        "'break' can only be used inside a loop",
+                        token.line, token.column, self.filename,
+                    )
+                self.advance()
+                return Break()
+
+            if following is not None and following.type == LPAREN:
                 name = self.current.value
                 self.advance()
                 self.advance()

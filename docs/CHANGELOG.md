@@ -4,6 +4,10 @@ All notable changes to NexPro will be documented here.
 
 ---
 
+## v1.1.0
+
+Added `for`, `break`, and `append()`.
+
 ## v1.0.0
 
 First stable release. The language reference, grammar, installation guide, and

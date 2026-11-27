@@ -2,7 +2,7 @@
 
 from nexpro.ast import (
     Assign, Binary, Boolean, Call, Function, If, Number, Return, Say, String,
-    Unary, Variable, While, Index, ListLiteral,
+    Unary, Variable, While, Index, ListLiteral, For, Break,
 )
 from nexpro.interpreter import BINARY_OPERATORS
 
@@ -13,7 +13,7 @@ import sys
 
 _globals = {}
 _functions = {}
-_builtins = {"len": len, "int": int, "float": float, "input": input}
+_builtins = {"len": len, "int": int, "float": float, "input": input, "append": list.append}
 
 
 def _get(scope, name):
@@ -112,6 +112,15 @@ def _statements(statements, lines, indent):
             lines.append(f"{body_indent}if not {condition}:")
             lines.append(f"{body_indent}    break")
             _statements(statement.body, lines, body_indent)
+        elif isinstance(statement, For):
+            iterable = _expression(statement.iterable, lines, indent)
+            item = f"_item_{len(lines)}"
+            lines.append(f"{indent}for {item} in {iterable}:")
+            body_indent = indent + "    "
+            lines.append(f"{body_indent}_scope[{statement.name!r}] = {item}")
+            _statements(statement.body, lines, body_indent)
+        elif isinstance(statement, Break):
+            lines.append(f"{indent}break")
         elif isinstance(statement, Function):
             name = f"_function_{len(lines)}"
             lines.append(f"{indent}def {name}(_scope):")

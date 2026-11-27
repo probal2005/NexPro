@@ -11,6 +11,8 @@ statement      -> IDENTIFIER "=" expression
                 | "say" expression
                 | "if" expression block ("else" block)? "end"
                 | "while" expression block "end"
+                | "for" IDENTIFIER "in" expression block "end"
+                | "break"
                 | "return" expression
                 | call
 expression     -> addition (comparison addition)?
@@ -28,3 +30,5 @@ arguments      -> expression ("," expression)*
 
 A `return` statement is valid only inside a function, including a nested
 `if` or `while` block within that function.
+
+A `break` statement is valid only inside a loop.

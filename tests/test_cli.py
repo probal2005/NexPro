@@ -62,6 +62,7 @@ def test_examples(example, expected, tmp_path):
         ("function f(x, x) return x end", "Duplicate parameter 'x'"),
         ("function f(x) return x", "Expected 'end'"),
         ("return 1", "Unknown statement"),
+        ("break", "only be used inside a loop"),
         ("if true say 1", "Expected 'end' after if block"),
         ("while false", "Expected 'end' after while block"),
         ("if true return 1 end", "Unknown statement"),
@@ -117,7 +118,7 @@ def test_literals_default_output_and_version(tmp_path):
     assert result.stdout == 'quoted "text"\n1.5\n'
     result = run("nexpro", "version", cwd=tmp_path)
     assert result.stdout == f"NexPro {version('nexpro')}\n"
-    assert version("nexpro") == "1.0.0"
+    assert version("nexpro") == "1.1.0"
 
 
 def test_compile_cannot_overwrite_source(tmp_path):
@@ -182,6 +183,8 @@ say 3 <= 2
 
 @pytest.mark.parametrize(("example", "input_text", "expected"), [
     ("scores", "70\n85\n100\n", "Average\n85.0\nHighest\n100.0\n"),
+    ("score_series", "70\n85\n100\n\n", "Average\n85.0\nHighest\n100.0\n"),
+    ("score_series", "\n", "No scores\n"),
     ("input", "Ada\n2000\n", "Hello, Ada!\n30\n"),
 ])
 def test_examples_with_input(example, input_text, expected, tmp_path):
@@ -284,3 +287,32 @@ def test_compile_cannot_overwrite_an_import(tmp_path):
     assert result.returncode == 1
     assert "Output path must differ" in result.stderr
     assert module.read_text(encoding="utf-8") == "say 7"
+
+
+def test_nested_break_and_loop_scope(tmp_path):
+    source = tmp_path / "loops.pa"
+    source.write_text("""
+for = 7
+break = 8
+in = 9
+values = []
+for letter in "ab"
+    for item in [1, 2]
+        append(values, letter)
+        break
+    end
+end
+for untouched in []
+    say untouched
+end
+say values
+say for + break + in
+""", encoding="utf-8")
+    compiled = run("nexpro", "compile", source, cwd=tmp_path)
+    assert compiled.returncode == 0, compiled.stderr
+    for result in (
+        run("nexpro", "run", source, cwd=tmp_path),
+        run(sys.executable, "-I", "-S", source.with_suffix(".py"), cwd=tmp_path),
+    ):
+        assert result.returncode == 0, result.stderr
+        assert result.stdout == "['a', 'b']\n24\n"
