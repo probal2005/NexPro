@@ -209,3 +209,10 @@ class Module(Statement):
     def __init__(self, alias, path):
         self.alias = alias
         self.path = path
+
+
+class Slice(Expression):
+    def __init__(self, start, stop, step):
+        self.start = start
+        self.stop = stop
+        self.step = step

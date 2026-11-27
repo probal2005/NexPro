@@ -65,6 +65,7 @@ from nexpro.ast import (
     ListLiteral,
     Import,
     Member,
+    Slice,
     For,
     Break,
     Continue,
@@ -365,7 +366,7 @@ class Parser:
         if top_level and self.match(IMPORT):
             path = self.expect(STRING, "Expected a quoted module path")
             alias = None
-            if self.check(IDENTIFIER) and self.current.value == "as":
+            if self.check(IDENTIFIER) and self.current.value == "as" and self.current.line == path.line and self.peek().type != ASSIGN:
                 self.advance()
                 alias = self.expect(IDENTIFIER, "Expected module alias").value
             return Import(path.value, path.line, path.column, alias)
@@ -408,7 +409,7 @@ class Parser:
                 self.expect(END, "Expected 'end' after for block")
                 return For(name.value, iterable, body)
 
-            if token.value in ("break", "continue") and (following is None or following.type not in (ASSIGN, LPAREN)):
+            if token.value in ("break", "continue") and (following is None or following.type not in (ASSIGN, LPAREN, LBRACKET, DOT)):
                 if not in_loop:
                     raise ParserError(
                         f"'{token.value}' can only be used inside a loop",
@@ -470,7 +471,13 @@ class Parser:
         node = self.primary()
         while self.match(LBRACKET):
             bracket = self.previous()
-            index = self.expression()
+            index = None if self.check(COLON) else self.expression()
+            if self.match(COLON):
+                stop = None if self.check(COLON) or self.check(RBRACKET) else self.expression()
+                step = None
+                if self.match(COLON) and not self.check(RBRACKET):
+                    step = self.expression()
+                index = self.locate(Slice(index, stop, step), bracket)
             self.expect(RBRACKET, "Expected ']' after index")
             node = self.locate(Index(node, index), bracket)
         return node

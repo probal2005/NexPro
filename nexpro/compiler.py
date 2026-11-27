@@ -4,7 +4,7 @@ from inspect import getsource
 
 from nexpro import data_builtins
 from nexpro.ast import (
-    Member, Module, Assign, Binary, Boolean, Call, Function, If, Number, Return, Say, String,
+    Member, Module, Slice, Assign, Binary, Boolean, Call, Function, If, Number, Return, Say, String,
     Unary, Variable, While, Index, ListLiteral, For, Break, Continue, Logical, Dictionary, SetItem,
 )
 from nexpro.errors import EXECUTION_ERRORS
@@ -130,6 +130,10 @@ def _expression(node, lines, indent):
     elif isinstance(node, ListLiteral):
         elements = [_expression(element, lines, indent) for element in node.elements]
         value = f"[{', '.join(elements)}]"
+    elif isinstance(node, Slice):
+        parts = [_expression(item, lines, indent) if item is not None else "None"
+                 for item in (node.start, node.stop, node.step)]
+        value = f"slice({', '.join(parts)})"
     elif isinstance(node, Index):
         sequence = _expression(node.sequence, lines, indent)
         index = _expression(node.index, lines, indent)

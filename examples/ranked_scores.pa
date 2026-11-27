@@ -1,0 +1,7 @@
+scores = [65, 85, 70, 100]
+ranked = reverse(sorted(scores))
+say ranked
+say ranked[:3]
+say scores
+say "NexPro"[:3]
+say range(3, 0, -1)

@@ -9,6 +9,7 @@ from nexpro.ast import (
     Program,
     Module,
     Member,
+    Slice,
     Assign,
     Variable,
     String,
@@ -144,6 +145,10 @@ class Interpreter:
             value = self.visit(node.value)
             sequence[index] = value
             return None
+
+        elif isinstance(node, Slice):
+            return slice(*(self.visit(item) if item is not None else None
+                           for item in (node.start, node.stop, node.step)))
 
         elif isinstance(node, Index):
             sequence = self.visit(node.sequence)

@@ -91,3 +91,26 @@ DATA_BUILTINS.update({
     "split": _split_text,
     "join": _join_text,
 })
+
+
+def _range_items(start, stop=None, step=1):
+    if stop is None:
+        start, stop = 0, start
+    if any(type(value) is not int for value in (start, stop, step)):
+        raise TypeError("range() expects integer bounds and step")
+    return list(range(start, stop, step))
+
+
+def _sorted_items(items):
+    if not isinstance(items, list):
+        raise TypeError("sorted() expects a list")
+    return sorted(items)
+
+
+def _reverse_items(items):
+    if not isinstance(items, list):
+        raise TypeError("reverse() expects a list")
+    return items[::-1]
+
+
+DATA_BUILTINS.update({"range": _range_items, "sorted": _sorted_items, "reverse": _reverse_items})

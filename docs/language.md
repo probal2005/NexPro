@@ -167,3 +167,15 @@ that every item in its list is text. See the [name cleanup example](../examples/
 namespace. Use `module.call()` or `module.value` for its top-level definitions.
 An unaliased import continues to include statements in the importing scope.
 See the [namespace example](../examples/namespaces.pa).
+
+
+## Ranges and slices
+
+`range(stop)` or `range(start, stop, step)` produces a list of integers
+with an exclusive stop. The default step is 1, negative steps count down,
+and a zero step raises an error. `sorted(items)` and `reverse(items)` return
+new lists.
+
+Use `items[start:stop]` or `items[start:stop:step]` on lists and strings.
+Omitted bounds and negative offsets follow Python slice semantics. A list
+slice can also be assigned using a list value.
