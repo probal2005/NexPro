@@ -128,7 +128,7 @@ def test_literals_default_output_and_version(tmp_path):
     assert result.stdout == 'quoted "text"\n1.5\n'
     result = run("nexpro", "version", cwd=tmp_path)
     assert result.stdout == f"NexPro {version('nexpro')}\n"
-    assert version("nexpro") == "1.6.0"
+    assert version("nexpro") == "1.7.0"
 
 
 def test_compile_cannot_overwrite_source(tmp_path):
@@ -192,6 +192,7 @@ say 3 <= 2
 
 
 @pytest.mark.parametrize(("example", "input_text", "expected"), [
+    ("clean_names", "  Ada, GRACE, Linus  \n", "ada | grace | linus\n"),
     ("scores", "70\n85\n100\n", "Average\n85.0\nHighest\n100.0\n"),
     ("score_series", "70\n85\n100\n\n", "Average\n85.0\nHighest\n100.0\n"),
     ("score_series", "\n", "No scores\n"),
@@ -443,3 +444,29 @@ def test_data_builtins(code, expected, status, tmp_path):
             assert expected in result.stderr
             assert f"({source}:1)" in result.stderr
             assert "Traceback" not in result.stderr
+
+
+@pytest.mark.parametrize(("code", "expected", "status"), [
+    ('say trim("  বাংলা　") say lower("ÉCOLE") say upper("straße")', 'বাংলা\nécole\nSTRASSE\n', 0),
+    ('say split("", ",") say split(",x,,", ",")', "['']\n['', 'x', '', '']\n", 0),
+    ('say join([], ",") say join(["আ", "লো"], "")', '\nআলো\n', 0),
+    ('say split("x", "")', 'non-empty separator', 1),
+    ('say split("x", 1)', 'expects a text separator', 1),
+    ('say join([1], ",")', 'expects a list of text values', 1),
+    ('say join(["x"], 0)', 'expects a text separator', 1),
+    ('say trim(1)', 'trim() expects text', 1),
+])
+def test_text_builtins(code, expected, status, tmp_path):
+    source = tmp_path / "text.pa"
+    source.write_text(code, encoding="utf-8")
+    compiled = run("nexpro", "compile", source, cwd=tmp_path)
+    assert compiled.returncode == 0, compiled.stderr
+    for result in (
+        run("nexpro", "run", source, cwd=tmp_path),
+        run(sys.executable, "-I", "-S", source.with_suffix(".py"), cwd=tmp_path),
+    ):
+        assert result.returncode == status, result.stderr
+        if status == 0:
+            assert result.stdout == expected
+        else:
+            assert expected in result.stderr

@@ -4,6 +4,10 @@ All notable changes to NexPro will be documented here.
 
 ---
 
+## v1.7.0
+
+Added `trim()`, `lower()`, `upper()`, `split()`, and `join()`.
+
 ## v1.6.0
 
 Added `sum()`, `min()`, `max()`, `keys()`, and `get()`, plus a student report example.

@@ -1,14 +1,14 @@
-# Install and use NexPro 1.6
+# Install and use NexPro 1.7
 
-Use Python 3.11 or later. Download `nexpro-1.6.0-py3-none-any.whl` from the
-[GitHub release](https://github.com/probal2005/NexPro/releases/tag/v1.6.0)
+Use Python 3.11 or later. Download `nexpro-1.7.0-py3-none-any.whl` from the
+[GitHub release](https://github.com/probal2005/NexPro/releases/tag/v1.7.0)
 and open a terminal in the download directory.
 
 ## macOS and Linux
 
 ```sh
 python3 -m venv .venv
-.venv/bin/python -m pip install ./nexpro-1.6.0-py3-none-any.whl
+.venv/bin/python -m pip install ./nexpro-1.7.0-py3-none-any.whl
 source .venv/bin/activate
 nexpro version
 ```
@@ -17,11 +17,11 @@ nexpro version
 
 ```powershell
 py -3 -m venv .venv
-.\.venv\Scripts\python.exe -m pip install .\nexpro-1.6.0-py3-none-any.whl
+.\.venv\Scripts\python.exe -m pip install .\nexpro-1.7.0-py3-none-any.whl
 .\.venv\Scripts\nexpro.exe version
 ```
 
-The version command prints `NexPro 1.6.0`. On Windows, use
+The version command prints `NexPro 1.7.0`. On Windows, use
 `.\.venv\Scripts\nexpro.exe` in place of `nexpro` if the environment is inactive.
 Use `py -3` for Python commands if `python` is unavailable.
 

@@ -45,3 +45,49 @@ DATA_BUILTINS = {
     "keys": _record_keys,
     "get": _record_get,
 }
+
+
+def _require_text(value, name):
+    if not isinstance(value, str):
+        raise TypeError(f"{name}() expects text")
+
+
+def _trim_text(text):
+    _require_text(text, "trim")
+    return text.strip()
+
+
+def _lower_text(text):
+    _require_text(text, "lower")
+    return text.lower()
+
+
+def _upper_text(text):
+    _require_text(text, "upper")
+    return text.upper()
+
+
+def _split_text(text, separator):
+    _require_text(text, "split")
+    if not isinstance(separator, str):
+        raise TypeError("split() expects a text separator")
+    if not separator:
+        raise ValueError("split() requires a non-empty separator")
+    return text.split(separator)
+
+
+def _join_text(items, separator):
+    if not isinstance(items, list) or any(not isinstance(item, str) for item in items):
+        raise TypeError("join() expects a list of text values")
+    if not isinstance(separator, str):
+        raise TypeError("join() expects a text separator")
+    return separator.join(items)
+
+
+DATA_BUILTINS.update({
+    "trim": _trim_text,
+    "lower": _lower_text,
+    "upper": _upper_text,
+    "split": _split_text,
+    "join": _join_text,
+})

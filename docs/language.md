@@ -146,3 +146,16 @@ booleans raise a runtime error. An empty list raises an error for `min()`
 and `max()`. The dictionary functions require a dictionary. `get()` requires
 all three arguments and a hashable key. It keeps an existing value even if
 that value is `0`, `false`, or the empty string.
+
+
+## Text built-ins added in 1.7
+
+| Function | Behavior |
+| --- | --- |
+| `trim(text)` | Remove leading and trailing Unicode whitespace. |
+| `lower(text)`, `upper(text)` | Apply Unicode lowercase or uppercase conversion. |
+| `split(text, separator)` | Split on a non-empty text separator. Adjacent separators and separators at the ends preserve empty fields. Splitting an empty string returns `[""]`. |
+| `join(items, separator)` | Join a list of strings with the given text separator. An empty list returns the empty string. An empty separator is valid. |
+
+These functions require text arguments where documented. `join()` also checks
+that every item in its list is text. See the [name cleanup example](../examples/clean_names.pa).

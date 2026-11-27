@@ -50,7 +50,7 @@
     },
     {
       "name": "support.function.builtin.nexpro",
-      "match": "\\b(?:append|float|get|input|int|keys|len|max|min|sum)(?=\\s*\\()"
+      "match": "\\b(?:append|float|get|input|int|join|keys|len|lower|max|min|split|sum|trim|upper)(?=\\s*\\()"
     },
     {
       "name": "constant.numeric.nexpro",

@@ -1,0 +1,6 @@
+# Enter names separated by commas on one line.
+names = []
+for name in split(input(), ",")
+    append(names, lower(trim(name)))
+end
+say join(names, " | ")
