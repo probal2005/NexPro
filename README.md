@@ -44,3 +44,9 @@ examples are lexer fixtures. The `error.pa` fixture demonstrates invalid input.
 
 Install NexPro and pytest in the same Python environment, then run
 `python -m pytest -q` from the repository root.
+
+## Browser playground
+
+The playground runs the repository's Python implementation in a browser worker
+using Pyodide. Vercel builds the static site from the repository root using
+`node web/build.mjs`; the generated site is placed in `dist/`.

@@ -1,0 +1,68 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Write, run, and compile NexPro programs in your browser.">
+  <title>NexPro Playground</title>
+  <link rel="stylesheet" href="styles.css">
+  <script src="app.js" defer></script>
+</head>
+<body>
+  <header class="site-header">
+    <div class="shell header-inner">
+      <a class="brand" href="./" aria-label="NexPro Playground"><span class="mark" aria-hidden="true">N</span>NexPro</a>
+      <a class="source-link" href="https://github.com/probal2005/NexPro/tree/playground">GitHub repository</a>
+    </div>
+  </header>
+  <main class="shell">
+    <div class="intro">
+      <h1>NexPro Playground</h1>
+      <p>Run NexPro code in your browser or compile it to standalone Python.</p>
+    </div>
+    <section class="workbench" aria-label="Compiler workspace">
+      <div class="toolbar">
+        <div class="example-picker">
+          <label for="examples">Examples</label>
+          <select id="examples">
+            <option value="hello">Hello world</option>
+            <option value="variables">Variables</option>
+            <option value="precedence" selected>Arithmetic precedence</option>
+          </select>
+        </div>
+        <div class="actions">
+          <button id="run" class="primary" type="button" disabled>Run code</button>
+          <button id="compile" type="button" disabled>Compile to Python</button>
+        </div>
+      </div>
+      <div class="panels">
+        <section class="panel">
+          <div class="panel-heading">
+            <label for="source">playground.pa</label><span class="language">NexPro</span>
+          </div>
+          <div class="editor">
+            <div id="gutter" aria-hidden="true">1</div>
+            <textarea id="source" rows="16" wrap="off" spellcheck="false" autocapitalize="off" autocomplete="off" aria-describedby="editor-help"># Multiplication runs before addition
+say 2 + 3 * 4
+say (2 + 3) * 4
+</textarea>
+          </div>
+          <p id="editor-help" class="panel-footer">Ctrl or ⌘ + Enter to run</p>
+        </section>
+        <section class="panel">
+          <div class="panel-heading">
+            <h2 id="result-heading">Output</h2>
+            <button id="download" type="button" hidden>Download .py</button>
+          </div>
+          <pre id="result" tabindex="0" aria-labelledby="result-heading">Run your program to see its output.</pre>
+          <div class="panel-footer result-footer">
+            <span id="status" role="status">Loading NexPro…</span>
+            <button id="retry" type="button" hidden>Retry</button>
+          </div>
+        </section>
+      </div>
+    </section>
+    <footer>Code is processed in this browser.</footer>
+  </main>
+</body>
+</html>
