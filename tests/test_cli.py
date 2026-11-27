@@ -131,7 +131,7 @@ def test_literals_default_output_and_version(tmp_path):
     assert result.stdout == 'quoted "text"\n1.5\n'
     result = run("nexpro", "version", cwd=tmp_path)
     assert result.stdout == f"NexPro {version('nexpro')}\n"
-    assert version("nexpro") == "2.7.0"
+    assert version("nexpro") == "2.8.0"
 
 
 def test_compile_cannot_overwrite_source(tmp_path):
@@ -516,3 +516,38 @@ def test_run_trace_includes_imported_calls_without_changing_stdout(tmp_path):
     plain = run("nexpro", "run", entry, cwd=tmp_path)
     assert plain.stdout == result.stdout
     assert not plain.stderr
+
+
+def test_module_cache_initializes_aliases_once_without_global_leaks(tmp_path):
+    module = tmp_path / "module.pa"
+    module.write_text('say "loaded"\nvalue = 9\nfunction get_value() return value end\n', encoding="utf-8")
+    entry = tmp_path / "main.pa"
+    entry.write_text('value = 3\nimport "module.pa" as first\nimport "./module.pa" as second\nsay value\nsay second.get_value()\n', encoding="utf-8")
+    compiled = run("nexpro", "compile", entry, cwd=tmp_path)
+    assert compiled.returncode == 0, compiled.stderr
+    for result in (
+        run("nexpro", "run", entry, cwd=tmp_path),
+        run(sys.executable, "-I", "-S", entry.with_suffix(".py"), cwd=tmp_path),
+    ):
+        assert result.returncode == 0, result.stderr
+        assert result.stdout == "loaded\n3\n9\n"
+
+
+@pytest.mark.parametrize(("code", "message"), [
+    ("say range(1, 3, 0)", "must not be zero"),
+    ("say [1, 2][::0]", "slice step cannot be zero"),
+    ('import "std/math" as math\nsay math.sqrt(-1)', "math domain error"),
+    ('import "std/json" as json\nsay json.parse("NaN")', "Invalid JSON constant"),
+])
+def test_new_language_errors_match_backends(code, message, tmp_path):
+    entry = tmp_path / "main.pa"
+    entry.write_text(code, encoding="utf-8")
+    compiled = run("nexpro", "compile", entry, cwd=tmp_path)
+    assert compiled.returncode == 0, compiled.stderr
+    for result in (
+        run("nexpro", "run", entry, cwd=tmp_path),
+        run(sys.executable, "-I", "-S", entry.with_suffix(".py"), cwd=tmp_path),
+    ):
+        assert result.returncode == 1
+        assert message in result.stderr
+        assert str(entry) in result.stderr

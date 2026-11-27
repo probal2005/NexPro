@@ -13,18 +13,22 @@ def load_program(entry, read_source, filename_for=str):
     """Resolve legacy imports within each scope and retain isolated modules."""
     active = set()
     modules = {}
+    parsed = {}
 
     def load(path, source, loaded):
         active.add(path)
         statements = []
         filename = filename_for(path)
         try:
-            source = source.replace("\r\n", "\n").replace("\r", "\n")
-            try:
-                tree = Parser(Lexer(source, filename).tokenize(), filename).parse()
-            except SourceError as error:
-                error.locate(source)
-                raise
+            if path not in parsed:
+                source = source.replace("\r\n", "\n").replace("\r", "\n")
+                try:
+                    tree = Parser(Lexer(source, filename).tokenize(), filename).parse()
+                except SourceError as error:
+                    error.locate(source)
+                    raise
+                parsed[path] = (source, tree)
+            source, tree = parsed[path]
             for node in tree.statements:
                 if isinstance(node, Import):
                     statements.extend(load_import(path, source, node, loaded))
@@ -62,7 +66,7 @@ def load_program(entry, read_source, filename_for=str):
             return []
         if node.alias is None or path not in modules:
             try:
-                module_source = read_source(path)
+                module_source = parsed[path][0] if path in parsed else read_source(path)
             except (OSError, UnicodeError) as error:
                 message = error.strerror if isinstance(error, OSError) and error.strerror else str(error)
                 raise diagnostic(f"Cannot read module '{path}': {message}") from error
