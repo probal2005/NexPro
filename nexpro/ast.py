@@ -216,3 +216,8 @@ class Slice(Expression):
         self.start = start
         self.stop = stop
         self.step = step
+
+
+class Assert(Statement):
+    def __init__(self, condition):
+        self.condition = condition

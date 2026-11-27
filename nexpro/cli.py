@@ -63,6 +63,26 @@ def check_json(path, project_root=None):
     return 0
 
 
+def test_project():
+    project = find_project()
+    if project is None:
+        raise NexProError("Run nexpro test inside a NexPro project")
+    files = sorted(project.tests.rglob("test_*.pa"))
+    if not files:
+        raise NexProError(f"No test_*.pa files found in {project.tests}")
+    failures = 0
+    for path in files:
+        try:
+            run_file(path, project_root=project.root)
+        except (NexProError, OSError, UnicodeError, ValueError, RecursionError) as error:
+            failures += 1
+            print(f"FAIL {path.relative_to(project.root)}\n{error}", file=sys.stderr)
+        else:
+            print(f"PASS {path.relative_to(project.root)}")
+    print(f"{len(files) - failures} passed, {failures} failed")
+    return int(failures > 0)
+
+
 def main(argv=None):
     parser = argparse.ArgumentParser(prog="nexpro", description="NexPro language tools")
     parser.add_argument("--version", action="version", version=f"NexPro {__version__}")
@@ -78,6 +98,7 @@ def main(argv=None):
     compiler.add_argument("-o", "--output", type=Path, help="Output path (default: SOURCE.py)")
     initialize = commands.add_parser("init", help="Create a NexPro project")
     initialize.add_argument("directory", type=Path, nargs="?", default=Path("."))
+    commands.add_parser("test", help="Run a project's NexPro tests")
     commands.add_parser("version", help="Show the NexPro version")
     commands.add_parser("debug-adapter", help="Start the VS Code debug adapter")
     commands.add_parser("help", help="Show this help message")
@@ -100,6 +121,8 @@ def main(argv=None):
             init_project(args.directory)
             print(f"Initialized NexPro project in {args.directory}")
             return 0
+        if args.command == "test":
+            return test_project()
         project = find_project() if args.source is None else None
         if args.source is None:
             if project is None:

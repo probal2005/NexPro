@@ -66,6 +66,7 @@ from nexpro.ast import (
     Import,
     Member,
     Slice,
+    Assert,
     For,
     Break,
     Continue,
@@ -395,6 +396,12 @@ class Parser:
         if self.check(IDENTIFIER):
             token = self.current
             following = self.peek()
+            if token.value == "assert" and following is not None and following.type not in (
+                ASSIGN, LPAREN, LBRACKET, DOT,
+            ):
+                self.advance()
+                return Assert(self.expression())
+
             if token.value == "for" and following is not None and following.type == IDENTIFIER:
                 self.advance()
                 name = self.expect(IDENTIFIER, "Expected loop variable")

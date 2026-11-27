@@ -10,6 +10,7 @@ from nexpro.ast import (
     Module,
     Member,
     Slice,
+    Assert,
     Assign,
     Variable,
     String,
@@ -159,6 +160,11 @@ class Interpreter:
             sequence = self.visit(node.sequence)
             index = self.visit(node.index)
             return sequence[index]
+
+        elif isinstance(node, Assert):
+            if not self.visit(node.condition):
+                raise NexProRuntimeError("Assertion failed")
+            return None
 
         elif isinstance(node, If):
             body = node.then_body if self.visit(node.condition) else node.else_body

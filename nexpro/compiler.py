@@ -4,7 +4,7 @@ from inspect import getsource
 
 from nexpro import data_builtins, standard
 from nexpro.ast import (
-    Member, Module, Slice, Assign, Binary, Boolean, Call, Function, If, Number, Return, Say, String,
+    Member, Module, Slice, Assert, Assign, Binary, Boolean, Call, Function, If, Number, Return, Say, String,
     Unary, Variable, While, Index, ListLiteral, For, Break, Continue, Logical, Dictionary, SetItem,
 )
 from nexpro.errors import EXECUTION_ERRORS
@@ -179,6 +179,10 @@ def _statements(statements, lines, indent):
             lines.emit(f"{indent}_say({value})", statement)
         elif isinstance(statement, Call):
             _expression(statement, lines, indent)
+        elif isinstance(statement, Assert):
+            value = _expression(statement.condition, lines, indent)
+            lines.append(f"{indent}if not {value}:")
+            lines.emit(f"{indent}    raise ValueError('Assertion failed')", statement)
         elif isinstance(statement, Return):
             value = _expression(statement.value, lines, indent)
             lines.append(f"{indent}return {value}")
