@@ -18,9 +18,10 @@ your first `.pa` program to a shareable CSV inventory tool.
 
 ## Built with NexPro
 
-Explore [20 runnable NexPro projects](projects/README.md), including group
+Explore [21 runnable NexPro projects](projects/README.md), including group
 expense settlement, student report cards, and tournament standings. Each
-project includes a live form, its `.pa` source, a sample input, and the expected output.
+project includes its `.pa` source, a sample input, and the expected output.
+Open the Playground project picker to run any sample, or use a live form where available.
 
 [Try the Bill Splitter web demo](https://nexpro-playground.vercel.app/projects/bill-splitter/) ·
 [Read its NexPro source](projects/bill-splitter/main.pa)

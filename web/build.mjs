@@ -36,16 +36,18 @@ for (const project of await readdir('projects', { withFileTypes: true })) {
       modules[name] = await readFile(`${folder}/${name}`, 'utf8');
     }
   }
+  const liveDemo = Object.hasOwn(schemas, project.name) || project.name === 'order-dispatch';
   const program = {
     source: await readFile(`${folder}/main.pa`, 'utf8'),
     input: JSON.stringify(JSON.parse(sample)),
     modules,
+    liveDemo,
   };
   await mkdir(`dist/${folder}`, { recursive: true });
   await writeFile(`dist/${folder}/example.json`, JSON.stringify(program));
   const description = readme.split(/\r?\n/).find(line => line.includes('[Read the NexPro code]'))
     ?.split('[Read the NexPro code]')[0].trim() ?? '';
-  if (Object.hasOwn(schemas, project.name) || project.name === 'order-dispatch') {
+  if (liveDemo) {
     liveProjects.push({ slug: project.name, title, description });
   }
   if (Object.hasOwn(schemas, project.name)) {

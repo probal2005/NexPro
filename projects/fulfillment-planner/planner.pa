@@ -1,0 +1,122 @@
+import "std/dict" as dictionaries
+import "std/queue" as queue
+import "std/record" as records
+
+record PlanInput(inventory: list, orders: list)
+record Stock(warehouse: string, sku: string, available: integer)
+where "stock_fields", warehouse != "" and sku != "" and available >= 0, "Stock requires warehouse, SKU, and nonnegative units"
+record Order(id: string, lines: list, priority: string = "standard")
+where "order_id", id != "", "Order ID is required"
+where "order_priority", priority == "rush" or priority == "standard", "Priority must be rush or standard"
+record OrderLine(sku: string, quantity: integer)
+where "line_fields", sku != "" and quantity > 0, "Order lines require a SKU and a positive quantity"
+
+function index_inventory(rows)
+    by_sku = {}
+    stock = []
+    seen = {}
+    for row in rows
+        item = records.from_dict("Stock", row)
+        if not dictionaries.has(seen, item.warehouse)
+            seen[item.warehouse] = {}
+        end
+        if dictionaries.has(seen[item.warehouse], item.sku)
+            throw "duplicate_stock", "Repeated warehouse and SKU: " + item.warehouse + " / " + item.sku
+        end
+        seen[item.warehouse][item.sku] = true
+        if not dictionaries.has(by_sku, item.sku)
+            by_sku[item.sku] = []
+        end
+        append(by_sku[item.sku], item)
+        append(stock, item)
+    end
+    return {"by_sku": by_sku, "stock": stock}
+end
+
+function prepare_order(row)
+    order = records.from_dict("Order", row)
+    if len(order.lines) == 0
+        throw "empty_order", "An order must have at least one line"
+    end
+    demand = {}
+    for item in order.lines
+        line = records.from_dict("OrderLine", item)
+        demand[line.sku] = get(demand, line.sku, 0) + line.quantity
+    end
+    return {"id": order.id, "priority": order.priority, "demand": demand}
+end
+
+function plan_order(order, by_sku)
+    # Keep tentative reservations separate until every SKU can be filled.
+    allocations = []
+    reservations = []
+    units = 0
+    for sku in order["demand"]
+        remaining = order["demand"][sku]
+        for stock in get(by_sku, sku, [])
+            quantity = min([remaining, stock.available])
+            if quantity > 0
+                append(allocations, {"warehouse": stock.warehouse, "sku": sku, "quantity": quantity})
+                append(reservations, {"stock": stock, "quantity": quantity})
+                remaining = remaining - quantity
+                units = units + quantity
+            end
+            if remaining == 0
+                break
+            end
+        end
+        if remaining > 0
+            return {"id": order["id"], "status": "backordered", "shortage": {"sku": sku, "quantity": remaining},
+                    "allocations": [], "units": 0}
+        end
+    end
+    for reservation in reservations
+        item = reservation["stock"]
+        item.available = item.available - reservation["quantity"]
+    end
+    return {"id": order["id"], "status": "fulfilled", "allocations": allocations, "units": units}
+end
+
+function plan_fulfillment(payload)
+    data = records.from_dict("PlanInput", payload)
+    inventory = index_inventory(data.inventory)
+    rush = queue.new()
+    standard = queue.new()
+    order_ids = {}
+    invalid = []
+    row_number = 0
+
+    for row in data.orders
+        row_number = row_number + 1
+        try
+            order = prepare_order(row)
+            if dictionaries.has(order_ids, order["id"])
+                throw "duplicate_order", "Order ID already queued"
+            end
+            order_ids[order["id"]] = true
+            if order["priority"] == "rush"
+                queue.enqueue(rush, order)
+            else
+                queue.enqueue(standard, order)
+            end
+        catch (error)
+            append(invalid, {"row": row_number, "code": error["code"], "message": error["message"]})
+        end
+    end
+
+    outcomes = []
+    total_units = 0
+    totals = {"fulfilled": 0, "backordered": 0}
+    for pending in [rush, standard]
+        while len(pending) > 0
+            outcome = plan_order(queue.dequeue(pending), inventory["by_sku"])
+            append(outcomes, outcome)
+            total_units = total_units + outcome["units"]
+            status = outcome["status"]
+            totals[status] = totals[status] + 1
+        end
+    end
+    return {"orders": outcomes, "invalid_orders": invalid, "remaining_inventory": inventory["stock"],
+            "summary": {"fulfilled": totals["fulfilled"], "backordered": totals["backordered"],
+                        "invalid": len(invalid), "allocated_units": total_units}}
+end

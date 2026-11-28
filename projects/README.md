@@ -33,3 +33,7 @@ These projects use recent language features. Select a live form to try any of th
 | [Service Ticket Timeline](service-timeline/) | Applies insert and remove operations to a service ticket's note history. | [Open](https://nexpro-playground.vercel.app/projects/service-timeline/) |
 | [Production Batch Quality Review](batch-quality/) | Classifies CSV production batches against a maximum rejection rate. | [Open](https://nexpro-playground.vercel.app/projects/batch-quality/) |
 | [Principal Repayment Ledger](loan-repayment/) | Applies principal payments in order and keeps the balance consistent when a payment fails. | [Open](https://nexpro-playground.vercel.app/projects/loan-repayment/) |
+
+## Advanced project
+
+[Multi-Warehouse Fulfillment Planner](fulfillment-planner/) uses multiple .pa files, typed records, FIFO queues, and staged allocations. Run it from the Playground project picker or the CLI.

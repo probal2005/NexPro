@@ -1,0 +1,46 @@
+import "planner.pa" as planner
+
+inventory = [
+    {"warehouse": "A", "sku": "KIT", "available": 2},
+    {"warehouse": "B", "sku": "KIT", "available": 3},
+    {"warehouse": "B", "sku": "CASE", "available": 1}
+]
+
+plan = planner.plan_fulfillment({"inventory": inventory, "orders": [
+    {"id": "STANDARD", "lines": [{"sku": "KIT", "quantity": 1}]},
+    {"id": "RUSH", "priority": "rush", "lines": [{"sku": "KIT", "quantity": 2}, {"sku": "KIT", "quantity": 2}]},
+    {"id": "MULTI", "priority": "rush", "lines": [{"sku": "KIT", "quantity": 1}, {"sku": "CASE", "quantity": 2}]},
+    {"id": "STANDARD", "lines": [{"sku": "CASE", "quantity": 1}]},
+    {"id": "EMPTY", "lines": []},
+    {"id": "UNKNOWN", "lines": [{"sku": "MISSING", "quantity": 1}]},
+    {"id": "BAD", "lines": [{"sku": "KIT", "quantity": 0}]}
+]})
+
+assert plan["orders"][0]["id"] == "RUSH"
+assert len(plan["orders"][0]["allocations"]) == 2
+assert plan["orders"][0]["units"] == 4
+assert plan["orders"][1]["id"] == "MULTI"
+assert plan["orders"][1]["shortage"]["sku"] == "CASE"
+assert len(plan["orders"][1]["allocations"]) == 0
+assert plan["orders"][2]["id"] == "STANDARD"
+assert plan["orders"][2]["status"] == "fulfilled"
+assert plan["orders"][3]["shortage"]["sku"] == "MISSING"
+assert plan["summary"]["allocated_units"] == 5
+assert plan["summary"]["fulfilled"] == 2
+assert plan["summary"]["backordered"] == 2
+assert plan["summary"]["invalid"] == 3
+assert plan["invalid_orders"][0]["code"] == "duplicate_order"
+assert plan["invalid_orders"][1]["code"] == "empty_order"
+assert plan["invalid_orders"][2]["code"] == "record_rule"
+assert plan["remaining_inventory"][2]["available"] == 1
+assert inventory[0]["available"] == 2
+again = planner.plan_fulfillment({"inventory": inventory, "orders": []})
+assert again["remaining_inventory"][0]["available"] == 2
+assert again["summary"]["allocated_units"] == 0
+
+try
+    planner.plan_fulfillment({"inventory": [inventory[0], inventory[0]], "orders": []})
+    assert false
+catch (error)
+    assert error["code"] == "duplicate_stock"
+end

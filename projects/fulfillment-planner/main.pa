@@ -1,0 +1,10 @@
+import "std/json" as json
+import "planner.pa" as planner
+
+try
+    plan = planner.plan_fulfillment(json.parse(input()))
+    say json.stringify(plan)
+catch (error)
+    issue = {"code": error["code"], "message": error["message"]}
+    say json.stringify({"error": issue})
+end

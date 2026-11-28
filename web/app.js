@@ -304,7 +304,7 @@ examples.addEventListener('change', async () => {
     }
     const directory = slug ?? (name === 'bill_splitter' ? 'bill-splitter' : undefined);
     projectSource.hidden = !directory;
-    projectDemo.hidden = !directory;
+    projectDemo.hidden = !directory || (isProject && !program.liveDemo);
     if (directory) {
       const path = encodeURIComponent(directory);
       projectSource.href = `https://github.com/probal2005/NexPro/tree/main/projects/${path}`;
