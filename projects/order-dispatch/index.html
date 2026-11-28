@@ -7,6 +7,7 @@
   <title>Order Dispatch Checker | NexPro</title>
   <link rel="icon" type="image/png" href="/favicon.png">
   <link rel="stylesheet" href="/projects/order-dispatch/styles.css">
+  <link rel="stylesheet" href="/project-demo/results.css">
   <script src="/projects/order-dispatch/app.js" defer></script>
 </head>
 <body>
@@ -35,16 +36,23 @@
         <p id="status" role="status">Loading NexPro…</p>
       </form>
 
-      <section class="results" aria-labelledby="report-heading">
+      <section class="results analysis-output" aria-labelledby="report-heading">
         <h2 id="report-heading">Dispatch report</h2>
-        <div id="report" aria-live="polite">
-          <section class="report-group">
-            <h3>Ready to send <span id="ready-count" class="count ready">0</span></h3>
-            <ul id="ready-orders"></ul>
+        <p id="dispatch-note" class="result-notice">Checking the sample…</p>
+        <div id="report" class="project-report" hidden>
+          <dl class="result-metrics">
+            <div class="result-metric tone-good"><dt>Ready to send</dt><dd id="ready-count">0</dd></div>
+            <div class="result-metric tone-warn"><dt>Blocked</dt><dd id="blocked-count">0</dd></div>
+          </dl>
+          <section class="result-section tone-good">
+            <h3>Ready orders</h3>
+            <ul id="ready-orders" class="result-items"></ul>
+            <p id="no-ready" class="result-empty" hidden>No ready orders</p>
           </section>
-          <section class="report-group">
-            <h3>Blocked <span id="blocked-count" class="count blocked">0</span></h3>
-            <ul id="blocked-orders"></ul>
+          <section class="result-section tone-warn">
+            <h3>Blocked orders</h3>
+            <ul id="blocked-orders" class="result-cards"></ul>
+            <p id="no-blocked" class="result-empty" hidden>No blocked orders</p>
           </section>
         </div>
       </section>

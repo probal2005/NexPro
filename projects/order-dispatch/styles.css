@@ -45,14 +45,8 @@ button:disabled { opacity: .65; cursor: default; }
 :focus-visible { outline: 2px solid var(--mint); outline-offset: 3px; }
 #status, #share-status { color: var(--muted); font-size: .875rem; }
 #status { min-height: 1.25em; margin-top: 10px; }
-.report-group { margin-top: 20px; overflow-wrap: anywhere; }
-.report-group h3 { display: flex; align-items: center; gap: 8px; }
-.report-group ul { margin: 8px 0 0; padding-left: 21px; }
-.report-group li { padding-block: 4px; }
-.report-group li ul { color: var(--muted); margin-top: 3px; }
-.count { display: inline-block; min-width: 1.5em; border-radius: 1em; padding: 2px 6px; text-align: center; }
-.ready { background: #215038; color: #c8fbd8; }
-.blocked { background: #58373a; color: #ffd3d5; }
+#report [hidden], #report[hidden] { display: none; }
+#blocked-orders .result-card ul { margin: 5px 0 0; padding-inline-start: 20px; color: var(--report-muted); font-size: .83rem; }
 footer { margin-top: 18px; }
 .visually-hidden { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); }
 @media (max-width: 740px) { .workspace { grid-template-columns: 1fr; } }

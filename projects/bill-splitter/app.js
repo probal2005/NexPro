@@ -5,6 +5,9 @@ const calculate = document.querySelector('#calculate');
 const status = document.querySelector('#status');
 const shares = document.querySelector('#shares');
 const total = document.querySelector('#total');
+const billMetrics = document.querySelector('#bill-metrics');
+const splitPeople = document.querySelector('#split-people');
+const splitNote = document.querySelector('#split-note');
 const shareStatus = document.querySelector('#share-status');
 const amounts = new Intl.NumberFormat(undefined, {
   minimumFractionDigits: 2,
@@ -20,13 +23,19 @@ function setUnavailable(message) {
   worker.terminate();
   calculate.disabled = true;
   status.textContent = message;
+  splitNote.hidden = false;
+  splitNote.classList.add('tone-warn');
+  splitNote.textContent = message;
 }
 
 function startCalculation() {
   if (calculate.disabled) return;
   calculate.disabled = true;
   shares.replaceChildren();
-  total.hidden = true;
+  billMetrics.hidden = true;
+  splitNote.hidden = false;
+  splitNote.classList.remove('tone-warn');
+  splitNote.textContent = 'Calculating shares…';
   status.textContent = 'Calculating…';
   timeout = setTimeout(() => setUnavailable('Calculation timed out. Reload to try again.'), 8000);
   worker.postMessage({
@@ -59,21 +68,29 @@ worker.onmessage = ({ data }) => {
   }
   if (!data.ok) {
     status.textContent = 'The calculator could not run. Try again.';
+    splitNote.classList.add('tone-warn');
+    splitNote.textContent = status.textContent;
     return;
   }
   try {
     const result = JSON.parse(data.output);
     if (result.error) {
-      status.textContent = result.error;
+      status.textContent = 'Review the bill inputs.';
+      splitNote.classList.add('tone-warn');
+      splitNote.textContent = result.error;
       return;
     }
     addShare(result.base_people, result.base_cents);
     addShare(result.extra_people, result.extra_cents);
-    total.textContent = `Total: ${amounts.format(result.total_cents / 100)}`;
-    total.hidden = false;
+    total.textContent = amounts.format(result.total_cents / 100);
+    splitPeople.textContent = result.base_people + result.extra_people;
+    billMetrics.hidden = false;
+    splitNote.hidden = true;
     status.textContent = 'Split calculated';
   } catch {
     status.textContent = 'The calculator returned an unexpected result.';
+    splitNote.classList.add('tone-warn');
+    splitNote.textContent = status.textContent;
   }
 };
 

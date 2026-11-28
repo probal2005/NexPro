@@ -7,6 +7,7 @@
   <title>__PROJECT_TITLE__ | NexPro</title>
   <link rel="icon" type="image/png" href="/favicon.png">
   <link rel="stylesheet" href="/project-demo/styles.css">
+  <link rel="stylesheet" href="/project-demo/results.css">
   <script type="module" src="/project-demo/app.js"></script>
 </head>
 <body data-project="__PROJECT_SLUG__">
@@ -30,9 +31,9 @@
         </div>
         <p id="status" role="status">Loading NexPro…</p>
       </form>
-      <section class="results" aria-labelledby="results-heading">
+      <section class="results analysis-output" aria-labelledby="results-heading">
         <h2 id="results-heading">Results</h2>
-        <div id="summary" aria-live="polite"></div>
+        <div id="summary"><div class="result-notice"><p>Loading project output…</p></div></div>
         <details id="json-details" hidden>
           <summary>View JSON output</summary>
           <pre id="raw-result"></pre>

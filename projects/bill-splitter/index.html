@@ -7,6 +7,7 @@
   <title>Bill Splitter | NexPro</title>
   <link rel="icon" type="image/png" href="/favicon.png">
   <link rel="stylesheet" href="/projects/bill-splitter/styles.css">
+  <link rel="stylesheet" href="/project-demo/results.css">
   <script src="/projects/bill-splitter/app.js" defer></script>
 </head>
 <body>
@@ -28,10 +29,14 @@
         <button id="calculate" type="submit" disabled>Split bill</button>
         <p id="status" role="status">Loading NexPro…</p>
       </form>
-      <section class="result" aria-labelledby="result-heading" aria-live="polite" aria-atomic="true">
+      <section class="result analysis-output" aria-labelledby="result-heading" aria-live="polite" aria-atomic="true">
         <h2 id="result-heading">Split breakdown</h2>
-        <ul id="shares"></ul>
-        <p id="total" hidden></p>
+        <dl id="bill-metrics" class="result-metrics" hidden>
+          <div class="result-metric tone-good"><dt>Total bill</dt><dd id="total"></dd></div>
+          <div class="result-metric tone-neutral"><dt>People</dt><dd id="split-people"></dd></div>
+        </dl>
+        <p id="split-note" class="result-notice">Calculating the sample…</p>
+        <ul id="shares" aria-label="Amount per person"></ul>
       </section>
     </div>
     <footer>

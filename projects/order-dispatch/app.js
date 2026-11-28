@@ -7,6 +7,10 @@ const add = document.querySelector('#add-order');
 const reset = document.querySelector('#reset-sample');
 const status = document.querySelector('#status');
 const shareStatus = document.querySelector('#share-status');
+const report = document.querySelector('#report');
+const reportNote = document.querySelector('#dispatch-note');
+const noReady = document.querySelector('#no-ready');
+const noBlocked = document.querySelector('#no-blocked');
 const readyList = document.querySelector('#ready-orders');
 const blockedList = document.querySelector('#blocked-orders');
 const readyCount = document.querySelector('#ready-count');
@@ -66,22 +70,40 @@ function buildItem(text) {
 function showReport({ ready, blocked }) {
   readyCount.textContent = ready.length;
   blockedCount.textContent = blocked.length;
+  readyList.hidden = !ready.length;
+  noReady.hidden = Boolean(ready.length);
+  blockedList.hidden = !blocked.length;
+  noBlocked.hidden = Boolean(blocked.length);
   for (const id of ready) readyList.append(buildItem(id));
   for (const { id, reasons } of blocked) {
-    const item = buildItem(id);
+    const item = buildItem('');
+    item.className = 'result-card';
+    const title = document.createElement('strong');
+    title.textContent = id;
+    item.append(title);
     const list = document.createElement('ul');
     for (const reason of reasons) list.append(buildItem(reason));
     item.append(list);
     blockedList.append(item);
   }
+  report.hidden = false;
+  reportNote.hidden = true;
   status.textContent = 'Dispatch report updated.';
+}
+
+function showReportError(message) {
+  report.hidden = true;
+  reportNote.hidden = false;
+  reportNote.classList.add('tone-warn');
+  reportNote.textContent = message;
+  status.textContent = message;
 }
 
 function fail(message) {
   clearTimeout(timer);
   worker.terminate();
   setEnabled(false);
-  status.textContent = message;
+  showReportError(message);
 }
 
 function checkOrders() {
@@ -97,6 +119,10 @@ function checkOrders() {
   }
   clearReport();
   setEnabled(false);
+  report.hidden = true;
+  reportNote.hidden = false;
+  reportNote.classList.remove('tone-warn');
+  reportNote.textContent = 'Checking orders…';
   status.textContent = 'Checking orders…';
   timer = setTimeout(() => fail('The check timed out. Reload to try again.'), 8000);
   worker.postMessage({ action: 'run', source, input: JSON.stringify(entries), modules: '{}', trace: false });
@@ -115,13 +141,13 @@ worker.onmessage = ({ data }) => {
   }
   setEnabled(true);
   if (!data.ok) {
-    status.textContent = 'NexPro could not check these orders. Review the inputs and try again.';
+    showReportError('NexPro could not check these orders. Review the inputs and try again.');
     return;
   }
   try {
     showReport(JSON.parse(data.output));
   } catch {
-    status.textContent = 'NexPro returned an unexpected report.';
+    showReportError('NexPro returned an unexpected report.');
   }
 };
 

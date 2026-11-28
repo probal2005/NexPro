@@ -10,7 +10,7 @@
 }
 * { box-sizing: border-box; }
 body { margin: 0; }
-.shell { width: min(1100px, calc(100% - 40px)); margin-inline: auto; }
+.shell { width: min(1240px, calc(100% - 40px)); margin-inline: auto; }
 header, .row-heading, .actions { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
 header, .row-heading { justify-content: space-between; }
 header { min-height: 68px; border-bottom: 1px solid var(--border); }
@@ -22,7 +22,7 @@ h1 { font-size: clamp(2rem, 5vw, 3rem); letter-spacing: -.04em; }
 h2 { margin-bottom: 12px; font-size: 1.2rem; }
 .intro, .muted, #status, #share-status { color: var(--muted); }
 .intro { margin: 8px 0 24px; }
-.workspace { display: grid; grid-template-columns: minmax(0, 6fr) minmax(0, 5fr); gap: 16px; }
+.workspace { display: grid; grid-template-columns: minmax(0, 5fr) minmax(0, 6fr); gap: 16px; }
 form, .results { border: 1px solid var(--border); border-radius: 12px; background: var(--surface); padding: 20px; }
 .results { align-self: start; overflow-wrap: anywhere; }
 fieldset { min-width: 0; }
@@ -42,14 +42,7 @@ button:disabled { opacity: .65; cursor: default; }
 #status, #share-status { font-size: .875rem; }
 #status { margin-top: 10px; min-height: 1.25em; }
 form > .actions { margin-top: 12px; }
-.result-fields { margin: 0; }
-.result-fields dt { color: var(--mint); font-size: .875rem; font-weight: 600; }
-.result-fields dd { margin: 3px 0 12px; }
-.result-list { padding-left: 22px; margin: 0; }
-.result-list > li { padding: 5px 0; }
-.result-list .result-fields { border-bottom: 1px solid var(--border); padding-bottom: 3px; }
-.error, pre { white-space: pre-wrap; overflow-wrap: anywhere; }
-.error { color: #ffd3d5; }
+pre { white-space: pre-wrap; overflow-wrap: anywhere; }
 details { margin-top: 12px; }
 summary { cursor: pointer; color: var(--muted); }
 pre { background: #101418; border-radius: 7px; padding: 10px; }

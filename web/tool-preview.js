@@ -60,11 +60,13 @@ function render(tool, ok) {
     }
   }
   for (const { label, value } of tool.results) {
+    const pair = document.createElement('div');
     const term = document.createElement('dt');
     const detail = document.createElement('dd');
     term.textContent = label;
     detail.textContent = value;
-    resultsList.append(term, detail);
+    pair.append(term, detail);
+    resultsList.append(pair);
   }
   for (const [name, content] of Object.entries(tool.downloads ?? {})) {
     const button = document.createElement('button');

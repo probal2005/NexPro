@@ -12,7 +12,7 @@ if (!version) throw new Error('NexPro version not found');
 const template = await readFile('web/index.html', 'utf8');
 const demoTemplate = await readFile('web/project-demo/index.html', 'utf8');
 await mkdir('dist/project-demo', { recursive: true });
-for (const name of ['app.js', 'schemas.mjs', 'styles.css']) {
+for (const name of ['app.js', 'schemas.mjs', 'styles.css', 'results.js', 'results.css']) {
   await cp(`web/project-demo/${name}`, `dist/project-demo/${name}`);
 }
 const escape = text => text.replaceAll('&', '&amp;').replaceAll('<', '&lt;')

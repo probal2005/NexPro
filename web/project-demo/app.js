@@ -1,4 +1,5 @@
 import { schemas } from './schemas.mjs';
+import { outputMessage, renderProjectResult } from './results.js';
 
 const slug = document.body.dataset.project;
 const schema = schemas[slug];
@@ -13,7 +14,6 @@ const details = document.querySelector('#json-details');
 const raw = document.querySelector('#raw-result');
 const shareStatus = document.querySelector('#share-status');
 const worker = new Worker('/worker.js');
-const numeric = new Intl.NumberFormat(undefined, { maximumFractionDigits: 8 });
 let sample;
 let program;
 let rootEditor;
@@ -100,36 +100,6 @@ function createEditor(spec, value) {
   return { node, read: () => spec.type === 'number' ? input.valueAsNumber : input.value };
 }
 
-function formatLabel(key) {
-  const label = key.replaceAll('_', ' ');
-  return label ? label[0].toUpperCase() + label.slice(1) : '';
-}
-
-function renderResult(value) {
-  if (Array.isArray(value)) {
-    if (value.length === 0) return element('span', 'muted', 'None');
-    const node = element('ol', 'result-list');
-    for (const item of value) {
-      const row = element('li');
-      row.append(renderResult(item));
-      node.append(row);
-    }
-    return node;
-  }
-  if (value !== null && typeof value === 'object') {
-    const node = element('dl', 'result-fields');
-    for (const [key, item] of Object.entries(value)) {
-      const term = element('dt', '', formatLabel(key));
-      const description = element('dd');
-      description.append(renderResult(item));
-      node.append(term, description);
-    }
-    return node;
-  }
-  const text = typeof value === 'number' ? numeric.format(value) : String(value ?? 'None');
-  return element('span', '', text);
-}
-
 function setEnabled(enabled) {
   inputs.disabled = !enabled;
   run.disabled = !enabled;
@@ -146,13 +116,15 @@ function fail(message) {
   worker.terminate();
   setEnabled(false);
   status.textContent = message;
+  summary.replaceChildren(outputMessage(message, true));
+  details.hidden = true;
 }
 
 function execute() {
   const input = JSON.stringify(rootEditor.read());
   setEnabled(false);
   status.textContent = 'Running NexPro…';
-  summary.replaceChildren();
+  summary.replaceChildren(outputMessage('Running project…'));
   details.hidden = true;
   timer = setTimeout(() => fail('The run timed out. Reload to try again.'), 8000);
   worker.postMessage({
@@ -173,18 +145,19 @@ worker.onmessage = ({ data }) => {
   }
   setEnabled(true);
   if (!data.ok) {
-    summary.replaceChildren(element('p', 'error', data.error ?? 'Review your inputs and try again.'));
+    summary.replaceChildren(outputMessage(data.error ?? 'Review your inputs and try again.', true));
     status.textContent = 'The project could not run with these inputs.';
     return;
   }
   try {
     const result = JSON.parse(data.output);
-    summary.replaceChildren(renderResult(result));
+    summary.replaceChildren(renderProjectResult(slug, result));
     raw.textContent = JSON.stringify(result, null, 2);
     details.hidden = false;
-    status.textContent = 'Result updated.';
+    status.textContent = result?.error ? 'Review the result for the input error.' : 'Result updated.';
   } catch {
     status.textContent = 'NexPro returned an unexpected result.';
+    summary.replaceChildren(outputMessage(status.textContent, true));
   }
 };
 

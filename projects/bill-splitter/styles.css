@@ -31,9 +31,12 @@ button[type=submit] { margin-top: 8px; background: var(--mint); color: #11291b; 
 .result { background: #131a1e; border-left: 1px solid var(--border); }
 h2 { margin: 0 0 16px; font-size: 1rem; }
 ul { margin: 0; padding: 0; list-style: none; }
-li { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; padding: 10px 0; border-bottom: 1px solid var(--border); }
-li strong { font-size: 1.35rem; font-variant-numeric: tabular-nums; }
-#total { margin-top: 16px; }
+#shares li { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; }
+#shares li strong { font-size: 1.35rem; font-variant-numeric: tabular-nums; }
+#shares { display: grid; gap: 8px; margin-top: 14px; }
+#shares li { border: 1px solid var(--report-border); border-radius: 8px; padding: 9px 12px; background: var(--report-panel); }
+#shares li strong { color: var(--mint); overflow-wrap: normal; }
+#split-note[hidden], #bill-metrics[hidden] { display: none; }
 footer { display: flex; gap: 12px 18px; align-items: center; flex-wrap: wrap; margin-top: 18px; }
 .secondary { background: #202b31; color: inherit; }
 #share-status { color: var(--muted); font-size: .875rem; }
