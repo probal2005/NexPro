@@ -18,6 +18,7 @@ const projectSource = document.querySelector('#project-source');
 const projectDemo = document.querySelector('#project-demo');
 const run = document.querySelector('#run');
 const share = document.querySelector('#share');
+const shareTool = document.querySelector('#share-tool');
 const sharePanel = document.querySelector('#share-panel');
 const shareInput = document.querySelector('#share-url');
 const shareNote = document.querySelector('#share-note');
@@ -52,7 +53,7 @@ function refreshActions() {
   run.disabled = !available;
   check.disabled = !available;
   preview.disabled = !available;
-  share.disabled = Boolean(exampleRequest);
+  share.disabled = shareTool.disabled = Boolean(exampleRequest);
   toolPreview.setEnabled(available);
   compile.disabled = !available;
 }
@@ -161,13 +162,16 @@ async function execute(action, fields = {}) {
   }
 }
 
-share.addEventListener('click', async () => {
+share.addEventListener('click', () => shareCurrentCode(false));
+shareTool.addEventListener('click', () => shareCurrentCode(true));
+
+async function shareCurrentCode(standalone) {
   const code = source.value;
   sharePanel.hidden = false;
   shareInput.hidden = true;
   shareNote.textContent = '';
   try {
-    shareInput.value = shareUrl(code, await readModules());
+    shareInput.value = shareUrl(code, await readModules(), standalone);
     shareInput.hidden = false;
     try {
       await navigator.clipboard.writeText(shareInput.value);
@@ -180,7 +184,7 @@ share.addEventListener('click', async () => {
   } catch (error) {
     shareNote.textContent = error.message;
   }
-});
+}
 
 preview.addEventListener('click', () => execute('preview'));
 toolPreview.onSubmit(fields => execute('preview', fields));

@@ -67,6 +67,7 @@
           <button id="run" class="primary" type="button" disabled>Run code</button>
           <button id="preview" type="button" disabled>Preview tool</button>
           <button id="share" type="button">Share code</button>
+          <button id="share-tool" type="button">Share tool</button>
           <button id="stop" type="button" hidden>Stop</button>
           <button id="check" type="button" disabled>Check syntax</button>
           <button id="compile" type="button" disabled>Compile to Python</button>
@@ -129,6 +130,14 @@ say (2 + 3) * 4
         <input id="csv-file" type="file" accept=".csv,text/csv" aria-describedby="csv-help">
         <p id="csv-help">The CSV becomes one JSON-encoded input line. Use <code>csv.parse(json.parse(input()))</code> to read it.</p>
       </div>
+    </section>
+    <section class="project-directory" aria-labelledby="tool-examples-heading">
+      <h2 id="tool-examples-heading">Tools generated from NexPro</h2>
+      <ul class="project-links">
+        <li><a href="tool.html?example=bill"><strong>Bill Splitter form</strong><span>Split a bill and distribute its remaining cents.</span></a></li>
+        <li><a href="tool.html?example=quote"><strong>Freelance Quote form</strong><span>Calculate a quote from your rate, hours and expenses.</span></a></li>
+        <!-- NEXPRO_TOOL_LINKS -->
+      </ul>
     </section>
     <section id="live-projects" class="project-directory" aria-labelledby="live-projects-heading">
       <h2 id="live-projects-heading">Live projects</h2>

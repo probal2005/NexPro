@@ -94,3 +94,10 @@ footer { color: var(--muted); margin: 16px 0 28px; font-size: .875rem; }
 
 .field-error { display: block; color: #ffb0ad; margin-top: 5px; }
 #tool-fields input[aria-invalid] { border-color: #ffb0ad; }
+
+#tool-fields select { display: block; width: 100%; margin-top: 5px; }
+#tool-fields input[type=checkbox] { width: auto; min-width: 20px; min-height: 20px; accent-color: var(--accent); }
+.tool-page { max-width: 740px; }
+.tool-output, #public-files pre { height: auto; max-height: 300px; }
+#public-files h2 { margin-top: 12px; }
+#public-source summary { cursor: pointer; margin-bottom: 8px; }

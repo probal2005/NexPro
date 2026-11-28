@@ -1,0 +1,44 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Use a browser tool built with NexPro.">
+  <title>NexPro Tool</title>
+  <link rel="icon" type="image/png" href="favicon.png">
+  <link rel="stylesheet" href="styles.css">
+  <script src="public-tool.js" type="module"></script>
+</head>
+<body>
+  <header class="site-header">
+    <div class="shell header-inner">
+      <a class="brand" href="./"><img class="mark" src="nexpro-icon.png" alt="" width="40" height="40">NexPro Playground</a>
+    </div>
+  </header>
+  <main class="shell tool-page">
+    <div class="intro"><h1 id="public-title">NexPro Tool</h1></div>
+    <div class="workbench">
+      <div class="toolbar">
+        <span id="public-status" role="status">Loading tool…</span>
+        <button id="public-start" type="button" class="primary" hidden>Start tool</button>
+        <button id="public-stop" type="button" hidden>Stop</button>
+      </div>
+      <section id="tool-panel" class="input-panel" hidden aria-labelledby="tool-heading">
+        <h2 id="tool-heading">Tool form</h2>
+        <form id="tool-form" novalidate>
+          <div id="tool-fields"></div>
+          <button id="tool-calculate" class="primary" type="submit">Calculate</button>
+        </form>
+        <dl id="tool-results" aria-live="polite"></dl>
+      </section>
+      <pre id="public-output" class="tool-output" tabindex="0" hidden></pre>
+      <details id="public-source" class="input-panel" hidden>
+        <summary>View source</summary>
+        <a id="public-edit" href="./">Open in Playground</a>
+        <div id="public-files"></div>
+      </details>
+    </div>
+    <footer>Code and inputs are processed in this browser.</footer>
+  </main>
+</body>
+</html>

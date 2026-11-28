@@ -1,12 +1,12 @@
 const limit = 12000;
 const marker = '#tool=';
 
-export function shareUrl(source, modules) {
+export function shareUrl(source, modules, standalone = false) {
   const bytes = new TextEncoder().encode(JSON.stringify({ source, modules }));
   if (bytes.length > limit) throw new Error('This code and its modules are too large for a share link.');
   const encoded = btoa(String.fromCharCode(...bytes))
     .replaceAll('+', '-').replaceAll('/', '_').replace(/=+$/, '');
-  const url = new URL(location.href);
+  const url = new URL(standalone ? "tool.html" : "./", location.href);
   url.hash = marker + encoded;
   return url.href;
 }
