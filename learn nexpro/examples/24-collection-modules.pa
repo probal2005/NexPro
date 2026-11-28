@@ -1,0 +1,7 @@
+import "std/text" as text
+import "std/list" as lists
+import "std/dict" as records
+
+say text.replace("Ada  Smith", "  ", " ")
+say lists.unique(["A", "B", "A"])
+say records.merge({"count": 0}, {"count": 2})

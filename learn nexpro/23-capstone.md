@@ -1,6 +1,6 @@
 # 23. Capstone — inventory reorder tool
 
-[← Previous lesson](22-cli-debug-test.md) · [Course index](README.md)
+[← Previous lesson](22-cli-debug-test.md) · [Course index](README.md) · [Next lesson →](24-collection-modules.md)
 
 Build a complete workflow that reads stock records, applies a reorder rule, and exports the result.
 
@@ -71,4 +71,4 @@ The report now contains two orders. B-02 has a reorder quantity of `9 - 2 = 7`.
 
 </details>
 
-[← Previous lesson](22-cli-debug-test.md) · [Course index](README.md)
+[← Previous lesson](22-cli-debug-test.md) · [Course index](README.md) · [Next lesson →](24-collection-modules.md)

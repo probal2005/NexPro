@@ -1,7 +1,7 @@
 # Learn NexPro
 
 A complete course for NexPro 4.9, from your first `.pa` program to a shareable
-CSV inventory tool. Each of the 23 lessons includes definitions, syntax, use
+CSV inventory tool. Each of the 36 lessons includes definitions, syntax, use
 cases, advantages, limitations, a runnable example, expected output, and an
 exercise with an answer.
 
@@ -56,24 +56,24 @@ the examples locally.
 22. [CLI, tests, and debugging](22-cli-debug-test.md)
 23. [Capstone — inventory reorder tool](23-capstone.md)
 
-## Further practice
+## Advanced language features
 
-- [Invoice totals with defaults and null](../examples/invoice_total.pa)
-- [CSV recovery with try, catch, and throw](../examples/recover_csv.pa)
-- [Dispatch summary with queues, linked lists, and statistics](../examples/dispatch_summary.pa)
+24. [Text, list, and dictionary modules](24-collection-modules.md)
+25. [Null, defaults, and elif](25-optional-values.md)
+26. [Recovering from runtime errors](26-error-recovery.md)
+27. [Queues, linked lists, and statistics](27-queues-and-statistics.md)
+28. [Structured errors and custom codes](28-structured-errors.md)
+29. [Named arguments](29-named-arguments.md)
 
-- [Structured inventory errors](../examples/structured_inventory.pa)
-- [Invoice totals with named arguments](../examples/named_invoice.pa)
-- [Invoice record definitions](../examples/invoice_record.pa)
+## Records and validated data
 
-- [Typed invoice and validation errors](../examples/typed_invoice.pa)
-
-- [Record dot access](../examples/record_fields.pa)
-- [Convert CSV rows into typed records](../examples/csv_invoice_records.pa)
-
-- [Validate CSV invoices](../examples/validated_invoice.pa)
-- [Update related fields together](../examples/atomic_invoice.pa)
-- [Convert nested invoice records](../examples/nested_invoice.pa)
+30. [Structured records](30-records.md)
+31. [Typed record fields](31-typed-records.md)
+32. [Record dot access](32-record-dot-access.md)
+33. [CSV and dictionary conversion](33-record-conversion.md)
+34. [Record validation rules](34-record-validation.md)
+35. [Atomic record updates](35-atomic-record-updates.md)
+36. [Nested records and error paths](36-nested-records.md)
 
 ## References
 
