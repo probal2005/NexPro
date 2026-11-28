@@ -6,7 +6,7 @@ const calculate = document.querySelector('#tool-calculate');
 
 function render(tool, ok) {
   resultsList.replaceChildren();
-  if (!ok) return;
+  if (!ok || !tool) return;
   fieldList.replaceChildren();
   panel.hidden = false;
   calculate.hidden = tool.fields.length === 0;
@@ -27,7 +27,14 @@ function render(tool, ok) {
     }
     label.htmlFor = input.id;
     label.textContent = field.label;
-    wrapper.append(label, input);
+    const message = document.createElement('small');
+    message.id = `${input.id}-error`;
+    message.className = 'field-error';
+    input.setAttribute('aria-describedby', message.id);
+    input.addEventListener('input', () => {
+      if (input.hasAttribute('aria-invalid')) validate(input);
+    });
+    wrapper.append(label, input, message);
     fieldList.append(wrapper);
   }
   for (const { label, value } of tool.results) {
@@ -40,6 +47,14 @@ function render(tool, ok) {
   if (!tool.fields.length && !tool.results.length) {
     resultsList.textContent = 'Add a field or result call in your NexPro code to create a tool.';
   }
+}
+
+function validate(input) {
+  const invalid = !input.validity.valid;
+  if (invalid) input.setAttribute('aria-invalid', 'true');
+  else input.removeAttribute('aria-invalid');
+  document.getElementById(`${input.id}-error`).textContent = input.validationMessage;
+  return !invalid;
 }
 
 export const toolPreview = {
@@ -55,8 +70,13 @@ export const toolPreview = {
   onSubmit(run) {
     form.addEventListener('submit', event => {
       event.preventDefault();
-      if (!form.reportValidity()) return;
-      const fields = Object.fromEntries([...fieldList.querySelectorAll('input')].map(input => [
+      const inputs = [...fieldList.querySelectorAll('input')];
+      const invalid = inputs.filter(input => !validate(input));
+      if (invalid.length) {
+        invalid[0].focus();
+        return;
+      }
+      const fields = Object.fromEntries(inputs.map(input => [
         input.name, input.type === 'number' ? input.valueAsNumber : input.value,
       ]));
       run(fields);

@@ -86,8 +86,11 @@ footer { color: var(--muted); margin: 16px 0 28px; font-size: .875rem; }
 .project-links span { color: var(--muted); font-size: .875rem; line-height: 1.4; }
 
 #tool-fields { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 180px), 1fr)); gap: 12px; margin: 12px 0; }
-#tool-fields input { display: block; width: 100%; margin-top: 5px; padding: 8px 10px; border: 1px solid #46545e; border-radius: 6px; background: #11171d; color: inherit; font: inherit; }
+#tool-fields input, #share-url:not([hidden]) { display: block; width: 100%; margin-top: 5px; padding: 8px 10px; border: 1px solid #46545e; border-radius: 6px; background: #11171d; color: inherit; font: inherit; }
 #tool-results { display: grid; grid-template-columns: fit-content(55%) minmax(0, 1fr); gap: 6px 16px; overflow-wrap: anywhere; }
 #tool-results:empty { display: none; }
 #tool-results dt { color: var(--muted); }
 #tool-results dd { margin: 0; white-space: pre-wrap; }
+
+.field-error { display: block; color: #ffb0ad; margin-top: 5px; }
+#tool-fields input[aria-invalid] { border-color: #ffb0ad; }

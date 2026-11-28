@@ -2,9 +2,9 @@
 
 # NexPro
 
-NexPro is a small programming language for learning and writing short
-programs. Write code in `.pa` files, run it in your browser or terminal,
-and compile it to standalone Python.
+NexPro is a small programming language for turning calculations and rules into
+shareable browser tools. Write a `.pa` file, generate a form from its field
+declarations, or use the same program from a terminal or as standalone Python.
 
 [Online Playground](https://nexpro-playground.vercel.app/) ·
 [Latest release](https://github.com/probal2005/NexPro/releases/latest) ·
@@ -23,6 +23,15 @@ project includes a live form, its `.pa` source, a sample input, and the expected
 [Try the Order Dispatch Checker](https://nexpro-playground.vercel.app/projects/order-dispatch/) ·
 [Read its NexPro rules](projects/order-dispatch/main.pa)
 
+## Build a tool
+
+Try **Bill Splitter form**, **Freelance Quote form**, or **Inventory reorder from CSV**
+in the playground. Select **Preview tool** to generate a form from `.pa` code, or
+**Run code** to process a CSV. **Share code** creates a link containing the source
+and attached NexPro modules.
+
+[Browser tool guide](docs/HELP.md#build-a-browser-tool-with-nexpro)
+
 ## Quick start
 
 ### Try it in your browser
@@ -37,11 +46,11 @@ Enter one line per `input()` call in **Program input**. Attach imported sibling
 ### Install the CLI
 
 Use Python 3.11 or later. Download the wheel from the
-[3.2.0 release](https://github.com/probal2005/NexPro/releases/tag/v3.2.0),
+[3.3.0 release](https://github.com/probal2005/NexPro/releases/tag/v3.3.0),
 then run these commands from your download directory.
 
 ```sh
-python -m pip install ./nexpro-3.2.0-py3-none-any.whl
+python -m pip install ./nexpro-3.3.0-py3-none-any.whl
 nexpro version
 ```
 

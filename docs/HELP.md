@@ -1,14 +1,14 @@
-# Install and use NexPro 3.2
+# Install and use NexPro 3.3
 
-Use Python 3.11 or later. Download `nexpro-3.2.0-py3-none-any.whl` from the
-[GitHub release](https://github.com/probal2005/NexPro/releases/tag/v3.2.0)
+Use Python 3.11 or later. Download `nexpro-3.3.0-py3-none-any.whl` from the
+[GitHub release](https://github.com/probal2005/NexPro/releases/tag/v3.3.0)
 and open a terminal in the download directory.
 
 ## macOS and Linux
 
 ```sh
 python3 -m venv .venv
-.venv/bin/python -m pip install ./nexpro-3.2.0-py3-none-any.whl
+.venv/bin/python -m pip install ./nexpro-3.3.0-py3-none-any.whl
 source .venv/bin/activate
 nexpro version
 ```
@@ -17,11 +17,11 @@ nexpro version
 
 ```powershell
 py -3 -m venv .venv
-.\.venv\Scripts\python.exe -m pip install .\nexpro-3.2.0-py3-none-any.whl
+.\.venv\Scripts\python.exe -m pip install .\nexpro-3.3.0-py3-none-any.whl
 .\.venv\Scripts\nexpro.exe version
 ```
 
-The version command prints `NexPro 3.2.0`. On Windows, use
+The version command prints `NexPro 3.3.0`. On Windows, use
 `.\.venv\Scripts\nexpro.exe` in place of `nexpro` if the environment is inactive.
 Use `py -3` for Python commands if `python` is unavailable.
 
@@ -60,3 +60,12 @@ Import `"std/csv" as csv` for `csv.parse(text)` and `csv.stringify(rows)`.
 Parsing uses the first row as column names and returns cell values as text.
 Writing uses the first dictionary's key order and requires the same columns in
 each row. In the playground, `json.parse(input())` reads an uploaded CSV as text.
+
+### Share a tool
+
+Select **Share code** to copy a link with your source and attached `.pa` files.
+Values entered in the form, Program input, and uploaded CSV contents are omitted.
+Defaults and other values written directly in source are part of the code.
+The recipient can inspect the shared code and choose when to execute it.
+Links support up to 12,000 bytes of source and module data combined, including
+JSON encoding.

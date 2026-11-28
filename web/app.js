@@ -1,3 +1,4 @@
+import { shareUrl, sharedTool } from './tool-share.js';
 import { toolPreview } from './tool-preview.js';
 
 const source = document.querySelector('#source');
@@ -16,6 +17,10 @@ const examples = document.querySelector('#examples');
 const projectSource = document.querySelector('#project-source');
 const projectDemo = document.querySelector('#project-demo');
 const run = document.querySelector('#run');
+const share = document.querySelector('#share');
+const sharePanel = document.querySelector('#share-panel');
+const shareInput = document.querySelector('#share-url');
+const shareNote = document.querySelector('#share-note');
 const preview = document.querySelector('#preview');
 const stop = document.querySelector('#stop');
 const compile = document.querySelector('#compile');
@@ -35,6 +40,7 @@ let exampleRequest;
 let sampleInput = '';
 let exampleModules = {};
 let previewSource;
+let sharedMessage = '';
 
 function syncGutter() {
   gutter.textContent = Array.from({ length: source.value.split('\n').length }, (_, i) => i + 1).join('\n');
@@ -46,6 +52,7 @@ function refreshActions() {
   run.disabled = !available;
   check.disabled = !available;
   preview.disabled = !available;
+  share.disabled = Boolean(exampleRequest);
   toolPreview.setEnabled(available);
   compile.disabled = !available;
 }
@@ -98,7 +105,7 @@ function startWorker(stopped = false) {
       }
       result.textContent = stopped ? 'Execution stopped.' : 'Run your program to see its output.';
       result.removeAttribute('data-error');
-      status.textContent = 'Ready';
+      status.textContent = sharedMessage || 'Ready';
     } else {
       show(data.action, data);
     }
@@ -111,16 +118,30 @@ function startWorker(stopped = false) {
   worker.postMessage({ action: 'init' });
 }
 
+async function readModules() {
+  const files = [...moduleFiles.files];
+  const modules = { ...exampleModules };
+
+  const names = new Set();
+  for (const file of files) {
+    if (!file.name.endsWith('.pa') || file.name === 'playground.pa' || names.has(file.name)) {
+      throw new Error("Choose .pa modules with unique names other than playground.pa.");
+    }
+    names.add(file.name);
+    modules[file.name] = await file.text();
+  }
+  return modules;
+}
+
 async function execute(action, fields = {}) {
   if (run.disabled) return;
+  sharedMessage = '';
   const current = worker;
   const code = source.value;
   if (action === 'preview') previewSource = code;
   const input = programInput.value;
   csvRun = input === csvInput || examples.value === 'inventory_csv';
   const trace = action === 'run' && traceEnabled.checked;
-  const files = [...moduleFiles.files];
-  const modules = { ...exampleModules };
   setReady(false);
   stop.hidden = action !== 'run' && action !== 'preview';
   traceDetails.hidden = true;
@@ -130,14 +151,7 @@ async function execute(action, fields = {}) {
   status.textContent = pending[action];
   timer = setTimeout(() => failWorker('The program took too long to finish.'), 8000);
   try {
-    const names = new Set();
-    for (const file of files) {
-      if (!file.name.endsWith('.pa') || file.name === 'playground.pa' || names.has(file.name)) {
-        throw new Error("Choose .pa modules with unique names other than playground.pa.");
-      }
-      names.add(file.name);
-      modules[file.name] = await file.text();
-    }
+    const modules = await readModules();
     if (current === worker) current.postMessage({ action, source: code, input, modules: JSON.stringify(modules), trace, fields: JSON.stringify(fields) });
   } catch (error) {
     if (current !== worker) return;
@@ -146,6 +160,27 @@ async function execute(action, fields = {}) {
     setReady(true);
   }
 }
+
+share.addEventListener('click', async () => {
+  const code = source.value;
+  sharePanel.hidden = false;
+  shareInput.hidden = true;
+  shareNote.textContent = '';
+  try {
+    shareInput.value = shareUrl(code, await readModules());
+    shareInput.hidden = false;
+    try {
+      await navigator.clipboard.writeText(shareInput.value);
+      shareNote.textContent = 'Link copied. It contains code and modules only.';
+    } catch {
+      shareInput.focus();
+      shareInput.select();
+      shareNote.textContent = 'Copy this link to share your code and modules.';
+    }
+  } catch (error) {
+    shareNote.textContent = error.message;
+  }
+});
 
 preview.addEventListener('click', () => execute('preview'));
 toolPreview.onSubmit(fields => execute('preview', fields));
@@ -256,5 +291,17 @@ function downloadOutput(content, filename, type) {
   setTimeout(() => URL.revokeObjectURL(url), 1000);
 }
 
+try {
+  const shared = sharedTool();
+  if (shared) {
+    source.value = shared.source;
+    exampleModules = shared.modules;
+    programInput.value = '';
+    examples.selectedIndex = -1;
+    sharedMessage = 'Shared code loaded. Select Preview tool or Run code to execute it.';
+  }
+} catch (error) {
+  sharedMessage = error.message;
+}
 syncGutter();
 startWorker();

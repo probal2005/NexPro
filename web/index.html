@@ -66,6 +66,7 @@
           <label class="trace-toggle"><input id="trace" type="checkbox"> Trace execution</label>
           <button id="run" class="primary" type="button" disabled>Run code</button>
           <button id="preview" type="button" disabled>Preview tool</button>
+          <button id="share" type="button">Share code</button>
           <button id="stop" type="button" hidden>Stop</button>
           <button id="check" type="button" disabled>Check syntax</button>
           <button id="compile" type="button" disabled>Compile to Python</button>
@@ -101,6 +102,11 @@ say (2 + 3) * 4
             <button id="retry" type="button" hidden>Retry</button>
           </div>
         </section>
+      </div>
+      <div id="share-panel" class="input-panel" hidden>
+        <label for="share-url">Share link</label>
+        <input id="share-url" type="url" readonly aria-describedby="share-note">
+        <p id="share-note" role="status"></p>
       </div>
       <section id="tool-panel" class="input-panel" hidden aria-labelledby="tool-heading">
         <h2 id="tool-heading">Tool preview</h2>
