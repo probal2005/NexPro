@@ -2,6 +2,8 @@
 
 Separates ready orders from orders that need attention. [Read the NexPro code](main.pa)
 
+[Try the live form](https://nexpro-playground.vercel.app/projects/order-dispatch/) to enter orders and see the dispatch report. The form runs the NexPro rules in the browser.
+
 ## Run
 
 From the repository root, pass the sample JSON on standard input.

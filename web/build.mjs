@@ -47,9 +47,11 @@ for (const name of [
   await cp(`examples/${name}.pa`, `dist/examples/${name}.pa`);
 }
 
-const demo = 'projects/bill-splitter';
-await mkdir(`dist/${demo}`, { recursive: true });
-for (const name of ['index.html', 'app.js', 'styles.css', 'main.pa']) {
-  await cp(`${demo}/${name}`, `dist/${demo}/${name}`);
+for (const project of ['bill-splitter', 'order-dispatch']) {
+  const demo = `projects/${project}`;
+  await mkdir(`dist/${demo}`, { recursive: true });
+  for (const name of ['index.html', 'app.js', 'styles.css', 'main.pa']) {
+    await cp(`${demo}/${name}`, `dist/${demo}/${name}`);
+  }
 }
-await cp(`${demo}/main.pa`, 'dist/examples/bill_splitter.pa');
+await cp('projects/bill-splitter/main.pa', 'dist/examples/bill_splitter.pa');

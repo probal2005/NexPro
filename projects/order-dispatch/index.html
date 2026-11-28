@@ -1,0 +1,72 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Check payment, delivery address, and quantity before dispatching orders.">
+  <title>Order Dispatch Checker | NexPro</title>
+  <link rel="icon" type="image/png" href="/favicon.png">
+  <link rel="stylesheet" href="/projects/order-dispatch/styles.css">
+  <script src="/projects/order-dispatch/app.js" defer></script>
+</head>
+<body>
+  <header class="shell">
+    <a class="brand" href="/"><img src="/nexpro-icon.png" width="36" height="36" alt=""> NexPro</a>
+    <a href="https://github.com/probal2005/NexPro/tree/main/projects/order-dispatch">View project source</a>
+  </header>
+  <main class="shell">
+    <h1>Order Dispatch Checker</h1>
+    <p class="intro">Check payments, delivery addresses, and quantities before sending orders.</p>
+
+    <div class="workspace">
+      <form id="order-form" aria-label="Orders to check">
+        <div class="panel-heading">
+          <h2>Orders</h2>
+          <button id="add-order" type="button">Add order</button>
+        </div>
+        <fieldset id="order-fields" disabled>
+          <legend class="visually-hidden">Order details</legend>
+          <div id="orders"></div>
+        </fieldset>
+        <div class="actions">
+          <button id="check-orders" class="primary" type="submit" disabled>Check orders</button>
+          <button id="reset-sample" type="button" disabled>Reset sample</button>
+        </div>
+        <p id="status" role="status">Loading NexPro…</p>
+      </form>
+
+      <section class="results" aria-labelledby="report-heading">
+        <h2 id="report-heading">Dispatch report</h2>
+        <div id="report" aria-live="polite">
+          <section class="report-group">
+            <h3>Ready to send <span id="ready-count" class="count ready">0</span></h3>
+            <ul id="ready-orders"></ul>
+          </section>
+          <section class="report-group">
+            <h3>Blocked <span id="blocked-count" class="count blocked">0</span></h3>
+            <ul id="blocked-orders"></ul>
+          </section>
+        </div>
+      </section>
+    </div>
+
+    <footer class="actions">
+      <a href="/projects/order-dispatch/main.pa" download>Download the .pa program</a>
+      <button id="share-link" type="button">Copy link</button>
+      <span id="share-status" role="status"></span>
+    </footer>
+  </main>
+  <template id="order-template">
+    <fieldset class="order">
+      <legend></legend>
+      <div class="order-grid">
+        <label>Order ID <input name="id" type="text" maxlength="50" required></label>
+        <label>Quantity <input name="quantity" type="number" step="any" inputmode="decimal"></label>
+        <label class="address">Delivery address <input name="address" type="text" maxlength="250"></label>
+        <label class="paid"><input name="paid" type="checkbox"> Payment received</label>
+        <button type="button" class="remove">Remove</button>
+      </div>
+    </fieldset>
+  </template>
+</body>
+</html>

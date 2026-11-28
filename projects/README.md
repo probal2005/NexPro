@@ -15,4 +15,6 @@ Each program reads one line of JSON and prints one JSON result. The program sour
 | [Work Hours & Overtime Report](overtime-report/) | Totals weekly hours and estimates base and overtime pay. |
 | [Tournament Standings](tournament-standings/) | Builds a league table from teams and recorded scores. |
 
-For a separate browser-form demo, see the existing [Bill Splitter](bill-splitter/).
+## Live demos
+
+[Bill Splitter](https://nexpro-playground.vercel.app/projects/bill-splitter/) · [Order Dispatch Checker](https://nexpro-playground.vercel.app/projects/order-dispatch/)

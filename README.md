@@ -20,6 +20,9 @@ project includes its `.pa` source, a sample input, and the expected output.
 [Try the Bill Splitter web demo](https://nexpro-playground.vercel.app/projects/bill-splitter/) ·
 [Read its NexPro source](projects/bill-splitter/main.pa)
 
+[Try the Order Dispatch Checker](https://nexpro-playground.vercel.app/projects/order-dispatch/) ·
+[Read its NexPro rules](projects/order-dispatch/main.pa)
+
 ## Quick start
 
 ### Try it in your browser
