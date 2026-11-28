@@ -1,4 +1,5 @@
 import { cp, mkdir, readFile, readdir, writeFile } from 'node:fs/promises';
+import { schemas } from './project-demo/schemas.mjs';
 
 await mkdir('dist/nexpro', { recursive: true });
 await mkdir('dist/examples', { recursive: true });
@@ -9,6 +10,13 @@ const versionFile = await readFile('nexpro/__version__.py', 'utf8');
 const version = versionFile.match(/^VERSION = "([^"]+)"/m)?.[1];
 if (!version) throw new Error('NexPro version not found');
 const template = await readFile('web/index.html', 'utf8');
+const demoTemplate = await readFile('web/project-demo/index.html', 'utf8');
+await mkdir('dist/project-demo', { recursive: true });
+for (const name of ['app.js', 'schemas.mjs', 'styles.css']) {
+  await cp(`web/project-demo/${name}`, `dist/project-demo/${name}`);
+}
+const escape = text => text.replaceAll('&', '&amp;').replaceAll('<', '&lt;')
+  .replaceAll('>', '&gt;').replaceAll('"', '&quot;');
 const projectOptions = [];
 for (const project of await readdir('projects', { withFileTypes: true })) {
   if (!project.isDirectory() || project.name === 'bill-splitter') continue;
@@ -30,8 +38,16 @@ for (const project of await readdir('projects', { withFileTypes: true })) {
   };
   await mkdir(`dist/${folder}`, { recursive: true });
   await writeFile(`dist/${folder}/example.json`, JSON.stringify(program));
-  const escape = text => text.replaceAll('&', '&amp;').replaceAll('<', '&lt;')
-    .replaceAll('>', '&gt;').replaceAll('"', '&quot;');
+  if (Object.hasOwn(schemas, project.name)) {
+    const description = readme.split(/\r?\n/).find(line => line.includes('[Read the NexPro code]'))
+      ?.split('[Read the NexPro code]')[0].trim() ?? '';
+    const page = demoTemplate
+      .replaceAll('__PROJECT_SLUG__', () => escape(project.name))
+      .replaceAll('__PROJECT_TITLE__', () => escape(title))
+      .replaceAll('__PROJECT_DESCRIPTION__', () => escape(description));
+    await writeFile(`dist/${folder}/index.html`, page);
+    await cp(`${folder}/main.pa`, `dist/${folder}/main.pa`);
+  }
   projectOptions.push(`<option value="project:${escape(project.name)}">${escape(title)}</option>`);
 }
 await writeFile('dist/index.html', template.replaceAll('__NEXPRO_VERSION__', version)

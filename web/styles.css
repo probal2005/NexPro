@@ -74,4 +74,4 @@ footer { color: var(--muted); margin: 16px 0 28px; font-size: .875rem; }
 
 .example-picker { min-width: 0; flex-wrap: wrap; }
 #examples { max-width: 100%; }
-#project-source { color: var(--accent); font-size: .875rem; }
+#project-demo, #project-source { color: var(--accent); font-size: .875rem; }

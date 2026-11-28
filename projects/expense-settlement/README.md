@@ -2,6 +2,8 @@
 
 Equalizes contributions and reports who should pay whom. [Read the NexPro code](main.pa)
 
+[Open the live form](https://nexpro-playground.vercel.app/projects/expense-settlement/) to edit the sample and run the NexPro program in your browser.
+
 ## Run
 
 From the repository root, pass the sample JSON on standard input.

@@ -1,0 +1,49 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="__PROJECT_DESCRIPTION__">
+  <title>__PROJECT_TITLE__ | NexPro</title>
+  <link rel="icon" type="image/png" href="/favicon.png">
+  <link rel="stylesheet" href="/project-demo/styles.css">
+  <script type="module" src="/project-demo/app.js"></script>
+</head>
+<body data-project="__PROJECT_SLUG__">
+  <header class="shell">
+    <a class="brand" href="/"><img src="/nexpro-icon.png" width="36" height="36" alt=""> NexPro</a>
+    <a href="https://github.com/probal2005/NexPro/tree/main/projects/__PROJECT_SLUG__">View project files</a>
+  </header>
+  <main class="shell">
+    <h1>__PROJECT_TITLE__</h1>
+    <p class="intro">__PROJECT_DESCRIPTION__</p>
+    <div class="workspace">
+      <form id="project-form">
+        <h2>Inputs</h2>
+        <fieldset id="input-fields" disabled>
+          <legend class="visually-hidden">Project inputs</legend>
+          <div id="editor"></div>
+        </fieldset>
+        <div class="actions">
+          <button class="primary" id="run-project" type="submit" disabled>Run project</button>
+          <button id="reset-sample" type="button" disabled>Reset sample</button>
+        </div>
+        <p id="status" role="status">Loading NexPro…</p>
+      </form>
+      <section class="results" aria-labelledby="results-heading">
+        <h2 id="results-heading">Results</h2>
+        <div id="summary" aria-live="polite"></div>
+        <details id="json-details" hidden>
+          <summary>View JSON output</summary>
+          <pre id="raw-result"></pre>
+        </details>
+      </section>
+    </div>
+    <footer class="actions">
+      <a href="/projects/__PROJECT_SLUG__/main.pa" download>Download main.pa</a>
+      <button id="share-link" type="button">Copy link</button>
+      <span id="share-status" role="status"></span>
+    </footer>
+  </main>
+</body>
+</html>

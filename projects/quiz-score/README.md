@@ -2,6 +2,8 @@
 
 Scores answers and reports mistakes and unanswered questions. [Read the NexPro code](main.pa)
 
+[Open the live form](https://nexpro-playground.vercel.app/projects/quiz-score/) to edit the sample and run the NexPro program in your browser.
+
 ## Run
 
 From the repository root, pass the sample JSON on standard input.

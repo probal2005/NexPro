@@ -2,6 +2,8 @@
 
 Converts hours, rates, and a discount into an itemized quote. [Read the NexPro code](main.pa)
 
+[Open the live form](https://nexpro-playground.vercel.app/projects/freelance-quote/) to edit the sample and run the NexPro program in your browser.
+
 ## Run
 
 From the repository root, pass the sample JSON on standard input.

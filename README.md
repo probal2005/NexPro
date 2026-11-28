@@ -15,7 +15,7 @@ and compile it to standalone Python.
 
 Explore [10 runnable NexPro projects](projects/README.md), including group
 expense settlement, student report cards, and tournament standings. Each
-project includes its `.pa` source, a sample input, and the expected output.
+project includes a live form, its `.pa` source, a sample input, and the expected output.
 
 [Try the Bill Splitter web demo](https://nexpro-playground.vercel.app/projects/bill-splitter/) ·
 [Read its NexPro source](projects/bill-splitter/main.pa)

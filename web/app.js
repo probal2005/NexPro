@@ -9,6 +9,7 @@ const sampleInputs = new Map([['bill_splitter', '{"bill":"10.00","people":"3"}']
 const gutter = document.querySelector('#gutter');
 const examples = document.querySelector('#examples');
 const projectSource = document.querySelector('#project-source');
+const projectDemo = document.querySelector('#project-demo');
 const run = document.querySelector('#run');
 const stop = document.querySelector('#stop');
 const compile = document.querySelector('#compile');
@@ -188,7 +189,12 @@ examples.addEventListener('change', async () => {
     }
     const directory = slug ?? (name === 'bill_splitter' ? 'bill-splitter' : undefined);
     projectSource.hidden = !directory;
-    if (directory) projectSource.href = `https://github.com/probal2005/NexPro/tree/main/projects/${encodeURIComponent(directory)}`;
+    projectDemo.hidden = !directory;
+    if (directory) {
+      const path = encodeURIComponent(directory);
+      projectSource.href = `https://github.com/probal2005/NexPro/tree/main/projects/${path}`;
+      projectDemo.href = `/projects/${path}/`;
+    }
     syncGutter();
     source.focus();
   } catch (error) {
