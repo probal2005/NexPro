@@ -1,0 +1,32 @@
+import "std/json" as json
+import "std/stats" as stats
+import "std/record" as records
+
+record Delivery(supplier: string, planned_days: integer, actual_days: integer)
+where "nonnegative_days", planned_days >= 0 and actual_days >= 0, "Delivery days cannot be negative"
+
+groups = {}
+issues = []
+for row in json.parse(input())
+    try
+        delivery = records.from_dict("Delivery", row)
+        if not get(groups, delivery.supplier, false)
+            groups[delivery.supplier] = {"delays": [], "on_time": 0}
+        end
+        group = groups[delivery.supplier]
+        delay = delivery.actual_days - delivery.planned_days
+        append(group["delays"], delay)
+        if delay <= 0
+            group["on_time"] = group["on_time"] + 1
+        end
+    catch (error)
+        append(issues, {"supplier": get(row, "supplier", ""), "message": error["message"]})
+    end
+end
+summaries = []
+for name in groups
+    group = groups[name]
+    append(summaries, {"supplier": name, "deliveries": len(group["delays"]),
+                       "on_time": group["on_time"], "median_delay": stats.median(group["delays"])})
+end
+say json.stringify({"suppliers": summaries, "issues": issues})

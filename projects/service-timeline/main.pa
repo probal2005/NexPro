@@ -1,0 +1,34 @@
+import "std/json" as json
+import "std/linked_list" as timeline
+import "std/record" as records
+
+record Entry(note: string)
+where "note_required", note != "", "A note is required"
+record Edit(action: string, position: integer, note: string)
+where "action_valid", action == "insert" or action == "remove", "Use insert or remove"
+
+data = json.parse(input())
+history = timeline.new()
+for note in data["notes"]
+    timeline.append(history, Entry(note))
+end
+removed = []
+issues = []
+for row in data["edits"]
+    try
+        edit = records.from_dict("Edit", row)
+        if edit.action == "insert"
+            timeline.insert(history, edit.position, Entry(edit.note))
+        else
+            entry = timeline.remove(history, edit.position)
+            append(removed, entry.note)
+        end
+    catch (error)
+        append(issues, {"action": row["action"], "code": error["code"]})
+    end
+end
+notes = []
+for entry in history
+    append(notes, entry.note)
+end
+say json.stringify({"notes": notes, "removed": removed, "issues": issues})

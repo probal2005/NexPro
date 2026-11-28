@@ -1,0 +1,22 @@
+import "std/json" as json
+import "std/record" as records
+
+record Customer(name: string, email: string)
+where "email_required", email != "", "Customer email is required"
+record Invoice(number: string, cents: integer, customer: Customer)
+where "amount_nonnegative", cents >= 0, "Invoice amount cannot be negative"
+
+valid = []
+issues = []
+total = 0
+for row in json.parse(input())
+    try
+        invoice = records.from_dict("Invoice", row)
+        total = total + invoice.cents
+        append(valid, invoice)
+    catch (error)
+        append(issues, {"invoice": get(row, "number", ""), "code": error["code"],
+                        "details": get(error, "details", {})})
+    end
+end
+say json.stringify({"valid": valid, "total_cents": total, "issues": issues})

@@ -1,0 +1,22 @@
+import "std/json" as json
+import "std/record" as records
+
+record Stock(source: integer, destination: integer, destination_capacity: integer)
+where "stock_bounds", source >= 0 and destination >= 0 and destination <= destination_capacity, "Stock must fit both locations"
+record Transfer(quantity: integer)
+where "positive_quantity", quantity > 0, "Transfer quantity must be positive"
+
+data = json.parse(input())
+stock = records.from_dict("Stock", data["stock"])
+history = []
+for quantity in data["quantities"]
+    try
+        transfer = Transfer(quantity)
+        records.update(stock, {"source": stock.source - transfer.quantity,
+                               "destination": stock.destination + transfer.quantity})
+        append(history, {"quantity": quantity, "accepted": true})
+    catch (error)
+        append(history, {"quantity": quantity, "accepted": false, "message": error["message"]})
+    end
+end
+say json.stringify({"stock": stock, "history": history})

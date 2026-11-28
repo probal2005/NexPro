@@ -18,7 +18,7 @@ your first `.pa` program to a shareable CSV inventory tool.
 
 ## Built with NexPro
 
-Explore [10 runnable NexPro projects](projects/README.md), including group
+Explore [20 runnable NexPro projects](projects/README.md), including group
 expense settlement, student report cards, and tournament standings. Each
 project includes a live form, its `.pa` source, a sample input, and the expected output.
 

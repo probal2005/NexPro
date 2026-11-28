@@ -33,8 +33,8 @@ fieldset { min-width: 0; }
 .list-item { padding: 8px 0 10px; border-bottom: 1px solid var(--border); margin-bottom: 10px; }
 .row-heading { gap: 6px; margin-bottom: 8px; font-size: .9rem; }
 .field { min-width: 0; display: grid; gap: 6px; font-size: .875rem; font-weight: 550; }
-input, button { min-height: 40px; border: 1px solid var(--border); border-radius: 7px; font: inherit; }
-input { width: 100%; background: #101418; color: inherit; padding: 8px 10px; }
+input, textarea, button { min-height: 40px; border: 1px solid var(--border); border-radius: 7px; font: inherit; }
+input, textarea { width: 100%; background: #101418; color: inherit; padding: 8px 10px; }
 button { cursor: pointer; background: #202b31; color: inherit; padding: 6px 12px; }
 button:disabled { opacity: .65; cursor: default; }
 .primary { background: var(--mint); color: #11291b; font-weight: 750; }
@@ -61,3 +61,5 @@ footer { margin-top: 18px; }
   form, .results { padding: 14px; }
   .object-fields { grid-template-columns: 1fr; }
 }
+
+.field textarea { resize: vertical; }

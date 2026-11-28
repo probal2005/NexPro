@@ -77,7 +77,7 @@ function createEditor(spec, value) {
         add.focus();
         status.textContent = 'Inputs changed. Run again to update the result.';
       });
-      if (focus) (row.querySelector('input') ?? row.querySelector('button')).focus();
+      if (focus) (row.querySelector('input, textarea') ?? row.querySelector('button')).focus();
     }
 
     for (const item of value ?? []) addRow(item);
@@ -89,8 +89,10 @@ function createEditor(spec, value) {
   }
 
   const node = element('label', 'field', spec.label);
-  const input = element('input');
-  input.type = spec.type;
+  const isMultiline = spec.type === 'textarea';
+  const input = element(isMultiline ? 'textarea' : 'input');
+  if (isMultiline) input.rows = 6;
+  else input.type = spec.type;
   input.required = spec.required ?? true;
   input.value = value ?? spec.initial ?? '';
   if (spec.type === 'number') input.step = spec.step;

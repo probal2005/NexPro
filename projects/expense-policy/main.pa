@@ -1,0 +1,34 @@
+import "std/json" as json
+import "std/record" as records
+
+record Expense(id: string, category: string, cents: integer)
+where "nonnegative_amount", cents >= 0, "Expense cannot be negative"
+
+function review(expense, meal_cap = 2500, general_cap = 10000)
+    cap = general_cap
+    if expense.category == "meal"
+        cap = meal_cap
+    end
+    if expense.cents <= cap
+        return "approved"
+    end
+    return "review"
+end
+
+data = json.parse(input())
+assert type_of(data["meal_cap"]) == "integer" and data["meal_cap"] >= 0
+decisions = []
+approved = 0
+for row in data["expenses"]
+    try
+        expense = records.from_dict("Expense", row)
+        status = review(expense, meal_cap = data["meal_cap"])
+        if status == "approved"
+            approved = approved + expense.cents
+        end
+        append(decisions, {"id": expense.id, "status": status})
+    catch (error)
+        append(decisions, {"id": get(row, "id", ""), "status": "invalid", "code": error["code"]})
+    end
+end
+say json.stringify({"approved_cents": approved, "decisions": decisions})

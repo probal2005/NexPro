@@ -1,0 +1,27 @@
+import "std/json" as json
+import "std/record" as records
+
+record Balance(outstanding_cents: integer, received_cents: integer = 0)
+where "valid_balance", outstanding_cents >= 0 and received_cents >= 0, "A payment cannot exceed the outstanding balance"
+
+function apply_payment(balance, cents, reference = "Payment")
+    if type_of(cents) != "integer" or cents <= 0
+        throw "invalid_payment", "Payment must be positive whole cents"
+    end
+    records.update(balance, {"outstanding_cents": balance.outstanding_cents - cents,
+                             "received_cents": balance.received_cents + cents})
+    return {"reference": reference, "remaining_cents": balance.outstanding_cents}
+end
+
+data = json.parse(input())
+balance = Balance(data["principal_cents"])
+payments = []
+issues = []
+for row in data["payments"]
+    try
+        append(payments, apply_payment(balance, row["cents"], reference = row["reference"]))
+    catch (error)
+        append(issues, {"reference": row["reference"], "message": error["message"]})
+    end
+end
+say json.stringify({"balance": balance, "payments": payments, "issues": issues})

@@ -1,0 +1,28 @@
+import "std/json" as json
+import "std/queue" as queue
+import "std/record" as records
+
+record Claim(id: string, age_days: integer)
+where "age_nonnegative", age_days >= 0, "Claim age cannot be negative"
+
+data = json.parse(input())
+limit = data["coverage_days"]
+assert type_of(limit) == "integer" and limit >= 0
+pending = queue.new(data["claims"])
+covered = []
+expired = []
+invalid = []
+while len(pending) > 0
+    row = queue.dequeue(pending)
+    try
+        claim = records.from_dict("Claim", row)
+        if claim.age_days <= limit
+            append(covered, claim.id)
+        else
+            append(expired, claim.id)
+        end
+    catch (error)
+        append(invalid, {"id": get(row, "id", ""), "message": error["message"]})
+    end
+end
+say json.stringify({"covered": covered, "expired": expired, "invalid": invalid})

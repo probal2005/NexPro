@@ -1,0 +1,37 @@
+import "std/csv" as csv
+import "std/json" as json
+import "std/record" as records
+
+record Batch(id: string, sampled: integer, rejected: integer)
+where "sample_bounds", sampled > 0 and rejected >= 0 and rejected <= sampled, "Rejected units must fit the sample"
+
+data = json.parse(input())
+limit = data["max_percent"]
+numeric_limit = type_of(limit) == "integer" or type_of(limit) == "float"
+assert numeric_limit and limit >= 0 and limit <= 100
+released = []
+held = []
+row_issues = []
+file_error = null
+try
+    line = 1
+    for row in csv.parse(data["csv"], ["id", "sampled", "rejected"])
+        line = line + 1
+        try
+            row["sampled"] = int(row["sampled"])
+            row["rejected"] = int(row["rejected"])
+            batch = records.from_dict("Batch", row)
+            report = {"id": batch.id, "rejection_percent": batch.rejected * 100 / batch.sampled}
+            if report["rejection_percent"] <= limit
+                append(released, report)
+            else
+                append(held, report)
+            end
+        catch (error)
+            append(row_issues, {"row": line, "code": error["code"]})
+        end
+    end
+catch (error)
+    file_error = error["code"]
+end
+say json.stringify({"released": released, "held": held, "row_issues": row_issues, "file_error": file_error})

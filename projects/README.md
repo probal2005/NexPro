@@ -1,6 +1,6 @@
 # Projects built with NexPro
 
-Each program reads one line of JSON and prints one JSON result. The program source is in `.pa` files. Use NexPro 3.0 or later. In the [live playground](https://nexpro-playground.vercel.app/), open **Examples → NexPro projects** to load a program, its sample input, and any modules automatically.
+Each program reads one line of JSON and prints one JSON result. The program source is in `.pa` files. Use NexPro 4.9 or later to run every project below. In the [live playground](https://nexpro-playground.vercel.app/), open **Examples → NexPro projects** to load a program, its sample input, and any modules automatically.
 
 | Project | What it does | Live demo |
 | --- | --- | --- |
@@ -16,3 +16,20 @@ Each program reads one line of JSON and prints one JSON result. The program sour
 | [Tournament Standings](tournament-standings/) | Builds a league table from teams and recorded scores. | [Open](https://nexpro-playground.vercel.app/projects/tournament-standings/) |
 
 [Open the Bill Splitter](https://nexpro-playground.vercel.app/projects/bill-splitter/) for an additional live demo.
+
+## Projects using NexPro 4.9
+
+These projects use recent language features. Select a live form to try any of them with editable inputs.
+
+| Project | What it does | Live demo |
+| --- | --- | --- |
+| [Invoice Audit](invoice-audit/) | Reports invalid invoices by error code and totals the valid amounts. | [Open](https://nexpro-playground.vercel.app/projects/invoice-audit/) |
+| [Subscription Change Simulator](subscription-changes/) | Applies changes to seats, price, and credit as a single validated update. | [Open](https://nexpro-playground.vercel.app/projects/subscription-changes/) |
+| [Event Seat Booking](event-booking/) | Accepts seat requests in order while enforcing the event capacity. | [Open](https://nexpro-playground.vercel.app/projects/event-booking/) |
+| [Warranty Claim Triage](warranty-triage/) | Processes warranty claims in arrival order and separates covered, expired, and invalid requests. | [Open](https://nexpro-playground.vercel.app/projects/warranty-triage/) |
+| [Supplier Delivery Performance](supplier-performance/) | Summarizes deliveries, on-time counts, and median delay by supplier. | [Open](https://nexpro-playground.vercel.app/projects/supplier-performance/) |
+| [Expense Policy Review](expense-policy/) | Applies spending limits to expenses and reports approved totals and flagged entries. | [Open](https://nexpro-playground.vercel.app/projects/expense-policy/) |
+| [Warehouse Transfer Simulator](warehouse-transfer/) | Moves stock between locations while protecting source balance and destination capacity. | [Open](https://nexpro-playground.vercel.app/projects/warehouse-transfer/) |
+| [Service Ticket Timeline](service-timeline/) | Applies insert and remove operations to a service ticket's note history. | [Open](https://nexpro-playground.vercel.app/projects/service-timeline/) |
+| [Production Batch Quality Review](batch-quality/) | Classifies CSV production batches against a maximum rejection rate. | [Open](https://nexpro-playground.vercel.app/projects/batch-quality/) |
+| [Principal Repayment Ledger](loan-repayment/) | Applies principal payments in order and keeps the balance consistent when a payment fails. | [Open](https://nexpro-playground.vercel.app/projects/loan-repayment/) |

@@ -1,0 +1,19 @@
+import "std/json" as json
+import "std/record" as records
+
+record Plan(seats: integer, unit_cents: integer, credit_cents: integer)
+where "positive_seats", seats > 0, "Seats must be positive"
+where "credit_limit", unit_cents >= 0 and credit_cents >= 0 and credit_cents <= seats * unit_cents, "Credit must fit the plan total"
+
+data = json.parse(input())
+plan = records.from_dict("Plan", data["plan"])
+history = []
+for change in data["changes"]
+    try
+        records.update(plan, change)
+        append(history, {"accepted": true, "plan": records.to_dict(plan)})
+    catch (error)
+        append(history, {"accepted": false, "code": error["code"], "plan": records.to_dict(plan)})
+    end
+end
+say json.stringify({"history": history, "due_cents": plan.seats * plan.unit_cents - plan.credit_cents})

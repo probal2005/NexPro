@@ -1,0 +1,23 @@
+import "std/json" as json
+import "std/record" as records
+
+record Event(capacity: integer, reserved: integer = 0)
+where "capacity", capacity > 0 and reserved >= 0 and reserved <= capacity, "Booking exceeds capacity"
+record Request(name: string, seats: integer)
+where "positive_seats", seats > 0, "Request must reserve at least one seat"
+
+data = json.parse(input())
+event = Event(data["capacity"])
+accepted = []
+rejected = []
+for row in data["requests"]
+    try
+        request = records.from_dict("Request", row)
+        event.reserved = event.reserved + request.seats
+        append(accepted, request.name)
+    catch (error)
+        append(rejected, {"name": row["name"], "message": error["message"]})
+    end
+end
+say json.stringify({"reserved": event.reserved, "remaining": event.capacity - event.reserved,
+                    "accepted": accepted, "rejected": rejected})
