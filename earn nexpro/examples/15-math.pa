@@ -1,0 +1,4 @@
+import "std/math" as math
+say math.abs(-7)
+say math.round(12.346, 2)
+say math.sqrt(81)

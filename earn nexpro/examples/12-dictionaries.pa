@@ -1,0 +1,6 @@
+item = {"sku": "A-01", "counts": [2, 4]}
+item["counts"][0] = 3
+say item["sku"]
+say item["counts"][0]
+say len(keys(item))
+say get(item, "minimum", 0)

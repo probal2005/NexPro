@@ -1,0 +1,5 @@
+currency = "BDT"
+
+function quote(price, count)
+    return price * count
+end

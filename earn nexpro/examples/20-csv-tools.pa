@@ -1,0 +1,9 @@
+import "std/csv" as csv
+file = csv_field("Stock CSV", ["sku", "stock"])
+if file != ""
+    rows = csv.parse(file)
+    result("Rows", len(rows))
+    if len(rows) > 0
+        download_csv("stock.csv", csv.stringify(rows))
+    end
+end

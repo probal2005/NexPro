@@ -1,0 +1,6 @@
+name = trim("  Ada  ")
+say lower(name)
+say upper(name)
+say name[0:2]
+say join(split("A,B", ","), " + ")
+say "Nex" + "Pro"

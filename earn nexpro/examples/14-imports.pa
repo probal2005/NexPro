@@ -1,0 +1,3 @@
+import "rules.pa" as rules
+say rules.quote(50, 3)
+say rules.currency

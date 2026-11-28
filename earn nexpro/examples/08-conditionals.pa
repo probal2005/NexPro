@@ -1,0 +1,10 @@
+score = 78
+if score >= 80
+    say "Distinction"
+else
+    if score >= 50
+        say "Pass"
+    else
+        say "Retry"
+    end
+end

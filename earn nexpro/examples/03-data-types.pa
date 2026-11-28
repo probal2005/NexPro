@@ -1,0 +1,4 @@
+item = {"name": "Rice", "stock": 4}
+say item["name"]
+say item["stock"] > 0
+say len([4, 5])

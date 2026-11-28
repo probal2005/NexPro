@@ -1,0 +1,16 @@
+total = 0
+for score in [4, -1, 6, 0, 9]
+    if score < 0
+        continue
+    end
+    if score == 0
+        break
+    end
+    total = total + score
+end
+say total
+count = 2
+while count > 0
+    say count
+    count = count - 1
+end

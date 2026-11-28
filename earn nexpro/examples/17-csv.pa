@@ -1,0 +1,6 @@
+import "std/csv" as csv
+rows = csv.parse('sku,stock
+"A, large",4', ["sku", "stock"])
+say rows[0]["sku"]
+say int(rows[0]["stock"]) + 2
+say csv.stringify([{"sku": "A-01", "quantity": 2}])

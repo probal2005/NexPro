@@ -1,0 +1,11 @@
+client = text_field("Client", "Ada")
+hours = number_field("Hours", 4, 1, 20, 1)
+currency = select_field("Currency", ["BDT", "USD"], "BDT")
+include_fee = checkbox_field("Include service fee", true)
+total = hours * 50
+if include_fee
+    total = total + 25
+end
+result("Client", client)
+result("Currency", currency)
+result("Total", total)

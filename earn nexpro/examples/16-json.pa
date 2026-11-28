@@ -1,0 +1,4 @@
+import "std/json" as json
+record = json.parse('{"name": "আদা", "score": 85}')
+say record["name"]
+say json.stringify([record["score"], 90])

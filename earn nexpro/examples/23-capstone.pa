@@ -1,0 +1,20 @@
+import "std/csv" as csv
+file = csv_field("Stock CSV", ["sku", "stock", "minimum", "target"])
+if file != ""
+    orders = []
+    for item in csv.parse(file)
+        stock = int(item["stock"])
+        minimum = int(item["minimum"])
+        target = int(item["target"])
+        assert stock >= 0 and minimum >= 0 and target > minimum
+        if stock <= minimum
+            append(orders, {"sku": item["sku"], "quantity": target - stock})
+        end
+    end
+    result("Reorder count", len(orders))
+    if len(orders) > 0
+        download_csv("reorder.csv", csv.stringify(orders))
+    else
+        download_csv("reorder.csv", "sku,quantity")
+    end
+end

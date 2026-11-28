@@ -11,6 +11,11 @@ declarations, or use the same program from a terminal or as standalone Python.
 [Language reference](docs/language.md) ·
 [VS Code extension](editors/vscode/README.md)
 
+## Learn NexPro
+
+Follow the [Earn NexPro course](earn%20nexpro/README.md) in Bangla, from
+your first `.pa` program to a shareable CSV inventory tool.
+
 ## Built with NexPro
 
 Explore [10 runnable NexPro projects](projects/README.md), including group

@@ -1,0 +1,7 @@
+stock = 4
+say stock == 4
+say stock != 4
+say stock < 5
+say stock <= 4
+say stock > 3
+say stock >= 5

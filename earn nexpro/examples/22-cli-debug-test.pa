@@ -1,0 +1,5 @@
+function subtotal(price, quantity)
+    return price * quantity
+end
+assert subtotal(50, 3) == 150
+say subtotal(50, 3)

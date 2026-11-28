@@ -1,0 +1,10 @@
+scores = [70, 85, 100]
+scores[0] = 75
+append(scores, 80)
+say scores[-1]
+say scores[0:2]
+say sorted(scores)
+say reverse(range(1, 4))
+say sum(scores)
+say min(scores)
+say max(scores)

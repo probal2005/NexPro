@@ -1,0 +1,7 @@
+tax = 5
+function total(price, quantity)
+    subtotal = price * quantity
+    return subtotal + tax
+end
+say total(50, 3)
+say total(25, 2)

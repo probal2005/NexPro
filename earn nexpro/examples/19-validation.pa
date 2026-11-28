@@ -1,0 +1,6 @@
+name = text_field("Name", "Ada")
+quantity = number_field("Quantity", 2, 1, 20, 1)
+assert quantity > 0
+if field_check("Name", len(trim(name)) > 0, "Enter a name.")
+    result("Order", name)
+end

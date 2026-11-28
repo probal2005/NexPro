@@ -1,0 +1,5 @@
+stock = 4
+approved = true
+say stock > 0 and approved
+say stock == 0 or not approved
+say stock != 0 and 12 / stock > 2
