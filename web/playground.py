@@ -6,11 +6,13 @@ from json import dumps, loads
 
 from nexpro.compiler import compile_program
 from nexpro.data_builtins import (
-    _checkbox_field, _field_check, _field_label, _number_field, _select_field, _text_field,
+    _checkbox_field, _csv_field, _field_check, _field_label, _number_field, _select_field,
+    _text_field, _validate_csv_download,
 )
 from nexpro.errors import NexProError
 from nexpro.interpreter import Interpreter
 from nexpro.loader import load_program
+from nexpro.standard import _csv_parse
 
 
 class PlaygroundOutput(StringIO):
@@ -24,6 +26,8 @@ class ToolPreview:
     def __init__(self, values):
         self.values = values
         self.errors = {}
+        self.downloads = {}
+        self.download_size = 0
         self.fields = {}
         self.results = []
         self.result_size = 0
@@ -65,6 +69,32 @@ class ToolPreview:
             self.errors.setdefault(label, message)
         return bool(condition)
 
+    def csv_field(self, label, required=None, default=""):
+        _csv_field(label, required, default)
+        text = self.field(label, default, "file", required=True)
+        self.fields[label].pop("value")
+        if label not in self.values and not text:
+            return ""
+        try:
+            _csv_field(label, required, text)
+            if not text.strip():
+                raise ValueError("The CSV file is empty.")
+            _csv_parse(text, required)
+        except (ValueError, TypeError) as error:
+            self.errors[label] = str(error)
+            return ""
+        return text
+
+    def download_csv(self, filename, text):
+        _validate_csv_download(filename, text)
+        size = len(text.encode("utf-8"))
+        if filename in self.downloads:
+            raise ValueError(f"Duplicate download filename: {filename}")
+        if len(self.downloads) >= 10 or self.download_size + size > 512 * 1024:
+            raise ValueError("Tool downloads exceeded the total output limit.")
+        self.download_size += size
+        self.downloads[filename] = text
+
     def result(self, label, value):
         _field_label(label)
         text = str(value)
@@ -92,7 +122,13 @@ def run_playground(source, action, input_text="", modules_json="{}", trace_enabl
         if trace_enabled:
             result["trace"] = "\n".join(trace_lines)
         if preview is not None:
-            result["tool"] = {"fields": list(preview.fields.values()), "results": preview.results if ok and not preview.errors else [], "errors": preview.errors}
+            valid = ok and not preview.errors
+            result["tool"] = {
+                "fields": list(preview.fields.values()),
+                "results": preview.results if valid else [],
+                "errors": preview.errors,
+                "downloads": preview.downloads if valid else {},
+            }
         return dumps(result)
     input_lines = StringIO(input_text, newline=None)
 
@@ -126,6 +162,7 @@ def run_playground(source, action, input_text="", modules_json="{}", trace_enabl
                     number_field=preview.number_field, text_field=preview.text_field, result=preview.result,
                     select_field=preview.select_field, checkbox_field=preview.checkbox_field,
                     field_check=preview.field_check,
+                    csv_field=preview.csv_field, download_csv=preview.download_csv,
                 )
             interpreter.visit(tree)
     except NexProError as error:

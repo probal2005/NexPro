@@ -1,6 +1,8 @@
 """Data helpers used by the interpreter and standalone Python output."""
 
+import re
 from fractions import Fraction
+
 
 def _numeric_items(items, name):
     if not isinstance(items, list) or any(type(item) not in (int, float) for item in items):
@@ -139,10 +141,7 @@ def _number_field(label, default, minimum=None, maximum=None, step=None, message
         raise ValueError(message or f"{label} must be at most {maximum}.")
     if step is not None:
         value, base, increment = map(lambda number: Fraction(str(number)), (default, minimum or 0, step))
-        # Integer ratios preserve decimal steps without rounding large or tiny values.
-        numerator, denominator = (value - base).as_integer_ratio()
-        step_numerator, step_denominator = increment.as_integer_ratio()
-        if numerator * step_denominator % (denominator * step_numerator):
+        if ((value - base) / increment).denominator != 1:
             raise ValueError(message or f"{label} must follow the step of {step}.")
     return default
 
@@ -190,3 +189,28 @@ def _result(label, value):
 DATA_BUILTINS.update({"number_field": _number_field, "text_field": _text_field, "result": _result})
 
 DATA_BUILTINS.update({"select_field": _select_field, "checkbox_field": _checkbox_field, "field_check": _field_check})
+
+
+def _csv_field(label, required=None, default=""):
+    _field_label(label)
+    if required is not None and (not isinstance(required, list) or len(required) > 100
+            or any(not isinstance(name, str) or not 1 <= len(name) <= 120 for name in required)):
+        raise ValueError("CSV fields need a list of up to 100 column names.")
+    if not isinstance(default, str) or len(default.encode("utf-8")) > 512 * 1024:
+        raise ValueError("CSV fields accept up to 512 KB of UTF-8 text.")
+    return default
+
+
+def _validate_csv_download(filename, text):
+    if not isinstance(filename, str) or not re.fullmatch(r"[A-Za-z0-9][A-Za-z0-9_.-]{0,115}\.csv", filename):
+        raise ValueError("Use a simple filename ending in .csv.")
+    if not isinstance(text, str) or len(text.encode("utf-8")) > 512 * 1024:
+        raise ValueError("CSV downloads accept up to 512 KB of UTF-8 text.")
+
+
+def _download_csv(filename, text):
+    _validate_csv_download(filename, text)
+    print(text, end="")
+
+
+DATA_BUILTINS.update({"csv_field": _csv_field, "download_csv": _download_csv})

@@ -4,6 +4,7 @@ import { toolPreview } from './tool-preview.js';
 const examples = new Map([
   ['bill', ['Bill Splitter', 'tool_bill']],
   ['quote', ['Freelance Quote', 'tool_quote']],
+  ['inventory', ['Inventory Reorder', 'tool_inventory']],
 ]);
 const title = document.querySelector('#public-title');
 const status = document.querySelector('#public-status');

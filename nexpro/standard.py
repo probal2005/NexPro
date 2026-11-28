@@ -26,16 +26,25 @@ def _json_stringify(value):
     return json.dumps(value, ensure_ascii=False, allow_nan=False)
 
 
-def _csv_parse(text):
+def _csv_parse(text, required=None):
+    if required is None:
+        required = []
+    if not isinstance(required, list) or any(not isinstance(name, str) or not name for name in required):
+        raise TypeError("Required CSV columns must be a list of non-empty names.")
     if not isinstance(text, str):
         raise TypeError("CSV input must be text.")
     reader = csv.reader(StringIO(text.removeprefix("\ufeff"), newline=""), strict=True)
     try:
         headers = next((row for row in reader if row), None)
         if headers is None:
+            if required:
+                raise ValueError("CSV header is missing.")
             return []
         if not all(headers) or len(set(headers)) != len(headers):
             raise ValueError("CSV column names must be unique and non-empty.")
+        missing = [name for name in required if name not in headers]
+        if missing:
+            raise ValueError("Missing CSV columns: " + ", ".join(missing))
         rows = []
         for row in reader:
             if not row:

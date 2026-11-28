@@ -27,9 +27,10 @@ project includes a live form, its `.pa` source, a sample input, and the expected
 
 Try **Bill Splitter form**, **Freelance Quote form**, or **Inventory reorder from CSV**
 in the playground. Select **Preview tool** to generate a form from `.pa` code, or
-**Run code** to process a CSV. **Share code** creates a link containing the source
-and attached NexPro modules.
+**Run code** to process a CSV. **Share tool** creates a link to a standalone form. **Share code** opens the
+same source and attached modules in the playground.
 
+[Try the Inventory Reorder tool](https://nexpro-playground.vercel.app/tool.html?example=inventory) ·
 [Browser tool guide](docs/HELP.md#build-a-browser-tool-with-nexpro)
 
 ## Quick start
@@ -46,11 +47,11 @@ Enter one line per `input()` call in **Program input**. Attach imported sibling
 ### Install the CLI
 
 Use Python 3.11 or later. Download the wheel from the
-[3.5.0 release](https://github.com/probal2005/NexPro/releases/tag/v3.5.0),
+[3.6.0 release](https://github.com/probal2005/NexPro/releases/tag/v3.6.0),
 then run these commands from your download directory.
 
 ```sh
-python -m pip install ./nexpro-3.5.0-py3-none-any.whl
+python -m pip install ./nexpro-3.6.0-py3-none-any.whl
 nexpro version
 ```
 

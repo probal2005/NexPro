@@ -77,7 +77,8 @@ function show(action, { ok, output = '', error = '', trace = '', tool }) {
   csvOutput = action === 'run' && ok && csvRun ? output.replace(/\r\n\n$/, '\r\n') : undefined;
   downloadCsv.hidden = csvOutput === undefined;
   const completed = { check: 'Check complete', compile: 'Compiled successfully', run: 'Run complete', preview: 'Preview complete' };
-  status.textContent = ok ? completed[action] : 'Program failed';
+  status.textContent = !ok ? 'Program failed' :
+    Object.keys(tool?.errors ?? {}).length ? 'Check the highlighted fields.' : completed[action];
 }
 
 function failWorker(message) {

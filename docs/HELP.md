@@ -1,14 +1,14 @@
-# Install and use NexPro 3.5
+# Install and use NexPro 3.6
 
-Use Python 3.11 or later. Download `nexpro-3.5.0-py3-none-any.whl` from the
-[GitHub release](https://github.com/probal2005/NexPro/releases/tag/v3.5.0)
+Use Python 3.11 or later. Download `nexpro-3.6.0-py3-none-any.whl` from the
+[GitHub release](https://github.com/probal2005/NexPro/releases/tag/v3.6.0)
 and open a terminal in the download directory.
 
 ## macOS and Linux
 
 ```sh
 python3 -m venv .venv
-.venv/bin/python -m pip install ./nexpro-3.5.0-py3-none-any.whl
+.venv/bin/python -m pip install ./nexpro-3.6.0-py3-none-any.whl
 source .venv/bin/activate
 nexpro version
 ```
@@ -17,11 +17,11 @@ nexpro version
 
 ```powershell
 py -3 -m venv .venv
-.\.venv\Scripts\python.exe -m pip install .\nexpro-3.5.0-py3-none-any.whl
+.\.venv\Scripts\python.exe -m pip install .\nexpro-3.6.0-py3-none-any.whl
 .\.venv\Scripts\nexpro.exe version
 ```
 
-The version command prints `NexPro 3.5.0`. On Windows, use
+The version command prints `NexPro 3.6.0`. On Windows, use
 `.\.venv\Scripts\nexpro.exe` in place of `nexpro` if the environment is inactive.
 Use `py -3` for Python commands if `python` is unavailable.
 
@@ -82,6 +82,20 @@ when a field is invalid. In terminal programs an unsuccessful check raises an er
 
 ### Publish a form link
 
-**Share tool** opens a standalone page with a generated form and a **View source**
+**Share tool** creates a link to a standalone page with a generated form and a **View source**
 section. The recipient starts the tool explicitly. Built-in examples open their
 forms automatically. The link uses the same source and module limits as **Share code**.
+
+### Build a tool that accepts CSV
+
+`csv_field(label, columns, default)` adds a UTF-8 file picker and returns CSV text.
+The column list and default text are optional. In the browser, a missing file or
+an invalid upload yields empty text, so guard import logic with `if file != ""`.
+Use `csv.parse(text, columns)` to require columns in scripts as well.
+`download_csv(filename, text)` adds a named download in a browser tool and writes
+the text to standard output in terminal programs. Uploads and combined downloads
+are limited to 512 KB per file and 512 KB total per run for downloads.
+
+Try **Inventory CSV form**. Its CSV header is `sku,stock,minimum,target`.
+For example, the row `A-01,2,4,10` produces a reorder quantity of 8 in
+`reorder.csv`. Messages about stock values count data rows starting at one.

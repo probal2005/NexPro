@@ -1,0 +1,47 @@
+import "std/csv" as csv
+import "std/json" as json
+
+function nonnegative_integer(value)
+    if len(value) == 0 or len(value) > 9
+        return false
+    end
+    for character in value
+        if character < "0" or character > "9"
+            return false
+        end
+    end
+    return true
+end
+
+file = csv_field("Stock CSV", ["sku", "stock", "minimum", "target"])
+if file != ""
+    orders = []
+    valid = true
+    record = 0
+    for item in csv.parse(file)
+        record = record + 1
+        location = "CSV data row " + json.stringify(record) + ": "
+        stock = item["stock"]
+        minimum = item["minimum"]
+        target = item["target"]
+        if not nonnegative_integer(stock) or not nonnegative_integer(minimum) or not nonnegative_integer(target)
+            valid = field_check("Stock CSV", false, location + "Stock, minimum and target must be nonnegative whole numbers.")
+            break
+        end
+        if not field_check("Stock CSV", int(target) > int(minimum), location + "Target must be greater than minimum.")
+            valid = false
+            break
+        end
+        if int(stock) <= int(minimum)
+            append(orders, {"sku": item["sku"], "quantity": int(target) - int(stock)})
+        end
+    end
+    if valid
+        result("Items to reorder", len(orders))
+        if len(orders) == 0
+            download_csv("reorder.csv", "sku,quantity")
+        else
+            download_csv("reorder.csv", csv.stringify(orders))
+        end
+    end
+end
