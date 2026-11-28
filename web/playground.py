@@ -22,6 +22,11 @@ class PlaygroundOutput(StringIO):
         return super().write(text)
 
 
+def _check_browser_number(value):
+    if isinstance(value, (int, float)) and int(value) == value and abs(value) > (1 << 53) - 1:
+        raise ValueError("Browser integer fields must be between -9007199254740991 and 9007199254740991.")
+
+
 class ToolPreview:
     def __init__(self, values):
         self.values = values
@@ -43,8 +48,12 @@ class ToolPreview:
 
     def number_field(self, label, default, minimum=None, maximum=None, step=None, message=None):
         _number_field(label, default, minimum, maximum, step, message)
+        for number in (default, minimum, maximum, step):
+            _check_browser_number(number)
         value = self.field(label, default, "number", minimum=minimum, maximum=maximum, step=step, message=message)
-        return _number_field(label, value, minimum, maximum, step, message)
+        checked = _number_field(label, value, minimum, maximum, step, message)
+        _check_browser_number(checked)
+        return checked
 
     def text_field(self, label, default=""):
         _text_field(label, default)

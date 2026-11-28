@@ -7,6 +7,8 @@ authors = [
     {name = "Probal Dhali"}
 ]
 requires-python = ">=3.11"
+license = "Apache-2.0"
+license-files = ["LICENSE"]
 
 [project.urls]
 Repository = "https://github.com/probal2005/NexPro"
@@ -16,7 +18,7 @@ Playground = "https://nexpro-playground.vercel.app/"
 nexpro = "nexpro.cli:main"
 
 [build-system]
-requires = ["setuptools>=68"]
+requires = ["setuptools>=77"]
 build-backend = "setuptools.build_meta"
 
 [tool.setuptools.dynamic]

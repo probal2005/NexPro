@@ -1,3 +1,5 @@
+import { integerRangeMessage, unsafeInteger } from '/browser-numbers.mjs';
+
 const form = document.querySelector('#order-form');
 const fields = document.querySelector('#order-fields');
 const orders = document.querySelector('#orders');
@@ -115,6 +117,10 @@ function checkOrders() {
   }));
   if (entries.some(entry => !entry.id)) {
     status.textContent = 'Enter an ID for every order.';
+    return;
+  }
+  if (entries.some(entry => unsafeInteger(entry.quantity))) {
+    showReportError(integerRangeMessage);
     return;
   }
   clearReport();

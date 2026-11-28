@@ -4,6 +4,39 @@ All notable changes to NexPro will be documented here.
 
 ---
 
+## v4.9.1
+
+- Forms declared in aliased modules now render and receive the submitted values.
+- Browser numeric fields reject integers outside the exact input range. Project
+  reports preserve large integer results and their raw JSON digits.
+- The site serves its pinned Pyodide runtime and CI builds and tests the browser.
+- Added Apache 2.0 licensing and an invoice workflow to Learn NexPro.
+
+## v4.7–4.9
+
+- Added named record rules, atomic updates, and nested record types.
+- Added recursive dictionary conversion with field paths in errors.
+
+## v4.4–4.6
+
+- Added typed record fields and made dot and index writes use the same checks.
+- Added conversions between records and dictionaries in `std/record`.
+
+## v4.1–4.3
+
+- Added structured catches, named arguments, and fixed-field record constructors.
+
+## v3.7–4.0
+
+- Added floor division, remainder, exponentiation, and text, list, and dictionary modules.
+- Added null, default arguments, elif, and recoverable runtime errors.
+- Added queues, linked lists, and statistics.
+
+## v3.1–3.6
+
+- Added browser forms, CSV processing and downloads, and shareable standalone tools.
+- Added dropdowns, checkboxes, field validation, and CSV upload fields.
+
 ## v3.0.0
 
 - Added aliased modules with isolated globals, slices, ranges, and standard math and JSON modules.

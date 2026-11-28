@@ -26,7 +26,9 @@ jobs:
       - name: Package the VS Code extension
         if: hashFiles('editors/vscode/package.json') != ''
         working-directory: editors/vscode
-        run: npx --yes @vscode/vsce@4.1.1 package --skip-license --out ../../dist/
+        run: |
+          cp ../../LICENSE LICENSE
+          npx --yes @vscode/vsce@4.1.1 package --out ../../dist/
       - name: Attach verified packages to their draft release
         env:
           GH_TOKEN: ${{ github.token }}

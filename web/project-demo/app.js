@@ -1,3 +1,4 @@
+import { integerRangeMessage, parseProjectOutput, unsafeInteger } from '../browser-numbers.mjs';
 import { schemas } from './schemas.mjs';
 import { outputMessage, renderProjectResult } from './results.js';
 
@@ -121,7 +122,13 @@ function fail(message) {
 }
 
 function execute() {
-  const input = JSON.stringify(rootEditor.read());
+  const values = rootEditor.read();
+  const numberInputs = [...editor.querySelectorAll('input[type=number]')];
+  for (const input of numberInputs) {
+    input.setCustomValidity(unsafeInteger(input.valueAsNumber) ? integerRangeMessage : '');
+  }
+  if (!form.reportValidity()) return;
+  const input = JSON.stringify(values);
   setEnabled(false);
   status.textContent = 'Running NexPro…';
   summary.replaceChildren(outputMessage('Running project…'));
@@ -140,6 +147,7 @@ worker.onmessage = ({ data }) => {
       return;
     }
     loadSample();
+    setEnabled(true);
     execute();
     return;
   }
@@ -150,9 +158,9 @@ worker.onmessage = ({ data }) => {
     return;
   }
   try {
-    const result = JSON.parse(data.output);
+    const { value: result, json } = parseProjectOutput(data.output);
     summary.replaceChildren(renderProjectResult(slug, result));
-    raw.textContent = JSON.stringify(result, null, 2);
+    raw.textContent = json;
     details.hidden = false;
     status.textContent = result?.error ? 'Review the result for the input error.' : 'Result updated.';
   } catch {
@@ -166,7 +174,10 @@ form.addEventListener('submit', event => {
   event.preventDefault();
   if (!run.disabled) execute();
 });
-form.addEventListener('input', () => {
+form.addEventListener('input', ({ target }) => {
+  if (target instanceof HTMLInputElement && target.type === 'number') {
+    target.setCustomValidity(unsafeInteger(target.valueAsNumber) ? integerRangeMessage : '');
+  }
   status.textContent = 'Inputs changed. Run again to update the result.';
 });
 reset.addEventListener('click', () => {
@@ -190,7 +201,7 @@ fetch(`/projects/${encodeURIComponent(slug)}/example.json`)
   })
   .then(example => {
     program = example;
-    sample = JSON.parse(program.input);
+    sample = parseProjectOutput(program.input).value;
     worker.postMessage({ action: 'init' });
   })
   .catch(() => fail('The project sample could not load. Reload to try again.'));

@@ -1,4 +1,26 @@
-# Upgrade to NexPro 3.0
+# Upgrade NexPro
+
+## Upgrade to NexPro 4.9.1
+
+Install the [4.9.1 wheel and matching VS Code extension](https://github.com/probal2005/NexPro/releases/tag/v4.9.1).
+Run `nexpro version` to confirm the version. Recompile existing source when you
+want the generated Python to include the fixed runtime behavior.
+
+- **From 3.x.** `null`, `elif`, `try`, `catch`, and `throw` are reserved.
+  Rename any identifiers that use these words. Functions without an explicit
+  return now print `null` when their result is printed directly.
+- **Existing catches.** `catch message` still binds a string. Change it to
+  `catch (error)` if you need a code or source location.
+- **Browser input.** Number fields accept whole numbers from
+  `-9007199254740991` to `9007199254740991`. Use text fields, Program input,
+  or CSV for larger integer values, then convert the text in NexPro.
+  The project report and raw JSON preserve the digits of large integer results.
+- **Local Playground builds.** Run `npm ci` and `npm run build`. The lockfile
+  includes the browser runtime.
+
+## Earlier upgrades
+
+### Upgrade to NexPro 3.0
 
 NexPro 3.0 keeps the existing `.pa` syntax, relative imports, and CLI commands.
 Existing programs can keep their entry files and module paths. Existing

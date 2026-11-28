@@ -120,6 +120,7 @@ class Interpreter:
         elif isinstance(node, Module):
             if node.path not in self.modules:
                 module = Interpreter(read_input=self.builtins["input"], trace=self.trace, observer=self.observer)
+                module.builtins = self.builtins
                 module.modules = self.modules
                 module.module_bodies = self.module_bodies
                 module.function_depth = self.function_depth

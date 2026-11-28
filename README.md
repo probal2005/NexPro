@@ -23,6 +23,10 @@ expense settlement, student report cards, and tournament standings. Each
 project includes its `.pa` source, a sample input, and the expected output.
 Every project has an editable live form in the Playground.
 
+- [Multi-Warehouse Fulfillment Planner](https://nexpro-playground.vercel.app/projects/fulfillment-planner/) handles priority and staged stock deductions.
+- [Invoice Audit](https://nexpro-playground.vercel.app/projects/invoice-audit/) validates nested customer and invoice records.
+- [Booking Revenue Optimizer](https://nexpro-playground.vercel.app/projects/booking-optimizer/) finds the highest-value schedule without overlapping bookings.
+
 [Try the Bill Splitter web demo](https://nexpro-playground.vercel.app/projects/bill-splitter/) ·
 [Read its NexPro source](projects/bill-splitter/main.pa)
 
@@ -52,11 +56,11 @@ or attach imported sibling `.pa` files. Select **Stop** to interrupt a running p
 ### Install the CLI
 
 Use Python 3.11 or later. Download the wheel from the
-[4.9.0 release](https://github.com/probal2005/NexPro/releases/tag/v4.9.0),
+[4.9.1 release](https://github.com/probal2005/NexPro/releases/tag/v4.9.1),
 then run these commands from your download directory.
 
 ```sh
-python -m pip install ./nexpro-4.9.0-py3-none-any.whl
+python -m pip install ./nexpro-4.9.1-py3-none-any.whl
 nexpro version
 ```
 
@@ -157,5 +161,18 @@ python -m pytest -q
 The language implementation lives in [`nexpro/`](nexpro/), the browser editor
 in [`web/`](web/), and the VS Code extension in
 [`editors/vscode/`](editors/vscode/). The playground runs NexPro through
-Pyodide in a browser worker. Build the static site with `node web/build.mjs`.
-The build output goes in `dist/`.
+a pinned, same-origin Pyodide runtime in a browser worker. Use Node.js 24 to
+install the browser dependencies and build the site.
+
+```sh
+npm ci
+npm run build
+npx playwright install chromium
+npm run test:browser
+```
+
+The build output goes in `dist/`. See the [browser runtime notices](web/third-party/README.md).
+
+## License
+
+NexPro is distributed under the [Apache License 2.0](LICENSE).

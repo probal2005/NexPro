@@ -1,3 +1,5 @@
+import { integerRangeMessage, unsafeInteger } from './browser-numbers.mjs';
+
 const panel = document.querySelector('#tool-panel');
 const form = document.querySelector('#tool-form');
 const fieldList = document.querySelector('#tool-fields');
@@ -95,6 +97,7 @@ function fieldError(input, message) {
 }
 
 function validate(input) {
+  if (input.type === 'number' && unsafeInteger(input.valueAsNumber)) return fieldError(input, integerRangeMessage);
   if (!input.validity.valid) return fieldError(input, input.dataset.message || input.validationMessage);
   if (input.type === 'file' && input.files[0]?.size > 512 * 1024) {
     return fieldError(input, 'Choose a CSV file of up to 512 KB.');

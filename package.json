@@ -1,0 +1,15 @@
+{
+  "name": "nexpro-playground",
+  "private": true,
+  "scripts": {
+    "build": "node web/build.mjs",
+    "test:browser": "node web/tests/smoke.mjs"
+  },
+  "dependencies": {
+    "pyodide": "0.28.3"
+  },
+  "devDependencies": {
+    "playwright": "1.65.1"
+  },
+  "license": "Apache-2.0"
+}

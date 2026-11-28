@@ -1,9 +1,19 @@
 import { cp, mkdir, readFile, readdir, writeFile } from 'node:fs/promises';
+import { createRequire } from 'node:module';
+import { dirname, join } from 'node:path';
+import { compactProjectInput } from './browser-numbers.mjs';
 import { schemas } from './project-demo/schemas.mjs';
 
 await mkdir('dist/nexpro', { recursive: true });
 await mkdir('dist/examples', { recursive: true });
-for (const name of ['styles.css', 'app.js', 'tool-preview.js', 'tool-share.js', 'tool.html', 'public-tool.js', 'worker.js', 'playground.py', 'nexpro-icon.png', 'favicon.png']) {
+const require = createRequire(import.meta.url);
+const pyodide = dirname(require.resolve('pyodide'));
+await mkdir('dist/pyodide', { recursive: true });
+for (const file of ['pyodide.js', 'pyodide.js.map', 'pyodide.asm.js', 'pyodide.asm.wasm', 'pyodide-lock.json', 'python_stdlib.zip']) {
+  await cp(join(pyodide, file), join('dist/pyodide', file));
+}
+await cp('web/third-party', 'dist/pyodide/notices', { recursive: true });
+for (const name of ['styles.css', 'app.js', 'tool-preview.js', 'browser-numbers.mjs', 'tool-share.js', 'tool.html', 'public-tool.js', 'worker.js', 'playground.py', 'nexpro-icon.png', 'favicon.png']) {
   await cp(`web/${name}`, `dist/${name}`);
 }
 const versionFile = await readFile('nexpro/__version__.py', 'utf8');
@@ -39,7 +49,7 @@ for (const project of await readdir('projects', { withFileTypes: true })) {
   const liveDemo = Object.hasOwn(schemas, project.name) || project.name === 'order-dispatch';
   const program = {
     source: await readFile(`${folder}/main.pa`, 'utf8'),
-    input: JSON.stringify(JSON.parse(sample)),
+    input: compactProjectInput(sample),
     modules,
     liveDemo,
   };

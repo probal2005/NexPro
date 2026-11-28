@@ -1,4 +1,4 @@
-const CDN = 'https://cdn.jsdelivr.net/pyodide/v0.28.3/full/';
+const RUNTIME_URL = new URL('pyodide/', self.location.href).href;
 const MODULES = [
   '__init__', '__version__', 'ast', 'compiler', 'data_builtins', 'errors',
   'interpreter', 'lexer', 'loader', 'parser', 'runtime', 'standard', 'tokens',
@@ -14,9 +14,9 @@ let execute;
 self.onmessage = async ({ data }) => {
   try {
     if (data.action === 'init') {
-      importScripts(`${CDN}pyodide.js`);
+      importScripts(`${RUNTIME_URL}pyodide.js`);
       const [python, files] = await Promise.all([
-        loadPyodide({ indexURL: CDN }),
+        loadPyodide({ indexURL: RUNTIME_URL }),
         Promise.all(['playground.py', ...MODULES.map(name => `nexpro/${name}.py`)].map(loadFile)),
       ]);
       python.FS.mkdir('nexpro');

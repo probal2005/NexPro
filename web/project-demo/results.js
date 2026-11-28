@@ -66,6 +66,7 @@ function textValue(key, value) {
     if (key.endsWith('_percent')) return `${numbers.format(value)}%`;
     return numbers.format(value);
   }
+  if (typeof value === 'string' && isAmount(key) && /^-?\d+$/.test(value)) return `${value}¢`;
   if (value === null) return '—';
   if (value === '') return 'Blank';
   if (typeof value === 'boolean') return value ? 'Yes' : 'No';

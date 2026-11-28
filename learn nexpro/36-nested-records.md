@@ -1,6 +1,6 @@
 # 36. Nested records and error paths
 
-[← Previous lesson](35-atomic-record-updates.md) · [Course index](README.md)
+[← Previous lesson](35-atomic-record-updates.md) · [Course index](README.md) · [Next lesson →](37-invoice-workflow.md)
 
 Introduced in NexPro 4.9.
 
@@ -63,4 +63,4 @@ The type check passes but the email rule fails. The path is customer and the rul
 
 </details>
 
-[← Previous lesson](35-atomic-record-updates.md) · [Course index](README.md)
+[← Previous lesson](35-atomic-record-updates.md) · [Course index](README.md) · [Next lesson →](37-invoice-workflow.md)

@@ -1,0 +1,34 @@
+import "std/csv" as csv
+import "std/record" as records
+
+record Invoice(number: string, gross: integer, discount: integer = 0, net: integer = gross)
+where "balanced", gross >= 0 and discount >= 0 and net >= 0 and net == gross - discount, "Invalid invoice totals"
+
+function render()
+    input_text = csv_field("Invoices CSV", ["number", "gross"])
+    percent = number_field("Discount percent", 10, 0, 100, 1)
+    if input_text == ""
+        return null
+    end
+
+    accepted = []
+    rejected = []
+    for row in csv.parse(input_text)
+        try
+            invoice = Invoice(row["number"], int(row["gross"]))
+            discount = invoice.gross * percent // 100
+            records.update(invoice, {"discount": discount, "net": invoice.gross - discount})
+            append(accepted, records.to_dict(invoice))
+        catch (error)
+            append(rejected, row["number"] + " (" + error["code"] + ")")
+        end
+    end
+    result("Accepted", len(accepted))
+    result("Rejected", len(rejected))
+    if len(rejected) > 0
+        result("Rejected invoices", join(rejected, ", "))
+    end
+    if len(accepted) > 0
+        download_csv("invoices.csv", csv.stringify(accepted))
+    end
+end

@@ -1,7 +1,7 @@
 # Learn NexPro
 
 A complete course for NexPro 4.9, from your first `.pa` program to a shareable
-CSV inventory tool. Each of the 36 lessons includes definitions, syntax, use
+CSV inventory tool. Each of the 37 lessons includes definitions, syntax, use
 cases, advantages, limitations, a runnable example, expected output, and an
 exercise with an answer.
 
@@ -74,6 +74,8 @@ the examples locally.
 34. [Record validation rules](34-record-validation.md)
 35. [Atomic record updates](35-atomic-record-updates.md)
 36. [Nested records and error paths](36-nested-records.md)
+
+37. [Capstone — publish a validated invoice tool](37-invoice-workflow.md)
 
 ## References
 

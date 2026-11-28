@@ -137,3 +137,29 @@ def test_arithmetic_errors(expression, message):
     result = json.loads(run_playground("say " + expression, "run"))
     assert not result["ok"]
     assert message in result["error"]
+
+
+def test_aliased_modules_inherit_browser_form_hooks():
+    source = 'import "form.pa" as form\nform.render()'
+    modules = {
+        "form.pa": 'import "fields.pa" as fields\nfunction render()\n fields.render()\nend',
+        "fields.pa": '''function render()
+    age = number_field("Age", 20, 0, 120, 1)
+    result("Saved age", age)
+    download_csv("ages.csv", "Age")
+end''',
+    }
+    response = json.loads(run_playground(source, "preview", modules_json=json.dumps(modules), fields_json='{"Age":31}'))
+    assert response["ok"]
+    assert response["tool"]["fields"][0]["value"] == 31
+    assert response["tool"]["results"] == [{"label": "Saved age", "value": "31"}]
+    assert response["tool"]["downloads"] == {"ages.csv": "Age"}
+    assert response["output"] == ""
+
+
+def test_tool_rejects_numbers_outside_the_browser_safe_integer_range():
+    source = 'number_field("Amount", 9007199254740993)'
+    response = json.loads(run_playground(source, "preview"))
+    assert not response["ok"]
+    assert "Browser integer fields" in response["error"]
+    assert json.loads(run_playground(source, "run"))["ok"]
