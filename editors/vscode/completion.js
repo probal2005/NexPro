@@ -25,6 +25,10 @@ const builtins = {
 };
 
 const modules = {
+  csv: {
+    parse: 'parse(text) — Read CSV as a list of rows with named columns.',
+    stringify: 'stringify(rows) — Write a list of dictionaries as CSV.',
+  },
   math: {
     abs: 'abs(value) — Return the absolute value.',
     round: 'round(value, digits) — Round a number. Digits are optional.',
@@ -38,7 +42,7 @@ const modules = {
 
 function moduleFunctions(document, alias) {
   const imports = document.getText().matchAll(
-    /^\s*import\s+["']std\/(math|json)["']\s+as\s+([\p{L}_][\p{L}\p{N}_]*)/gmu,
+    /^\s*import\s+["']std\/(math|json|csv)["']\s+as\s+([\p{L}_][\p{L}\p{N}_]*)/gmu,
   );
   for (const [, name, importedAlias] of imports) {
     if (alias === importedAlias) return modules[name];

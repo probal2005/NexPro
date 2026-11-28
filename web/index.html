@@ -52,6 +52,7 @@
             <option value="namespaces">Module namespaces</option>
             <option value="tool_bill">Bill Splitter form</option>
             <option value="tool_quote">Freelance Quote form</option>
+            <option value="inventory_csv">Inventory reorder from CSV</option>
             <option value="imports">Import math functions</option>
             <optgroup label="NexPro projects">
               <option value="bill_splitter">Bill Splitter</option>
@@ -87,6 +88,7 @@ say (2 + 3) * 4
         <section class="panel">
           <div class="panel-heading">
             <h2 id="result-heading">Output</h2>
+            <button id="download-csv" type="button" hidden>Download CSV output</button>
             <button id="download" type="button" hidden>Download .py</button>
           </div>
           <pre id="result" tabindex="0" aria-labelledby="result-heading">Run your program to see its output.</pre>
@@ -117,6 +119,9 @@ say (2 + 3) * 4
         <label for="program-input">Program input</label>
         <p id="input-help">Enter one line per input() call.</p>
         <textarea id="program-input" rows="3" spellcheck="false" aria-describedby="input-help"></textarea>
+        <label for="csv-file">Open CSV</label>
+        <input id="csv-file" type="file" accept=".csv,text/csv" aria-describedby="csv-help">
+        <p id="csv-help">The CSV becomes one JSON-encoded input line. Use <code>csv.parse(json.parse(input()))</code> to read it.</p>
       </div>
     </section>
     <section id="live-projects" class="project-directory" aria-labelledby="live-projects-heading">

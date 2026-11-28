@@ -2,12 +2,15 @@ import { toolPreview } from './tool-preview.js';
 
 const source = document.querySelector('#source');
 const programInput = document.querySelector('#program-input');
+const csvFile = document.querySelector('#csv-file');
+const downloadCsv = document.querySelector('#download-csv');
+const csvSample = JSON.stringify('sku,stock,minimum,target\nA-01,2,4,10\nB-02,7,3,9\n');
 const moduleFiles = document.querySelector('#module-files');
 const check = document.querySelector('#check');
 const traceEnabled = document.querySelector('#trace');
 const traceDetails = document.querySelector('#execution-trace');
 const traceOutput = document.querySelector('#trace-output');
-const sampleInputs = new Map([['bill_splitter', '{"bill":"10.00","people":"3"}'], ['json_report', '{"name":"আদা","scores":[70,85,100]}'], ['clean_names', '  Ada, GRACE, Linus  '], ['scores', '70\n85\n100'], ['input', 'Ada\n2000'], ['score_series', '70\n85\n100\n\n']]);
+const sampleInputs = new Map([['inventory_csv', csvSample], ['bill_splitter', '{"bill":"10.00","people":"3"}'], ['json_report', '{"name":"আদা","scores":[70,85,100]}'], ['clean_names', '  Ada, GRACE, Linus  '], ['scores', '70\n85\n100'], ['input', 'Ada\n2000'], ['score_series', '70\n85\n100\n\n']]);
 const gutter = document.querySelector('#gutter');
 const examples = document.querySelector('#examples');
 const projectSource = document.querySelector('#project-source');
@@ -25,6 +28,9 @@ let worker;
 let runtimeReady = false;
 let timer;
 let pythonOutput;
+let csvInput;
+let csvOutput;
+let csvRun = false;
 let exampleRequest;
 let sampleInput = '';
 let exampleModules = {};
@@ -60,6 +66,8 @@ function show(action, { ok, output = '', error = '', trace = '', tool }) {
   result.toggleAttribute('data-error', !ok);
   pythonOutput = action === 'compile' && ok ? output : undefined;
   download.hidden = pythonOutput === undefined;
+  csvOutput = action === 'run' && ok && csvRun ? output.replace(/\r\n\n$/, '\r\n') : undefined;
+  downloadCsv.hidden = csvOutput === undefined;
   const completed = { check: 'Check complete', compile: 'Compiled successfully', run: 'Run complete', preview: 'Preview complete' };
   status.textContent = ok ? completed[action] : 'Program failed';
 }
@@ -109,6 +117,7 @@ async function execute(action, fields = {}) {
   const code = source.value;
   if (action === 'preview') previewSource = code;
   const input = programInput.value;
+  csvRun = input === csvInput || examples.value === 'inventory_csv';
   const trace = action === 'run' && traceEnabled.checked;
   const files = [...moduleFiles.files];
   const modules = { ...exampleModules };
@@ -116,6 +125,7 @@ async function execute(action, fields = {}) {
   stop.hidden = action !== 'run' && action !== 'preview';
   traceDetails.hidden = true;
   download.hidden = true;
+  downloadCsv.hidden = true;
   const pending = { check: 'Checking…', compile: 'Compiling…', run: 'Running…', preview: 'Preparing preview…' };
   status.textContent = pending[action];
   timer = setTimeout(() => failWorker('The program took too long to finish.'), 8000);
@@ -218,14 +228,33 @@ examples.addEventListener('change', async () => {
     }
   }
 });
-download.addEventListener('click', () => {
-  const url = URL.createObjectURL(new Blob([pythonOutput], { type: 'text/x-python' }));
+csvFile.addEventListener('change', async () => {
+  const [file] = csvFile.files;
+  if (!file) return;
+  csvFile.value = '';
+  if (file.size > 512 * 1024) {
+    status.textContent = 'Choose a CSV file of up to 512 KB.';
+    return;
+  }
+  try {
+    csvInput = JSON.stringify(await file.text());
+    programInput.value = csvInput;
+    status.textContent = 'CSV loaded into Program input.';
+  } catch {
+    status.textContent = 'The CSV file could not be read.';
+  }
+});
+download.addEventListener('click', () => downloadOutput(pythonOutput, 'playground.py', 'text/x-python'));
+downloadCsv.addEventListener('click', () => downloadOutput(csvOutput, 'output.csv', 'text/csv;charset=utf-8'));
+
+function downloadOutput(content, filename, type) {
+  const url = URL.createObjectURL(new Blob([content], { type }));
   const link = document.createElement('a');
   link.href = url;
-  link.download = 'playground.py';
+  link.download = filename;
   link.click();
   setTimeout(() => URL.revokeObjectURL(url), 1000);
-});
+}
 
 syncGutter();
 startWorker();

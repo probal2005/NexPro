@@ -1,0 +1,19 @@
+import "std/csv" as csv
+import "std/json" as json
+
+items = csv.parse(json.parse(input()))
+orders = []
+for item in items
+    stock = int(item["stock"])
+    minimum = int(item["minimum"])
+    target = int(item["target"])
+    assert stock >= 0 and minimum >= 0 and target > minimum
+    if stock <= minimum
+        append(orders, {"sku": item["sku"], "quantity": target - stock})
+    end
+end
+if len(orders) == 0
+    say "sku,quantity"
+else
+    say csv.stringify(orders)
+end
