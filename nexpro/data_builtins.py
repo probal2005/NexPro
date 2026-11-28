@@ -253,7 +253,7 @@ def _type_of(value):
     return {
         type(None): "null", bool: "boolean", int: "integer", float: "float",
         str: "string", list: "list", dict: "dictionary",
-    }.get(type(value), type(value).__name__)
+    }.get(type(value), getattr(type(value), "_nexpro_type", type(value).__name__))
 
 
 DATA_BUILTINS["type_of"] = _type_of

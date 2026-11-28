@@ -1,0 +1,19 @@
+import "std/queue" as queue
+import "std/linked_list" as linked
+import "std/stats" as stats
+
+pending = queue.new([
+    {"team": "North", "items": 4},
+    {"team": "South", "items": 8},
+    {"team": "North", "items": 6}
+])
+history = linked.new()
+quantities = []
+while len(pending) > 0
+    order = queue.dequeue(pending)
+    linked.append(history, order)
+    append(quantities, order["items"])
+end
+say stats.count_by(linked.to_list(history), "team")
+say stats.mean(quantities)
+say stats.median(quantities)

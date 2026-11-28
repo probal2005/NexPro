@@ -3,7 +3,9 @@
 import csv
 import json
 import math
+import statistics
 import sys
+from collections import deque
 from io import StringIO
 
 
@@ -164,7 +166,179 @@ def _dict_merge(left, right):
     return {**_as_dict(left), **_as_dict(right)}
 
 
+class _Queue:
+    _nexpro_type = "queue"
+
+    def __init__(self, items):
+        self.items = deque(items)
+
+    def __len__(self):
+        return len(self.items)
+
+    def __repr__(self):
+        return "<queue>"
+
+
+def _queue_new(items=None):
+    return _Queue([] if items is None else _as_list(items))
+
+
+def _queue_items(queue):
+    if not isinstance(queue, _Queue):
+        raise TypeError("std/queue requires a queue.")
+    return queue.items
+
+
+def _queue_enqueue(queue, value):
+    _queue_items(queue).append(value)
+
+
+def _queue_dequeue(queue):
+    return _queue_items(queue).popleft()
+
+
+def _queue_peek(queue):
+    return _queue_items(queue)[0]
+
+
+def _queue_to_list(queue):
+    return list(_queue_items(queue))
+
+
+class _Link:
+    def __init__(self, value, next_node=None):
+        self.value = value
+        self.next_node = next_node
+
+
+class _LinkedList:
+    _nexpro_type = "linked_list"
+
+    def __init__(self):
+        self.head = None
+        self.tail = None
+        self.size = 0
+
+    def __len__(self):
+        return self.size
+
+    def __repr__(self):
+        return "<linked_list>"
+
+    def __iter__(self):
+        node = self.head
+        while node is not None:
+            yield node.value
+            node = node.next_node
+
+    def append(self, value):
+        node = _Link(value)
+        if self.tail is None:
+            self.head = node
+        else:
+            self.tail.next_node = node
+        self.tail = node
+        self.size += 1
+
+    def node_at(self, index):
+        node = self.head
+        for _ in range(index):
+            node = node.next_node
+        return node
+
+
+def _linked_new(items=None):
+    linked = _LinkedList()
+    if items is not None:
+        for item in _as_list(items):
+            linked.append(item)
+    return linked
+
+
+def _as_linked(linked):
+    if not isinstance(linked, _LinkedList):
+        raise TypeError("std/linked_list requires a linked list.")
+    return linked
+
+
+def _linked_index(index, stop):
+    if type(index) is not int:
+        raise TypeError("A linked-list index must be an integer.")
+    if not 0 <= index < stop:
+        raise IndexError("Linked-list index out of range.")
+
+
+def _linked_append(linked, value):
+    _as_linked(linked).append(value)
+
+
+def _linked_insert(linked, index, value):
+    linked = _as_linked(linked)
+    _linked_index(index, linked.size + 1)
+    if index == linked.size:
+        linked.append(value)
+        return
+    if index == 0:
+        linked.head = _Link(value, linked.head)
+    else:
+        previous = linked.node_at(index - 1)
+        previous.next_node = _Link(value, previous.next_node)
+    linked.size += 1
+
+
+def _linked_remove(linked, index):
+    linked = _as_linked(linked)
+    _linked_index(index, linked.size)
+    previous = None if index == 0 else linked.node_at(index - 1)
+    if previous is None:
+        removed = linked.head
+        linked.head = removed.next_node
+    else:
+        removed = previous.next_node
+        previous.next_node = removed.next_node
+    if removed is linked.tail:
+        linked.tail = previous
+    linked.size -= 1
+    return removed.value
+
+
+def _linked_to_list(linked):
+    return list(_as_linked(linked))
+
+
+def _stats_numbers(items):
+    items = _as_list(items)
+    if not items or any(type(item) not in (int, float) or not -math.inf < item < math.inf for item in items):
+        raise ValueError("Expected a non-empty list of finite numbers.")
+    return items
+
+
+def _stats_mean(items):
+    return statistics.mean(_stats_numbers(items))
+
+
+def _stats_median(items):
+    return statistics.median(_stats_numbers(items))
+
+
+def _stats_count_by(items, key=None):
+    counts = {}
+    for value in _as_list(items):
+        group = value if key is None else _as_dict(value)[key]
+        counts[group] = counts.get(group, 0) + 1
+    return counts
+
+
 STANDARD_MODULES = {
+    "std/queue": {
+        "new": _queue_new, "enqueue": _queue_enqueue, "dequeue": _queue_dequeue,
+        "peek": _queue_peek, "to_list": _queue_to_list,
+    },
+    "std/linked_list": {
+        "new": _linked_new, "append": _linked_append, "insert": _linked_insert,
+        "remove": _linked_remove, "to_list": _linked_to_list,
+    },
+    "std/stats": {"mean": _stats_mean, "median": _stats_median, "count_by": _stats_count_by},
     "std/text": {
         "replace": _text_replace, "find": _text_find, "contains": _text_contains,
         "starts_with": _text_starts_with, "ends_with": _text_ends_with,

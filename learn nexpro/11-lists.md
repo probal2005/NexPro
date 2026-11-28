@@ -23,7 +23,7 @@ Store scores, order lines, or records read from a CSV file.
 
 **Advantages.** Indexing, slicing, and loops let you read and process an ordered set.
 
-**Limitations and common mistakes.** An out-of-range index raises an error. Min and max require a non-empty list. Version 3.6 has no dedicated fixed array or linked list.
+**Limitations and common mistakes.** An out-of-range index raises an error. Min and max require a non-empty list. Use [std/linked_list](../docs/language.md#queues-linked-lists-and-statistics) when you need linked nodes.
 
 ## Try it
 

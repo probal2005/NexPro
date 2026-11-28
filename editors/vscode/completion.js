@@ -31,6 +31,25 @@ const builtins = {
 };
 
 const modules = {
+  queue: {
+    new: 'new(items) — Create a FIFO queue, optionally from a list.',
+    enqueue: 'enqueue(queue, value) — Add a value to the back.',
+    dequeue: 'dequeue(queue) — Remove and return the first value.',
+    peek: 'peek(queue) — Read the first value.',
+    to_list: 'to_list(queue) — Read the queue as a list.',
+  },
+  linked_list: {
+    new: 'new(items) — Create a linked list, optionally from a list.',
+    append: 'append(linked, value) — Add a value at the tail.',
+    insert: 'insert(linked, index, value) — Insert at a position.',
+    remove: 'remove(linked, index) — Remove and return an item.',
+    to_list: 'to_list(linked) — Traverse the chain into a list.',
+  },
+  stats: {
+    mean: 'mean(items) — Compute the arithmetic mean.',
+    median: 'median(items) — Find the median.',
+    count_by: 'count_by(items, key) — Count values or record fields.',
+  },
   text: {
     replace: 'replace(text, old, new) — Replace every occurrence.',
     find: 'find(text, fragment) — Return the first matching index or -1.',
@@ -66,7 +85,7 @@ const modules = {
 
 function moduleFunctions(document, alias) {
   const imports = document.getText().matchAll(
-    /^\s*import\s+["']std\/(math|json|csv|text|list|dict)["']\s+as\s+([\p{L}_][\p{L}\p{N}_]*)/gmu,
+    /^\s*import\s+["']std\/(math|json|csv|text|list|dict|queue|linked_list|stats)["']\s+as\s+([\p{L}_][\p{L}\p{N}_]*)/gmu,
   );
   for (const [, name, importedAlias] of imports) {
     if (alias === importedAlias) return modules[name];

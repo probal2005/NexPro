@@ -1,6 +1,6 @@
 # Learn NexPro
 
-A complete course for NexPro 3.9, from your first `.pa` program to a shareable
+A complete course for NexPro 4.0, from your first `.pa` program to a shareable
 CSV inventory tool. Each of the 23 lessons includes definitions, syntax, use
 cases, advantages, limitations, a runnable example, expected output, and an
 exercise with an answer.
@@ -55,6 +55,12 @@ the examples locally.
 21. [Playground actions and sharing](21-sharing.md)
 22. [CLI, tests, and debugging](22-cli-debug-test.md)
 23. [Capstone — inventory reorder tool](23-capstone.md)
+
+## Further practice
+
+- [Invoice totals with defaults and null](../examples/invoice_total.pa)
+- [CSV recovery with try, catch, and throw](../examples/recover_csv.pa)
+- [Dispatch summary with queues, linked lists, and statistics](../examples/dispatch_summary.pa)
 
 ## References
 

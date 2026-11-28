@@ -18,7 +18,7 @@ UTF-8 text, typically saved with a `.pa` extension.
 - Boolean literals are `true` and `false`. A list uses square brackets and
   comma-separated expressions, including `[]` for an empty list.
 - Reserved words are `say`, `function`, `return`, `import`, `if`, `else`,
-  `end`, `while`, `true`, and `false`. `and`, `or`, and `not` are also keywords. `repeat` is reserved.
+  `end`, `while`, `true`, `false`, `null`, `elif`, `try`, `catch`, and `throw`. `and`, `or`, and `not` are also keywords. `repeat` is reserved.
 
 ## Expressions
 
@@ -240,3 +240,27 @@ Syntax and import failures are reported before execution and cannot be caught.
 Use `throw "reason"` to signal a runtime error. An unhandled error includes
 the original `.pa` source location and its call stack. See
 [the recoverable CSV example](../examples/recover_csv.pa).
+
+## Queues, linked lists, and statistics
+
+Import each module with an alias. Both collection types support `len()`.
+Their `to_list()` functions make shallow snapshots suitable for JSON or CSV.
+`type_of()` reports `queue` or `linked_list` for these collection values.
+
+| Module | Function | Behavior |
+|---|---|---|
+| `std/queue` | `new(items)` | Create a FIFO queue. The initial list is optional. |
+| Queue | `enqueue(queue, value)` | Add a value to the back of the existing queue. |
+| Queue | `dequeue(queue)` | Remove and return the first value. An empty queue raises an error. |
+| Queue | `peek(queue)` | Read the first value without removing it. An empty queue raises an error. |
+| Queue | `to_list(queue)` | Return values from front to back. |
+| `std/linked_list` | `new(items)` | Create a singly linked list. The initial list is optional. |
+| Linked list | `append(linked, value)` | Add to the tail in constant time. |
+| Linked list | `insert(linked, index, value)` | Insert at a zero-based position, including the position just past the last item. |
+| Linked list | `remove(linked, index)` | Remove and return the item at that position. An invalid or negative index raises an error. |
+| Linked list | `to_list(linked)` | Traverse the chain and return the values in order. You can also iterate directly with `for`. |
+| `std/stats` | `mean(items)` | Return the arithmetic mean of a non-empty list of finite numbers. |
+| Statistics | `median(items)` | Return the middle value, or the mean of the middle pair. Rejects empty input and non-finite numbers. |
+| Statistics | `count_by(items, key)` | Count hashable values into a dictionary. With an optional key, count by that field in each record. An empty input yields an empty dictionary. |
+
+See the [dispatch summary example](../examples/dispatch_summary.pa).

@@ -85,3 +85,51 @@ def test_unhandled_throw_includes_the_source_location():
     assert "NexPro Runtime Error: no stock" in result["error"]
     assert "playground.pa:2" in result["error"]
     assert "playground.pa:4" in result["error"]
+
+
+def test_queue_and_statistics():
+    source = (ROOT / "examples/dispatch_summary.pa").read_text(encoding="utf-8")
+    check_runtimes(source, "{'North': 2, 'South': 1}\n6\n6\n")
+    check_runtimes("""
+import "std/queue" as queue
+import "std/stats" as stats
+pending = queue.new()
+queue.enqueue(pending, "A")
+queue.enqueue(pending, "B")
+say queue.peek(pending)
+say queue.dequeue(pending)
+say queue.to_list(pending)
+say type_of(pending)
+say stats.count_by([])
+say stats.median([3, 7])
+try
+    say stats.mean([])
+catch error
+    say "Empty sample"
+end
+""", "A\nA\n['B']\nqueue\n{}\n5.0\nEmpty sample\n")
+
+
+def test_linked_list_operations_keep_head_and_tail_consistent():
+    check_runtimes("""
+import "std/linked_list" as links
+items = links.new([2, 4])
+links.insert(items, 0, 1)
+links.insert(items, 2, 3)
+links.insert(items, 4, 5)
+say links.to_list(items)
+say links.remove(items, 4)
+say links.remove(items, 0)
+say links.remove(items, 1)
+say links.remove(items, 0)
+say links.remove(items, 0)
+links.append(items, 9)
+say links.to_list(items)
+say len(items)
+say type_of(items)
+try
+    links.remove(items, -1)
+catch error
+    say "Invalid index"
+end
+""", "[1, 2, 3, 4, 5]\n5\n1\n3\n2\n4\n[9]\n1\nlinked_list\nInvalid index\n")
