@@ -83,6 +83,18 @@ class _Record(dict):
         return default
 
 
+def _record_field(record, name):
+    if not isinstance(record, _Record):
+        raise TypeError("Dot access requires a record.")
+    return record[name]
+
+
+def _record_set_field(record, name, value):
+    if not isinstance(record, _Record):
+        raise TypeError("Dot assignment requires a record.")
+    record[name] = value
+
+
 def _throw(message, code="thrown"):
     if not isinstance(code, str) or not code.strip() or not isinstance(message, str):
         raise TypeError("throw requires a text message and a non-empty text code.")

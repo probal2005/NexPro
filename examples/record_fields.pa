@@ -1,0 +1,10 @@
+record Invoice(amount_cents: integer, paid: boolean = false)
+invoice = Invoice(1800)
+invoice.paid = true
+say invoice["paid"]
+try
+    invoice.amount_cents = "1800"
+catch (error)
+    say error["code"]
+end
+say invoice.amount_cents

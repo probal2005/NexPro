@@ -262,3 +262,31 @@ say instance["missing"]
     invalid = json.loads(run_playground("record Invoice(amount: money)", "check"))
     assert not invalid["ok"]
     assert "supported record field type" in invalid["error"]
+
+
+def test_record_dot_access_shares_storage_and_validation_with_indexing():
+    source = (ROOT / "examples/record_fields.pa").read_text(encoding="utf-8")
+    check_runtimes(source, "true\nrecord_field_type\n1800\n")
+    check_runtimes("""
+import "models.pa" as models
+values = [models.sample]
+values[0].amount = 5
+say models.sample.amount
+record Order(invoice: record)
+order = Order(values[0])
+order.invoice.amount = 9
+say order.invoice["amount"]
+say models.create()["amount"]
+try
+    models.sample = 3
+catch error
+    say error
+end
+""", "5\n9\n7\nCannot assign directly to a module export.\n", {
+        "models.pa": """record Invoice(amount: integer)
+sample = Invoice(2)
+function create()
+    return Invoice(7)
+end
+""",
+    })

@@ -212,8 +212,8 @@ class SetItem(Statement):
 
 
 class Member(Expression):
-    def __init__(self, namespace, name):
-        self.namespace = namespace
+    def __init__(self, sequence, name):
+        self.sequence = sequence
         self.name = name
 
 

@@ -219,7 +219,7 @@ class Parser:
                 member = self.expect(IDENTIFIER, "Expected member name")
                 if self.match(LPAREN):
                     return self.locate(self.call(member.value, token.value), token)
-                return self.locate(Member(token.value, member.value), token)
+                return self.locate(Member(self.locate(Variable(token.value), token), member.value), token)
             if self.match(LPAREN):
                 return self.locate(self.call(token.value), token)
             return self.locate(Variable(token.value), token)
@@ -510,16 +510,12 @@ class Parser:
                 self.advance()
                 return Break() if token.value == "break" else Continue()
 
-            if following is not None and following.type == LBRACKET:
+            if following is not None and following.type in (LBRACKET, DOT):
                 target = self.postfix()
-                self.expect(ASSIGN, "Expected '=' after indexed target")
+                if isinstance(target, Call):
+                    return target
+                self.expect(ASSIGN, "Expected '=' after member or indexed target")
                 return SetItem(target, self.expression())
-
-            if following is not None and following.type == DOT:
-                call = self.primary()
-                if not isinstance(call, Call):
-                    raise ParserError("Expected a module function call", token.line, token.column, self.filename)
-                return call
 
             if following is not None and following.type == LPAREN:
                 name = self.current.value
@@ -568,8 +564,12 @@ class Parser:
 
     def postfix(self):
         node = self.primary()
-        while self.match(LBRACKET):
+        while self.match(LBRACKET, DOT):
             bracket = self.previous()
+            if bracket.type == DOT:
+                name = self.expect(IDENTIFIER, "Expected field name")
+                node = self.locate(Member(node, name.value), bracket)
+                continue
             index = None if self.check(COLON) else self.expression()
             if self.match(COLON):
                 stop = None if self.check(COLON) or self.check(RBRACKET) else self.expression()

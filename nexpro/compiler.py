@@ -62,6 +62,18 @@ def _call(functions, allow_builtin, name, arguments, named):
     return function(_argument_scope(name, parameters, default_count, arguments, named))
 
 
+def _named_member(scope, globals_, aliases, owner, field):
+    if owner in aliases:
+        return _get({}, aliases[owner][0], field)
+    return _record_field(_get(scope, globals_, owner), field)
+
+
+def _record_owner(scope, globals_, aliases, owner):
+    if owner in aliases:
+        raise ValueError("Cannot assign directly to a module export.")
+    return _get(scope, globals_, owner)
+
+
 def _module(aliases, name):
     if name not in aliases:
         raise ValueError(f"Undefined module alias '{name}'")
@@ -135,7 +147,11 @@ def _expression(node, lines, indent):
     if isinstance(node, Variable):
         value = f"_get(_scope, _globals, {node.name!r})"
     elif isinstance(node, Member):
-        value = f"_get({{}}, _module(_aliases, {node.namespace!r})[0], {node.name!r})"
+        if isinstance(node.sequence, Variable):
+            value = f"_named_member(_scope, _globals, _aliases, {node.sequence.name!r}, {node.name!r})"
+        else:
+            sequence = _expression(node.sequence, lines, indent)
+            value = f"_record_field({sequence}, {node.name!r})"
     elif isinstance(node, Binary):
         left = _expression(node.left, lines, indent)
         right = _expression(node.right, lines, indent)
@@ -187,10 +203,23 @@ def _statements(statements, lines, indent):
             value = _expression(statement.value, lines, indent)
             lines.append(f"{indent}_scope[{statement.variable.name!r}] = {value}")
         elif isinstance(statement, SetItem):
-            sequence = _expression(statement.target.sequence, lines, indent)
-            index = _expression(statement.target.index, lines, indent)
-            value = _expression(statement.value, lines, indent)
-            lines.emit(f"{indent}_set_item({sequence}, {index}, {value})", statement)
+            target = statement.target
+            if isinstance(target, Member):
+                if isinstance(target.sequence, Variable):
+                    sequence = f"_value_{len(lines)}"
+                    lines.emit(
+                        f"{indent}{sequence} = _record_owner(_scope, _globals, _aliases, {target.sequence.name!r})",
+                        target,
+                    )
+                else:
+                    sequence = _expression(target.sequence, lines, indent)
+                value = _expression(statement.value, lines, indent)
+                lines.emit(f"{indent}_record_set_field({sequence}, {target.name!r}, {value})", statement)
+            else:
+                sequence = _expression(target.sequence, lines, indent)
+                index = _expression(target.index, lines, indent)
+                value = _expression(statement.value, lines, indent)
+                lines.emit(f"{indent}_set_item({sequence}, {index}, {value})", statement)
         elif isinstance(statement, Say):
             value = _expression(statement.expression, lines, indent)
             lines.emit(f"{indent}_say_value({value})", statement)

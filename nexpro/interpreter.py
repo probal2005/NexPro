@@ -42,7 +42,7 @@ from nexpro.data_builtins import DATA_BUILTINS, _argument_scope, _call_builtin, 
 from nexpro.errors import EXECUTION_ERRORS
 from nexpro.errors import RuntimeError as NexProRuntimeError
 from nexpro.runtime import Runtime
-from nexpro.standard import STANDARD_MODULES, _Record, _error_code, _error_record, _throw, _to_int, _type_of
+from nexpro.standard import STANDARD_MODULES, _Record, _error_code, _error_record, _record_field, _record_set_field, _throw, _to_int, _type_of
 
 
 BINARY_OPERATORS = {
@@ -132,7 +132,10 @@ class Interpreter:
             return None
 
         elif isinstance(node, Member):
-            return self.get_module(node.namespace).globals.get(node.name)
+            sequence = node.sequence
+            if isinstance(sequence, Variable) and sequence.name in self.aliases:
+                return self.aliases[sequence.name].globals.get(node.name)
+            return _record_field(self.visit(sequence), node.name)
 
         elif isinstance(node, Assign):
             return self.visit_assign(node)
@@ -156,10 +159,17 @@ class Interpreter:
             return {self.visit(key): self.visit(value) for key, value in node.entries}
 
         elif isinstance(node, SetItem):
-            sequence = self.visit(node.target.sequence)
-            index = self.visit(node.target.index)
-            value = self.visit(node.value)
-            sequence[index] = value
+            target = node.target
+            if isinstance(target, Member):
+                owner = target.sequence
+                if isinstance(owner, Variable) and owner.name in self.aliases:
+                    raise NexProRuntimeError("Cannot assign directly to a module export.")
+                sequence = self.visit(owner)
+                _record_set_field(sequence, target.name, self.visit(node.value))
+            else:
+                sequence = self.visit(target.sequence)
+                index = self.visit(target.index)
+                sequence[index] = self.visit(node.value)
             return None
 
         elif isinstance(node, Slice):

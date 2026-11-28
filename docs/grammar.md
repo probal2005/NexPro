@@ -22,7 +22,7 @@ statement      -> assignment
                 | "throw" expression ("," expression)?
                 | "return" expression
                 | call
-assignment     -> IDENTIFIER ("[" expression "]")* "=" expression
+assignment     -> IDENTIFIER ("[" expression "]" | "." IDENTIFIER)* "=" expression
 expression     -> logical_and ("or" logical_and)*
 logical_and    -> logical_not ("and" logical_not)*
 logical_not    -> "not" logical_not | comparison
@@ -32,7 +32,7 @@ addition       -> multiplication (("+" | "-") multiplication)*
 multiplication -> unary (("*" | "/" | "//" | "%") unary)*
 unary          -> ("+" | "-") unary | power
 power          -> postfix ("**" unary)?
-postfix        -> primary ("[" subscript "]")*
+postfix        -> primary ("[" subscript "]" | "." IDENTIFIER)*
 subscript      -> expression | expression? ":" expression? (":" expression?)?
 list           -> "[" arguments? "]"
 dictionary     -> "{" (entry ("," entry)*)? "}"

@@ -313,3 +313,15 @@ A mismatch raises `record_field_type` and leaves the field's existing value
 intact. In `catch (error)`, the `details` dictionary contains `record`,
 `field`, `expected`, and `actual`. Invalid defaults are reported when used.
 See [the typed invoice example](../examples/typed_invoice.pa).
+
+### Dot access
+
+Read or update a record field with `invoice.paid` or `invoice.paid = true`.
+Use `invoice[key]` for computed field names. Dot access and indexing share
+the same field value and type checks. Dot access can follow a nested field,
+index, or call, such as `orders[0].invoice.paid`.
+
+Imported aliases take precedence in names such as `models.invoice`. Use
+them to read exports and call module functions. You can update a field of
+an exported record, but assignment cannot replace the export itself.
+See [the record fields example](../examples/record_fields.pa).
