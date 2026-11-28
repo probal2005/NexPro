@@ -2,7 +2,7 @@
 
 [← Previous lesson](02-variables.md) · [Course index](README.md) · [Next lesson →](04-input-output.md)
 
-NexPro 3.6 has six value types you can write directly as literals.
+NexPro 3.8 has seven value types you can write directly as literals.
 
 ## Types and syntax
 
@@ -11,6 +11,7 @@ NexPro 3.6 has six value types you can write directly as literals.
 | Integer | `12` | A whole number. |
 | Float | `7.5` | A floating-point number. |
 | String | `"Ada"` | Text. |
+| Null | `null` | A missing value. |
 | Boolean | `true`, `false` | A truth value. |
 | List | `[3, 4]` | An ordered collection. |
 | Dictionary | `{"stock": 4}` | A collection that associates keys with values. |
@@ -21,7 +22,7 @@ Use an integer for stock, a string for the product name, and a dictionary to kee
 
 **Advantages.** The right type makes the intended operations clearer.
 
-**Limitations and common mistakes.** An operation may fail if the type is incompatible. A function that finishes without a return has a missing result, displayed as None. There is no null literal.
+**Limitations and common mistakes.** An operation may fail if the type is incompatible. A function that finishes without a return has a missing result, displayed as `null`. Use `type_of(value)` to query a value’s type.
 
 ## Try it
 

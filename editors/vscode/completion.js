@@ -26,6 +26,7 @@ const builtins = {
   sum: 'sum(items) — Add the numbers in a list.',
   text_field: 'text_field(label, default) — Declare a text form field.',
   trim: 'trim(text) — Remove whitespace from both ends.',
+  type_of: 'type_of(value) — Return the type name as text.',
   upper: 'upper(text) — Convert text to uppercase.',
 };
 

@@ -35,6 +35,8 @@ from nexpro.tokens import (
     END,
     IF,
     ELSE,
+    ELIF,
+    NULL,
     WHILE,
     TRUE,
     FALSE,
@@ -62,6 +64,7 @@ from nexpro.ast import (
     Return,
     Unary,
     Boolean,
+    Null,
     If,
     While,
     Index,
@@ -194,6 +197,9 @@ class Parser:
             self.advance()
 
             return Number(token.value)
+
+        if self.match(NULL):
+            return self.locate(Null(), token)
 
         if self.match(TRUE, FALSE):
             return Boolean(token.type == TRUE)
@@ -333,6 +339,7 @@ class Parser:
         name = self.expect(IDENTIFIER, "Expected function name")
         self.expect(LPAREN, "Expected '(' after function name")
         parameters = []
+        defaults = []
         if not self.check(RPAREN):
             while True:
                 parameter = self.expect(IDENTIFIER, "Expected parameter name")
@@ -344,13 +351,20 @@ class Parser:
                         self.filename,
                     )
                 parameters.append(parameter.value)
+                if self.match(ASSIGN):
+                    defaults.append(self.expression())
+                elif defaults:
+                    raise ParserError(
+                        "Required parameters must precede default parameters",
+                        parameter.line, parameter.column, self.filename,
+                    )
                 if not self.match(COMMA):
                     break
         self.expect(RPAREN, "Expected ')' after parameters")
 
         body = self.block(END, in_function=True)
         self.expect(END, "Expected 'end' after function body")
-        return Function(name.value, parameters, body)
+        return Function(name.value, parameters, body, defaults)
 
     def block(self, *terminators, in_function, in_loop=False):
         body = []
@@ -380,11 +394,19 @@ class Parser:
 
         if self.match(IF):
             condition = self.expression()
-            then_body = self.block(ELSE, END, in_function=in_function, in_loop=in_loop)
+            then_body = self.block(ELIF, ELSE, END, in_function=in_function, in_loop=in_loop)
+            branches = []
+            while self.match(ELIF):
+                keyword = self.previous()
+                branch_condition = self.expression()
+                branch_body = self.block(ELIF, ELSE, END, in_function=in_function, in_loop=in_loop)
+                branches.append((keyword, branch_condition, branch_body))
             else_body = None
             if self.match(ELSE):
                 else_body = self.block(END, in_function=in_function, in_loop=in_loop)
             self.expect(END, "Expected 'end' after if block")
+            for keyword, branch_condition, branch_body in reversed(branches):
+                else_body = [self.locate(If(branch_condition, branch_body, else_body), keyword)]
             return If(condition, then_body, else_body)
 
         if self.match(WHILE):

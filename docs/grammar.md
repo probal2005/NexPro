@@ -4,12 +4,13 @@
 program        -> (import | function | statement)* EOF
 import         -> "import" STRING ("as" IDENTIFIER)?
 function       -> "function" IDENTIFIER "(" parameters? ")" function_body "end"
-parameters     -> IDENTIFIER ("," IDENTIFIER)*
+parameters     -> parameter ("," parameter)*
+parameter      -> IDENTIFIER ("=" expression)?
 function_body  -> statement*
 block          -> statement*
 statement      -> assignment
                 | "say" expression
-                | "if" expression block ("else" block)? "end"
+                | "if" expression block ("elif" expression block)* ("else" block)? "end"
                 | "while" expression block "end"
                 | "for" IDENTIFIER "in" expression block "end"
                 | "break" | "continue"
@@ -31,7 +32,7 @@ subscript      -> expression | expression? ":" expression? (":" expression?)?
 list           -> "[" arguments? "]"
 dictionary     -> "{" (entry ("," entry)*)? "}"
 entry          -> expression ":" expression
-primary        -> NUMBER | STRING | "true" | "false"
+primary        -> NUMBER | STRING | "true" | "false" | "null"
                 | dictionary | list | call | member | IDENTIFIER | "(" expression ")"
 member         -> IDENTIFIER "." IDENTIFIER
 call           -> (IDENTIFIER | member) "(" arguments? ")"

@@ -34,7 +34,7 @@
     },
     {
       "name": "keyword.control.nexpro",
-      "match": "\\b(?:say|return|import|if|else|while|end|and|or|not)\\b"
+      "match": "\\b(?:say|return|import|if|elif|else|while|end|and|or|not)\\b"
     },
     {
       "match": "^\\s*(break|continue|assert)\\b(?!\\s*[=(])",
@@ -46,11 +46,11 @@
     },
     {
       "name": "constant.language.boolean.nexpro",
-      "match": "\\b(?:true|false)\\b"
+      "match": "\\b(?:true|false|null)\\b"
     },
     {
       "name": "support.function.builtin.nexpro",
-      "match": "\\b(?:append|float|get|input|int|join|keys|len|lower|max|min|range|reverse|sorted|split|sum|trim|upper)(?=\\s*\\()"
+      "match": "\\b(?:append|float|get|input|int|join|keys|len|lower|max|min|range|reverse|sorted|split|sum|trim|type_of|upper)(?=\\s*\\()"
     },
     {
       "name": "constant.numeric.nexpro",

@@ -158,7 +158,12 @@ NUMBER = "NUMBER"
 # Reserved Keywords
 # ==========================================================
 
+NULL = "NULL"
+ELIF = "ELIF"
+
 KEYWORDS = {
+    "null": NULL,
+    "elif": ELIF,
 
     "say": SAY,
 

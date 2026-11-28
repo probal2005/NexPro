@@ -60,14 +60,13 @@ list. Indexing reads an item or character. Assignment targets a variable or an i
   in a condition.
 - Define functions at the top level using `function name(parameters) … end`.
   Execute the definition before calling the function. Function names and
-  variable names are looked up separately. Calls supply one argument per
-  parameter.
+  variable names are looked up separately. Calls provide all required arguments. A trailing parameter can specify a default.
 - Each call has its own local scope. Parameters and assignments inside a
   function are local. A read uses the local value if present and otherwise
   looks for a global variable.
 - `return expression` exits the enclosing function, even inside a nested
   conditional or loop. A function with no executed return yields the
-  missing value, printed as `None`. A call may also be a standalone statement.
+  missing value, printed as `null`. A call may also be a standalone statement.
 
 ## Built-in functions
 
@@ -214,3 +213,18 @@ Import `"std/text"`, `"std/list"`, or `"std/dict"` with an alias.
 | Dictionary | `has(record, key)` | Test whether the key exists, regardless of its value. |
 | Dictionary | `remove(record, key, default)` | Remove and return the value, or return the fallback when absent. Without a fallback, a missing key produces the missing value. |
 | Dictionary | `merge(left, right)` | Return a shallow copy with both sets of entries. Right-hand values win on shared keys. |
+
+## Optional values and arguments
+
+`null` represents a missing value. It is false in a condition, prints as
+`null`, and corresponds to JSON `null`. A function that reaches the end
+without returning also yields `null`. Use `type_of(value)` to get `null`,
+`boolean`, `integer`, `float`, `string`, `list`, or `dictionary` as text.
+
+Required parameters come before defaulted parameters. Omitted defaults are
+evaluated in parameter order on each call, so a default can use earlier
+parameters. Passing `null` explicitly supplies a value.
+
+`elif` adds a condition to an `if` block. Only the first matching branch
+runs. An optional `else` handles the remaining cases. See
+[the invoice example](../examples/invoice_total.pa).

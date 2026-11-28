@@ -231,3 +231,29 @@ def _extended_arithmetic(symbol, left, right):
     if isinstance(result, complex):
         raise ValueError("Power must produce a real number.")
     return result
+
+
+def _argument_scope(name, parameters, default_count, arguments):
+    maximum = len(parameters)
+    minimum = maximum - default_count
+    if not minimum <= len(arguments) <= maximum:
+        expected = str(maximum) if minimum == maximum else f"{minimum} to {maximum}"
+        raise ValueError(f"Function '{name}' expects {expected} argument(s), got {len(arguments)}")
+    return dict(zip(parameters, arguments))
+
+
+def _say_value(value):
+    if value is None:
+        print("null")
+    else:
+        print(str(value).lower() if isinstance(value, bool) else value)
+
+
+def _type_of(value):
+    return {
+        type(None): "null", bool: "boolean", int: "integer", float: "float",
+        str: "string", list: "list", dict: "dictionary",
+    }.get(type(value), type(value).__name__)
+
+
+DATA_BUILTINS["type_of"] = _type_of

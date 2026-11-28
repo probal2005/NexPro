@@ -20,7 +20,7 @@ Put repeatable calculations or validation rules into functions.
 
 **Advantages.** A small function is easier to reuse and test independently.
 
-**Limitations and common mistakes.** Execute the definition before calling. Supply one argument per parameter. A missing return produces a missing result.
+**Limitations and common mistakes.** Execute the definition before calling. Supply all required arguments. A trailing parameter such as `fee = 0` can have a default. A missing return produces `null`.
 
 ## Try it
 

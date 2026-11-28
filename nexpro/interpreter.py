@@ -22,6 +22,7 @@ from nexpro.ast import (
     Return,
     Unary,
     Boolean,
+    Null,
     If,
     While,
     Index,
@@ -34,7 +35,7 @@ from nexpro.ast import (
     SetItem,
 )
 
-from nexpro.data_builtins import DATA_BUILTINS, _extended_arithmetic
+from nexpro.data_builtins import DATA_BUILTINS, _argument_scope, _extended_arithmetic, _say_value
 from nexpro.errors import EXECUTION_ERRORS
 from nexpro.errors import RuntimeError as NexProRuntimeError
 from nexpro.runtime import Runtime
@@ -105,6 +106,9 @@ class Interpreter:
             raise runtime_error from error
 
     def _visit(self, node):
+
+        if isinstance(node, Null):
+            return None
 
         if isinstance(node, Program):
             return self.visit_program(node)
@@ -286,7 +290,7 @@ class Interpreter:
 
         value = self.visit(node.expression)
 
-        print(str(value).lower() if isinstance(value, bool) else value)
+        _say_value(value)
 
     # ---------------------------------
 
@@ -328,11 +332,7 @@ class Interpreter:
             raise NexProRuntimeError(f"Undefined function '{node.name}'")
         if callable(function):
             return function(*arguments)
-        expected = len(function.parameters)
-        if len(arguments) != expected:
-            raise NexProRuntimeError(
-                f"Function '{node.name}' expects {expected} argument(s), got {len(arguments)}"
-            )
+        supplied = _argument_scope(name, function.parameters, len(function.defaults), arguments)
 
         caller = self.runtime
         caller_name = self.function_name
@@ -340,8 +340,11 @@ class Interpreter:
         self.function_name = function.name
         self.function_depth += 1
         try:
-            for name, value in zip(function.parameters, arguments):
-                self.runtime.set(name, value)
+            self.runtime.variables.update(supplied)
+            first_default = len(function.parameters) - len(function.defaults)
+            for index in range(max(first_default, len(arguments)), len(function.parameters)):
+                value = self.visit(function.defaults[index - first_default])
+                self.runtime.set(function.parameters[index], value)
             self.visit_block(function.body)
         except _ReturnFromFunction as returned:
             return returned.value

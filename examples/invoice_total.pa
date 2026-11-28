@@ -1,0 +1,20 @@
+import "std/json" as json
+
+function invoice_total(unit_cents, quantity, discount = 0)
+    assert unit_cents >= 0 and quantity >= 0
+    assert discount >= 0 and discount <= 100
+    gross = unit_cents * quantity
+    return gross * (100 - discount) // 100
+end
+
+say invoice_total(1000, 2)
+say invoice_total(1000, 2, 10)
+
+discount = json.parse("null")
+if discount == null
+    say "No discount supplied"
+elif type_of(discount) == "integer"
+    say invoice_total(1000, 2, discount)
+else
+    say "Invalid discount"
+end

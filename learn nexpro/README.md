@@ -1,6 +1,6 @@
 # Learn NexPro
 
-A complete course for NexPro 3.7, from your first `.pa` program to a shareable
+A complete course for NexPro 3.8, from your first `.pa` program to a shareable
 CSV inventory tool. Each of the 23 lessons includes definitions, syntax, use
 cases, advantages, limitations, a runnable example, expected output, and an
 exercise with an answer.
@@ -11,11 +11,11 @@ the examples locally.
 
 | Language component | Count | What is included |
 |---|---:|---|
-| Literal value types | 6 | Integer, float, string, boolean, list, dictionary |
+| Literal value types | 7 | Integer, float, string, boolean, list, dictionary, null |
 | Distinct expression operators | 16 | 7 arithmetic symbols, 6 comparisons, and 3 logical operators. Unary signs reuse + and -. |
 | Statement forms | 10 | Assignment, say, if, while, for, break, continue, assert, return, standalone call |
 | Top-level constructs | 2 | Function definition and import |
-| Built-in functions | 26 | 4 general, 5 string, 7 list, 2 dictionary, and 8 form and CSV functions |
+| Built-in functions | 27 | 5 general, 5 string, 7 list, 2 dictionary, and 8 form and CSV functions |
 | Standard modules | 3 | Math, JSON, and CSV provide 7 functions in total |
 
 ## Foundations

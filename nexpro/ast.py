@@ -105,9 +105,10 @@ class Binary(Expression):
 
 
 class Function(Statement):
-    def __init__(self, name, parameters, body):
+    def __init__(self, name, parameters, body, defaults=()):
         self.name = name
         self.parameters = parameters
+        self.defaults = defaults
         self.body = body
 
 
@@ -132,6 +133,10 @@ class Unary(Expression):
 class Boolean(Expression):
     def __init__(self, value):
         self.value = value
+
+
+class Null(Expression):
+    pass
 
 
 class If(Statement):

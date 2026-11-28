@@ -4,7 +4,7 @@ from inspect import getsource
 
 from nexpro import data_builtins, standard
 from nexpro.ast import (
-    Member, Module, Slice, Assert, Assign, Binary, Boolean, Call, Function, If, Number, Return, Say, String,
+    Member, Module, Slice, Assert, Assign, Binary, Boolean, Call, Function, If, Null, Number, Return, Say, String,
     Unary, Variable, While, Index, ListLiteral, For, Break, Continue, Logical, Dictionary, SetItem,
 )
 from nexpro.errors import EXECUTION_ERRORS
@@ -41,11 +41,8 @@ def _call(functions, allow_builtin, name, *arguments):
         raise ValueError(f"Undefined function '{name}'")
     if callable(functions[name]):
         return functions[name](*arguments)
-    parameters, function = functions[name]
-    expected = len(parameters)
-    if len(arguments) != expected:
-        raise ValueError(f"Function '{name}' expects {expected} argument(s), got {len(arguments)}")
-    return function(dict(zip(parameters, arguments)))
+    parameters, default_count, function = functions[name]
+    return function(_argument_scope(name, parameters, default_count, arguments))
 
 
 def _module(aliases, name):
@@ -66,10 +63,6 @@ def _index(sequence, index):
 
 def _set_item(sequence, index, value):
     sequence[index] = value
-
-
-def _say(value):
-    print(str(value).lower() if isinstance(value, bool) else value)
 
 
 if __name__ == '__main__':
@@ -97,6 +90,8 @@ class GeneratedCode(list):
 
 
 def _expression(node, lines, indent):
+    if isinstance(node, Null):
+        return "None"
     if isinstance(node, (String, Number, Boolean)):
         # Python exposes infinity through float() and has no literal for it.
         if isinstance(node, Number) and node.value == float("inf"):
@@ -180,7 +175,7 @@ def _statements(statements, lines, indent):
             lines.emit(f"{indent}_set_item({sequence}, {index}, {value})", statement)
         elif isinstance(statement, Say):
             value = _expression(statement.expression, lines, indent)
-            lines.emit(f"{indent}_say({value})", statement)
+            lines.emit(f"{indent}_say_value({value})", statement)
         elif isinstance(statement, Call):
             _expression(statement, lines, indent)
         elif isinstance(statement, Assert):
@@ -220,12 +215,18 @@ def _statements(statements, lines, indent):
             lines.append(f"{indent}def {name}(_scope):")
             outer = lines.function
             lines.function = statement.name
-            _statements(statement.body, lines, indent + "    ")
+            body_indent = indent + "    "
+            optional_parameters = statement.parameters[len(statement.parameters) - len(statement.defaults):]
+            for parameter, default in zip(optional_parameters, statement.defaults):
+                lines.append(f"{body_indent}if {parameter!r} not in _scope:")
+                value = _expression(default, lines, body_indent + "    ")
+                lines.emit(f"{body_indent}    _scope[{parameter!r}] = {value}", statement)
+            _statements(statement.body, lines, body_indent)
             lines.function = outer
             lines.append(f"{indent}    return None")
             lines.append(
                 f"{indent}_functions[{statement.name!r}] = "
-                f"({tuple(statement.parameters)!r}, {name})"
+                f"({tuple(statement.parameters)!r}, {len(statement.defaults)}, {name})"
             )
         else:
             raise TypeError(f"Unsupported statement {type(statement).__name__}")

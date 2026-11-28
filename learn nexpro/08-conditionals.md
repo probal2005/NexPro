@@ -18,7 +18,7 @@ Choose a result such as Pass, Distinction, or Retry from a numeric score.
 
 **Advantages.** Each branch can express a business rule directly.
 
-**Limitations and common mistakes.** Every if needs an end. Version 3.6 has no elif keyword.
+**Limitations and common mistakes.** Every if needs an end. Use `elif condition` to test additional branches before `else`.
 
 ## Try it
 
