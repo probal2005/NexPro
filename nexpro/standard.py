@@ -53,10 +53,12 @@ def _type_of(value):
 class _Record(dict):
     _nexpro_type = "record"
 
-    def __init__(self, name, fields, scope, field_types, rules=None):
+    def __init__(self, name, fields, scope, field_types, rules, definition, nested_types):
         self.name = name
         self.field_types = field_types
         self.rules = rules
+        self.definition = definition
+        self.nested_types = nested_types
         for field in fields:
             self.validate(field, scope[field])
         values = {field: scope[field] for field in fields}
@@ -69,7 +71,13 @@ class _Record(dict):
         if expected is None:
             return
         actual = _type_of(value)
-        if actual != expected:
+        if field in self.nested_types:
+            matches = isinstance(value, _Record) and value.definition is self.nested_types[field]
+            if isinstance(value, _Record):
+                actual = value.name
+        else:
+            matches = actual == expected
+        if not matches:
             raise _CodedError(
                 "record_field_type", f"Field '{field}' of record '{self.name}' expects {expected}, got {actual}",
                 {"record": self.name, "field": field, "expected": expected, "actual": actual},
@@ -91,6 +99,23 @@ class _Record(dict):
         if key in self:
             raise ValueError(f"Cannot remove field '{key}' from record '{self.name}'")
         return default
+
+
+def _record_nested_types(field_types, resolve):
+    return {field: resolve(name) for field, name in field_types.items() if name not in RECORD_FIELD_TYPES}
+
+
+def _nested_record_error(field, code, message, details):
+    details = dict(details or {})
+    suffix = details.get("path") or details.get("field")
+    details["path"] = f"{field}.{suffix}" if suffix else field
+    return _CodedError(code, message, details)
+
+
+def _convert_record_fields(values, field_types, nested_types, convert):
+    for field in nested_types:
+        if type(values.get(field)) is dict:
+            values[field] = convert(field, field_types[field], values[field])
 
 
 def _check_record_rule(name, rule, condition, message):

@@ -18,6 +18,7 @@ import sys
 # NexPro data built-ins
 # NexPro standard modules
 
+# Supported runtime errors
 _source_map = {}
 _globals = {}
 _functions = {}
@@ -60,11 +61,8 @@ def _call(functions, aliases, namespace, name, arguments, named):
     entry = target[name]
     if entry is _record_from_dict:
         def invoke(alias, constructor, values):
-            scope = functions if alias is None else _module(aliases, alias)[1]
-            definition = scope.get(constructor)
-            if not isinstance(definition, tuple) or not definition[3]:
-                raise ValueError(f"'{constructor}' is not a record constructor.")
-            return _invoke(definition, constructor, (), values)
+            definition = _record_definition(functions, aliases, alias, constructor)
+            return _invoke(definition, constructor, (), values, convert=True)
 
         return _call_builtin(name, lambda *args: _record_from_dict(invoke, *args), arguments, named)
     if callable(entry):
@@ -72,9 +70,30 @@ def _call(functions, aliases, namespace, name, arguments, named):
     return _invoke(entry, name, arguments, named)
 
 
-def _invoke(entry, name, arguments, named):
+def _invoke(entry, name, arguments, named, convert=False):
     parameters, default_count, function, _ = entry
-    return function(_argument_scope(name, parameters, default_count, arguments, named))
+    return function(_argument_scope(name, parameters, default_count, arguments, named), convert)
+
+
+def _record_definition(functions, aliases, alias, name):
+    scope = functions if alias is None else _module(aliases, alias)[1]
+    definition = scope.get(name)
+    if not isinstance(definition, tuple) or not definition[3]:
+        raise ValueError(f"'{name}' is not a record constructor.")
+    return definition
+
+
+def _record_definition_for_type(functions, aliases, annotation):
+    alias, _, name = annotation.rpartition(".")
+    return _record_definition(functions, aliases, alias or None, name)
+
+
+def _convert_nested_record(functions, aliases, field, annotation, values):
+    try:
+        definition = _record_definition_for_type(functions, aliases, annotation)
+        return _invoke(definition, annotation.rsplit(".", 1)[-1], (), values, convert=True)
+    except _runtime_errors as error:
+        raise _nested_record_error(field, _error_code(error), str(error), getattr(error, "details", None)) from error
 
 
 def _named_member(scope, globals_, aliases, owner, field):
@@ -117,7 +136,8 @@ if __name__ == '__main__':
 
 class GeneratedCode(list):
     def __init__(self):
-        runtime = _RUNTIME.replace("# NexPro data built-ins", getsource(data_builtins).rstrip())
+        runtime = _RUNTIME.replace("# Supported runtime errors", f"_runtime_errors = ({_ERROR_TYPES})")
+        runtime = runtime.replace("# NexPro data built-ins", getsource(data_builtins).rstrip())
         runtime = runtime.replace("# NexPro standard modules", getsource(standard).rstrip())
         super().__init__(runtime.splitlines())
         self.locations = {}
@@ -288,10 +308,21 @@ def _statements(statements, lines, indent):
             lines.append(f"{indent}continue")
         elif isinstance(statement, Function):
             name = f"_function_{len(lines)}"
-            lines.append(f"{indent}def {name}(_scope):")
+            lines.append(f"{indent}def {name}(_scope, _convert=False):")
             outer = lines.function
             lines.function = statement.name
             body_indent = indent + "    "
+            if isinstance(statement, Record):
+                lines.append(f"{body_indent}_field_types = {statement.field_types!r}")
+                lines.append(
+                    f"{body_indent}_nested = _record_nested_types(_field_types, "
+                    "lambda annotation: _record_definition_for_type(_functions, _aliases, annotation)[2])"
+                )
+                lines.append(f"{body_indent}if _convert:")
+                lines.append(
+                    f"{body_indent}    _convert_record_fields(_scope, _field_types, _nested, "
+                    "lambda field, annotation, values: _convert_nested_record(_functions, _aliases, field, annotation, values))"
+                )
             optional_parameters = statement.parameters[len(statement.parameters) - len(statement.defaults):]
             for parameter, default in zip(optional_parameters, statement.defaults):
                 lines.append(f"{body_indent}if {parameter!r} not in _scope:")
@@ -311,7 +342,7 @@ def _statements(statements, lines, indent):
                         )
                 lines.append(
                     f"{body_indent}return _Record({statement.name!r}, {fields!r}, _scope, "
-                    f"{statement.field_types!r}, {validator})"
+                    f"_field_types, {validator}, {name}, _nested)"
                 )
             else:
                 _statements(statement.body, lines, body_indent)

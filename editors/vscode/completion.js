@@ -34,6 +34,7 @@ const modules = {
   record: {
     from_dict: 'from_dict(name, values) — Call a visible record constructor using a dictionary.',
     to_dict: 'to_dict(record) — Copy the fields into a dictionary.',
+    update: 'update(record, changes) — Validate and apply several field changes together.',
   },
   queue: {
     new: 'new(items) — Create a FIFO queue, optionally from a list.',

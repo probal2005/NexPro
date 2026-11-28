@@ -7,8 +7,9 @@ function       -> "function" IDENTIFIER "(" parameters? ")" function_body "end"
 record         -> "record" IDENTIFIER "(" fields? ")" rule*
 rule           -> "where" STRING "," expression "," STRING
 fields         -> field ("," field)*
-field          -> IDENTIFIER (":" (IDENTIFIER | "null"))? ("=" expression)?
+field          -> IDENTIFIER (":" field_type)? ("=" expression)?
 parameters     -> parameter ("," parameter)*
+field_type     -> IDENTIFIER ("." IDENTIFIER)? | "null"
 parameter      -> IDENTIFIER ("=" expression)?
 function_body  -> statement*
 block          -> statement*

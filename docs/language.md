@@ -360,3 +360,18 @@ The original record is updated in place and returned on success. On failure
 all its fields retain their previous values. Use this operation when two
 fields must change together to satisfy a rule.
 See [the atomic invoice example](../examples/atomic_invoice.pa).
+
+### Nested record types
+
+A field may name a record constructor, such as `customer: Customer` or
+`customer: models.Customer`. The constructor must be visible from the
+record's declaration scope when the containing record is constructed.
+Two definitions with the same name still represent different record types.
+
+Assign or pass an instance of the declared type in ordinary code.
+`records.from_dict()` also converts nested dictionaries for fields with
+named record types. Each nested constructor applies its own defaults, type
+checks, and rules. A structured error from nested conversion includes
+`details["path"]`, such as `customer.email`. Rules are checked when the
+record that defines them is constructed or updated. Mutating an inner record
+runs its own rules. See [the nested invoice example](../examples/nested_invoice.pa).

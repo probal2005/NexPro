@@ -89,7 +89,6 @@ from nexpro.ast import (
 )
 
 from nexpro.errors import ParserError
-from nexpro.standard import RECORD_FIELD_TYPES
 
 
 class Parser:
@@ -382,12 +381,15 @@ class Parser:
                 parameters.append(parameter.value)
                 if record and self.match(COLON):
                     annotation = self.current
-                    if not self.match(IDENTIFIER, NULL) or annotation.value not in RECORD_FIELD_TYPES:
+                    if not self.match(IDENTIFIER, NULL):
                         raise ParserError(
-                            "Expected a supported record field type",
+                            "Expected a record field type",
                             annotation.line, annotation.column, self.filename,
                         )
-                    field_types[parameter.value] = annotation.value
+                    field_type = annotation.value
+                    if annotation.type == IDENTIFIER and self.match(DOT):
+                        field_type += "." + self.expect(IDENTIFIER, "Expected a record type after '.'").value
+                    field_types[parameter.value] = field_type
                 if self.match(ASSIGN):
                     defaults.append(self.expression())
                 elif defaults:

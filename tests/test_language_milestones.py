@@ -259,9 +259,9 @@ instance["metadata"] = 42
 say instance["metadata"]
 say instance["missing"]
 """, "Invoice\namount\ninteger\nboolean\n3\npaid\nfalse\n42\nnull\n")
-    invalid = json.loads(run_playground("record Invoice(amount: money)", "check"))
+    invalid = json.loads(run_playground("record Invoice(amount: 42)", "check"))
     assert not invalid["ok"]
-    assert "supported record field type" in invalid["error"]
+    assert "Expected a record field type" in invalid["error"]
 
 
 def test_record_dot_access_shares_storage_and_validation_with_indexing():
@@ -373,3 +373,49 @@ end
 say item.first
 say item.second
 """, "record_field_type\n1\n2\n")
+
+
+def test_nested_records_apply_defaults_and_report_the_full_error_path():
+    source = (ROOT / "examples/nested_invoice.pa").read_text(encoding="utf-8")
+    check_runtimes(source, 'true\n{"number": "INV-001", "customer": {"email": "ada@example.com", '
+                          '"active": true}}\ncustomer.email\n'
+                          "Field 'email' of record 'Customer' expects string, got integer\n")
+    check_runtimes("""
+import "std/record" as records
+import "models.pa" as models
+record Envelope(invoice: models.Invoice)
+valid = records.from_dict("Envelope", {"invoice": {"customer": {"email": "test"}}})
+say valid.invoice.customer.email
+try
+    records.from_dict("Envelope", {"invoice": {"customer": {"email": 123}}})
+catch (error)
+    say error["details"]["path"]
+end
+try
+    records.from_dict("Envelope", {"invoice": {"customer": {"email": ""}}})
+catch (error)
+    say error["details"]["path"]
+    say error["details"]["rule"]
+end
+record Customer(email: string)
+try
+    valid.invoice.customer = Customer("wrong schema")
+catch (error)
+    say error["code"]
+end
+say valid.invoice.customer.email
+""", "test\ninvoice.customer.email\ninvoice.customer\nemail_required\nrecord_field_type\ntest\n", {
+        "models.pa": """record Customer(email: string)
+where "email_required", email != "", "Email is required"
+record Invoice(customer: Customer)
+""",
+    })
+
+
+def test_record_rule_names_are_unique_and_calls_are_rejected():
+    for suffix in (
+        'where "check", value > 0, "positive" where "check", value < 9, "small"',
+        'where "check", [size(value)][0] > 0, "positive"',
+    ):
+        result = json.loads(run_playground("record Item(value) " + suffix, "check"))
+        assert not result["ok"]

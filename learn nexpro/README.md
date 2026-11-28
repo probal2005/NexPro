@@ -1,6 +1,6 @@
 # Learn NexPro
 
-A complete course for NexPro 4.6, from your first `.pa` program to a shareable
+A complete course for NexPro 4.9, from your first `.pa` program to a shareable
 CSV inventory tool. Each of the 23 lessons includes definitions, syntax, use
 cases, advantages, limitations, a runnable example, expected output, and an
 exercise with an answer.
@@ -70,6 +70,10 @@ the examples locally.
 
 - [Record dot access](../examples/record_fields.pa)
 - [Convert CSV rows into typed records](../examples/csv_invoice_records.pa)
+
+- [Validate CSV invoices](../examples/validated_invoice.pa)
+- [Update related fields together](../examples/atomic_invoice.pa)
+- [Convert nested invoice records](../examples/nested_invoice.pa)
 
 ## References
 

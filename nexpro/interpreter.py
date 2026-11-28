@@ -42,7 +42,7 @@ from nexpro.data_builtins import DATA_BUILTINS, _argument_scope, _call_builtin, 
 from nexpro.errors import EXECUTION_ERRORS
 from nexpro.errors import RuntimeError as NexProRuntimeError
 from nexpro.runtime import Runtime
-from nexpro.standard import STANDARD_MODULES, _Record, _check_record_rule, _error_code, _error_record, _record_field, _record_from_dict, _record_set_field, _throw, _to_int, _type_of
+from nexpro.standard import STANDARD_MODULES, _Record, _check_record_rule, _error_code, _error_record, _record_field, _record_from_dict, _record_nested_types, _nested_record_error, _convert_record_fields, _record_set_field, _throw, _to_int, _type_of
 
 
 BINARY_OPERATORS = {
@@ -348,10 +348,8 @@ class Interpreter:
             module = self.get_module(node.namespace)
             if module.functions.get(node.name) is _record_from_dict:
                 def invoke(namespace, name, values):
-                    target = self.get_module(namespace) if namespace is not None else self
-                    if not isinstance(target.functions.get(name), Record):
-                        raise ValueError(f"'{name}' is not a record constructor.")
-                    return self.call_module_function(target, name, [], values, node)
+                    target, _ = self.resolve_record(namespace, name)
+                    return self.call_module_function(target, name, [], values, node, convert=True)
 
                 return _call_builtin(
                     node.name, lambda *args: _record_from_dict(invoke, *args), arguments, named,
@@ -359,13 +357,33 @@ class Interpreter:
             return self.call_module_function(module, node.name, arguments, named, node)
         return self.call_function(node.name, arguments, named, node)
 
-    def call_module_function(self, module, name, arguments, named, node):
+    def resolve_record(self, alias, name):
+        module = self.get_module(alias) if alias is not None else self
+        definition = module.functions.get(name)
+        if not isinstance(definition, Record):
+            raise ValueError(f"'{name}' is not a record constructor.")
+        return module, definition
+
+    def resolve_record_type(self, annotation):
+        alias, _, name = annotation.rpartition(".")
+        return self.resolve_record(alias or None, name)
+
+    def convert_nested_record(self, field, annotation, values, node):
+        try:
+            module, definition = self.resolve_record_type(annotation)
+            return self.call_module_function(module, definition.name, [], values, node, convert=True)
+        except NexProRuntimeError as error:
+            raise _nested_record_error(field, error.code, error.message, error.details) from error
+        except EXECUTION_ERRORS as error:
+            raise _nested_record_error(field, _error_code(error), str(error), getattr(error, "details", None)) from error
+
+    def call_module_function(self, module, name, arguments, named, node, convert=False):
         if module is self:
-            return self.call_function(name, arguments, named, node)
+            return self.call_function(name, arguments, named, node, convert=convert)
         previous_depth = module.function_depth
         module.function_depth = self.function_depth
         try:
-            return module.call_function(name, arguments, named, node, allow_builtin=False)
+            return module.call_function(name, arguments, named, node, allow_builtin=False, convert=convert)
         except NexProRuntimeError as error:
             if error.frames:
                 error.add_frame(self.function_name, node.location)
@@ -383,7 +401,7 @@ class Interpreter:
         finally:
             self.runtime = caller
 
-    def call_function(self, name, arguments, named, node, allow_builtin=True):
+    def call_function(self, name, arguments, named, node, allow_builtin=True, convert=False):
         function = self.functions.get(name)
         if function is None:
             if allow_builtin and name in self.builtins:
@@ -399,6 +417,13 @@ class Interpreter:
         self.function_name = function.name
         self.function_depth += 1
         try:
+            if isinstance(function, Record):
+                nested_types = _record_nested_types(function.field_types, lambda name: self.resolve_record_type(name)[1])
+                if convert:
+                    _convert_record_fields(
+                        supplied, function.field_types, nested_types,
+                        lambda field, annotation, values: self.convert_nested_record(field, annotation, values, node),
+                    )
             self.runtime.variables.update(supplied)
             first_default = len(function.parameters) - len(function.defaults)
             for parameter, default in zip(function.parameters[first_default:], function.defaults):
@@ -408,6 +433,7 @@ class Interpreter:
                 return _Record(
                     function.name, function.parameters, self.runtime.variables, function.field_types,
                     (lambda values: self.validate_record_rules(function, values)) if function.rules else None,
+                    function, nested_types,
                 )
             self.visit_block(function.body)
         except _ReturnFromFunction as returned:

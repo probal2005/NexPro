@@ -1,0 +1,18 @@
+import "std/json" as json
+import "std/record" as records
+
+record Customer(email: string, active: boolean = true)
+where "email_required", email != "", "Email is required"
+
+record Invoice(number: string, customer: Customer)
+
+invoice = records.from_dict("Invoice", {"number": "INV-001", "customer": {"email": "ada@example.com"}})
+say invoice.customer.active
+say json.stringify(invoice)
+
+try
+    records.from_dict("Invoice", {"number": "INV-002", "customer": {"email": 25}})
+catch (error)
+    say error["details"]["path"]
+    say error["message"]
+end

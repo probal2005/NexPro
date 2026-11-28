@@ -131,7 +131,7 @@ def test_literals_default_output_and_version(tmp_path):
     assert result.stdout == 'quoted "text"\n1.5\n'
     result = run("nexpro", "version", cwd=tmp_path)
     assert result.stdout == f"NexPro {version('nexpro')}\n"
-    assert version("nexpro") == "4.8.0"
+    assert version("nexpro") == "4.9.0"
 
 
 def test_compile_cannot_overwrite_source(tmp_path):
