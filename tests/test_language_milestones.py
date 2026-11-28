@@ -45,3 +45,43 @@ end
     invalid = json.loads(run_playground("function invalid(a = 1, b) end", "check"))
     assert not invalid["ok"]
     assert "Required parameters must precede" in invalid["error"]
+
+
+def test_try_catches_nested_failures_and_preserves_control_flow():
+    check_runtimes("""
+function validate(value)
+    if value < 0
+        throw "Negative value"
+    end
+    return value
+end
+
+for number in [-1, 1, 2, 3]
+    try
+        value = validate(number)
+        if value == 1
+            continue
+        elif value == 3
+            break
+        end
+        say value
+    catch message
+        say message
+    end
+end
+say message
+try
+    say int("invalid")
+catch bad_conversion
+    say "Invalid number"
+end
+""", "Negative value\n2\nNegative value\nInvalid number\n")
+
+
+def test_unhandled_throw_includes_the_source_location():
+    source = 'function fail()\n    throw "no stock"\nend\nfail()'
+    result = json.loads(run_playground(source, "run"))
+    assert not result["ok"]
+    assert "NexPro Runtime Error: no stock" in result["error"]
+    assert "playground.pa:2" in result["error"]
+    assert "playground.pa:4" in result["error"]

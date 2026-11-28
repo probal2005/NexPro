@@ -34,7 +34,7 @@
     },
     {
       "name": "keyword.control.nexpro",
-      "match": "\\b(?:say|return|import|if|elif|else|while|end|and|or|not)\\b"
+      "match": "\\b(?:say|return|import|if|elif|else|try|catch|throw|while|end|and|or|not)\\b"
     },
     {
       "match": "^\\s*(break|continue|assert)\\b(?!\\s*[=(])",

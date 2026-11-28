@@ -161,7 +161,14 @@ NUMBER = "NUMBER"
 NULL = "NULL"
 ELIF = "ELIF"
 
+TRY = "TRY"
+CATCH = "CATCH"
+THROW = "THROW"
+
 KEYWORDS = {
+    "try": TRY,
+    "catch": CATCH,
+    "throw": THROW,
     "null": NULL,
     "elif": ELIF,
 

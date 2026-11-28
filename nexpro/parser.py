@@ -37,6 +37,9 @@ from nexpro.tokens import (
     ELSE,
     ELIF,
     NULL,
+    TRY,
+    CATCH,
+    THROW,
     WHILE,
     TRUE,
     FALSE,
@@ -73,6 +76,8 @@ from nexpro.ast import (
     Member,
     Slice,
     Assert,
+    Try,
+    Throw,
     For,
     Break,
     Continue,
@@ -408,6 +413,17 @@ class Parser:
             for keyword, branch_condition, branch_body in reversed(branches):
                 else_body = [self.locate(If(branch_condition, branch_body, else_body), keyword)]
             return If(condition, then_body, else_body)
+
+        if self.match(TRY):
+            body = self.block(CATCH, END, in_function=in_function, in_loop=in_loop)
+            self.expect(CATCH, "Expected 'catch' after try block")
+            error_name = self.expect(IDENTIFIER, "Expected an error variable after 'catch'")
+            handler = self.block(END, in_function=in_function, in_loop=in_loop)
+            self.expect(END, "Expected 'end' after catch block")
+            return Try(body, error_name.value, handler)
+
+        if self.match(THROW):
+            return Throw(self.expression())
 
         if self.match(WHILE):
             condition = self.expression()

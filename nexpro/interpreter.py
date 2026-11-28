@@ -11,6 +11,8 @@ from nexpro.ast import (
     Member,
     Slice,
     Assert,
+    Try,
+    Throw,
     Assign,
     Variable,
     String,
@@ -35,7 +37,7 @@ from nexpro.ast import (
     SetItem,
 )
 
-from nexpro.data_builtins import DATA_BUILTINS, _argument_scope, _extended_arithmetic, _say_value
+from nexpro.data_builtins import DATA_BUILTINS, _argument_scope, _extended_arithmetic, _say_value, _throw
 from nexpro.errors import EXECUTION_ERRORS
 from nexpro.errors import RuntimeError as NexProRuntimeError
 from nexpro.runtime import Runtime
@@ -175,6 +177,17 @@ class Interpreter:
         elif isinstance(node, If):
             body = node.then_body if self.visit(node.condition) else node.else_body
             return self.visit_block(body or [])
+
+        elif isinstance(node, Try):
+            try:
+                self.visit_block(node.body)
+            except NexProRuntimeError as error:
+                self.runtime.set(node.error_name, error.message)
+                self.visit_block(node.handler)
+            return None
+
+        elif isinstance(node, Throw):
+            _throw(self.visit(node.message))
 
         elif isinstance(node, While):
             try:

@@ -5,10 +5,10 @@ from inspect import getsource
 from nexpro import data_builtins, standard
 from nexpro.ast import (
     Member, Module, Slice, Assert, Assign, Binary, Boolean, Call, Function, If, Null, Number, Return, Say, String,
-    Unary, Variable, While, Index, ListLiteral, For, Break, Continue, Logical, Dictionary, SetItem,
+    Unary, Variable, While, Index, ListLiteral, For, Break, Continue, Logical, Dictionary, SetItem, Try, Throw,
 )
 from nexpro.errors import EXECUTION_ERRORS
-from nexpro.interpreter import BINARY_OPERATORS
+_ERROR_TYPES = ", ".join(error.__name__ for error in EXECUTION_ERRORS)
 
 
 _RUNTIME = """\
@@ -192,6 +192,16 @@ def _statements(statements, lines, indent):
             if statement.else_body is not None:
                 lines.append(f"{indent}else:")
                 _statements(statement.else_body, lines, indent + "    ")
+        elif isinstance(statement, Try):
+            lines.append(f"{indent}try:")
+            inner = indent + "    "
+            _statements(statement.body, lines, inner)
+            lines.append(f"{indent}except ({_ERROR_TYPES}) as _caught:")
+            lines.append(f"{inner}_scope[{statement.error_name!r}] = str(_caught)")
+            _statements(statement.handler, lines, inner)
+        elif isinstance(statement, Throw):
+            value = _expression(statement.message, lines, indent)
+            lines.emit(f"{indent}_throw({value})", statement)
         elif isinstance(statement, While):
             lines.append(f"{indent}while True:")
             body_indent = indent + "    "
@@ -247,7 +257,7 @@ def compile_program(program):
     lines.append("        _scope = _globals")
     _statements(program.statements, lines, "        ")
     lines.extend([
-        f"    except ({', '.join(error.__name__ for error in EXECUTION_ERRORS)}) as error:",
+        f"    except ({_ERROR_TYPES}) as error:",
         "        print(f'NexPro Runtime Error: {error}', file=sys.stderr)",
         "        frames = []",
         "        trace = error.__traceback__",

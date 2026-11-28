@@ -19,7 +19,7 @@ Tell users how to correct an empty name, negative quantity, or out-of-range valu
 
 **Advantages.** Invalid data can be caught close to where it enters the program.
 
-**Limitations and common mistakes.** A failed field_check raises an error in the terminal. Version 3.6 has no try/catch syntax.
+**Limitations and common mistakes.** A failed field_check raises an error in the terminal. Use [try and catch](../docs/language.md#recoverable-errors) when the program can recover.
 
 ## Try it
 

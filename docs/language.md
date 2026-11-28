@@ -228,3 +228,15 @@ parameters. Passing `null` explicitly supplies a value.
 `elif` adds a condition to an `if` block. Only the first matching branch
 runs. An optional `else` handles the remaining cases. See
 [the invoice example](../examples/invoice_total.pa).
+
+## Recoverable errors
+
+Use `try … catch message … end` to handle runtime errors in a block. The
+handler runs only if the protected block fails. The error variable receives
+the message as a string in the current scope, and the handler may use normal
+control flow. A failure in the handler can be caught by an enclosing block.
+Syntax and import failures are reported before execution and cannot be caught.
+
+Use `throw "reason"` to signal a runtime error. An unhandled error includes
+the original `.pa` source location and its call stack. See
+[the recoverable CSV example](../examples/recover_csv.pa).

@@ -223,6 +223,18 @@ class Slice(Expression):
         self.step = step
 
 
+class Try(Statement):
+    def __init__(self, body, error_name, handler):
+        self.body = body
+        self.error_name = error_name
+        self.handler = handler
+
+
+class Throw(Statement):
+    def __init__(self, message):
+        self.message = message
+
+
 class Assert(Statement):
     def __init__(self, condition):
         self.condition = condition

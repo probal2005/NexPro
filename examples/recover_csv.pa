@@ -1,0 +1,16 @@
+import "std/csv" as csv
+
+rows = csv.parse("sku,quantity\nA,4\nB,invalid\nC,-1\nD,6")
+total = 0
+for row in rows
+    try
+        quantity = int(row["quantity"])
+        if quantity < 0
+            throw "Quantity must be nonnegative"
+        end
+        total = total + quantity
+    catch message
+        say "Skipped " + row["sku"] + ": " + message
+    end
+end
+say total

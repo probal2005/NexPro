@@ -257,3 +257,9 @@ def _type_of(value):
 
 
 DATA_BUILTINS["type_of"] = _type_of
+
+
+def _throw(message):
+    if not isinstance(message, str):
+        raise TypeError("throw requires a text message.")
+    raise ValueError(message)
