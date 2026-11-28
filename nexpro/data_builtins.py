@@ -273,3 +273,21 @@ def _type_of(value):
 
 
 DATA_BUILTINS["type_of"] = _type_of
+
+
+class _Record(dict):
+    _nexpro_type = "record"
+
+    def __init__(self, name, fields, scope):
+        super().__init__((field, scope[field]) for field in fields)
+        self.name = name
+
+    def __setitem__(self, key, value):
+        if key not in self:
+            raise KeyError(f"Record '{self.name}' has no field '{key}'")
+        super().__setitem__(key, value)
+
+    def pop(self, key, default=None):
+        if key in self:
+            raise ValueError(f"Cannot remove field '{key}' from record '{self.name}'")
+        return default

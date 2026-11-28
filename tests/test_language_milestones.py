@@ -9,10 +9,11 @@ ROOT = Path(__file__).resolve().parents[1]
 run_playground = runpy.run_path(str(ROOT / "web/playground.py"))["run_playground"]
 
 
-def check_runtimes(source, expected):
-    result = json.loads(run_playground(source, "run"))
+def check_runtimes(source, expected, modules=None):
+    modules_json = json.dumps(modules or {})
+    result = json.loads(run_playground(source, "run", modules_json=modules_json))
     assert result == {"ok": True, "output": expected}
-    compiled = json.loads(run_playground(source, "compile"))
+    compiled = json.loads(run_playground(source, "compile", modules_json=modules_json))
     assert compiled["ok"]
     with TemporaryDirectory() as directory:
         script = Path(directory) / "compiled.py"
@@ -191,3 +192,39 @@ end
 def test_named_argument_order_and_duplicates_are_checked_at_parse_time():
     for source in ("f(a = 1, a = 2)", "f(a = 1, 2)"):
         assert not json.loads(run_playground(source, "check"))["ok"]
+
+
+def test_record_defaults_fixed_fields_and_json():
+    source = (ROOT / "examples/invoice_record.pa").read_text(encoding="utf-8")
+    check_runtimes(source, 'record\nUSD\n{"number": "INV-001", "amount_cents": 1800, '
+                           '"currency": "USD", "paid": true}\nmissing_key\n')
+    check_runtimes("""
+import "std/dict" as records
+record Item(sku, history = [])
+first = Item("A")
+second = Item(sku = "B")
+append(first["history"], 1)
+say len(second["history"])
+try
+    records.remove(first, "sku")
+catch message
+    say message
+end
+say first["sku"]
+ordinary = {}
+ordinary["new"] = true
+say ordinary["new"]
+""", "0\nCannot remove field 'sku' from record 'Item'\nA\ntrue\n")
+
+
+def test_aliased_module_exports_named_function_and_record():
+    modules = {"models.pa": """record Item(sku, count = 0)
+function make(sku, count = 1)
+    return Item(count = count, sku = sku)
+end
+"""}
+    source = '''import "models.pa" as models
+say models.make(count = 7, sku = "A")["count"]
+say models.Item(sku = "B")["count"]
+'''
+    check_runtimes(source, "7\n0\n", modules)

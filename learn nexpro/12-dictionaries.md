@@ -22,6 +22,8 @@ Keep a product SKU, current stock, and stock history together in one record.
 
 **Limitations and common mistakes.** Directly reading a missing key raises an error. Assigning the same key again replaces its value.
 
+Use a [structured record](../docs/language.md#structured-records) if the fields must stay fixed.
+
 ## Try it
 
 Paste this code into the [Playground](https://nexpro-playground.vercel.app/) and select **Run code**. [Download the example .pa file](examples/12-dictionaries.pa)

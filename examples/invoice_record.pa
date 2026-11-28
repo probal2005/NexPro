@@ -1,0 +1,15 @@
+import "std/json" as json
+
+record Invoice(number, amount_cents, currency = "USD", paid = false)
+
+invoice = Invoice(number = "INV-001", amount_cents = 1800)
+invoice["paid"] = true
+say type_of(invoice)
+say invoice["currency"]
+say json.stringify(invoice)
+
+try
+    invoice["unknown"] = 1
+catch (error)
+    say error["code"]
+end

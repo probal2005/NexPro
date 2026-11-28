@@ -1,6 +1,6 @@
 # Learn NexPro
 
-A complete course for NexPro 4.0, from your first `.pa` program to a shareable
+A complete course for NexPro 4.3, from your first `.pa` program to a shareable
 CSV inventory tool. Each of the 23 lessons includes definitions, syntax, use
 cases, advantages, limitations, a runnable example, expected output, and an
 exercise with an answer.
@@ -14,7 +14,7 @@ the examples locally.
 | Literal value types | 7 | Integer, float, string, boolean, list, dictionary, null |
 | Distinct expression operators | 16 | 7 arithmetic symbols, 6 comparisons, and 3 logical operators. Unary signs reuse + and -. |
 | Statement forms | 12 | Assignment, say, if, while, for, break, continue, assert, return, try/catch, throw, standalone call |
-| Top-level constructs | 2 | Function definition and import |
+| Top-level constructs | 3 | Function definition, import, and record declaration |
 | Built-in functions | 27 | 5 general, 5 string, 7 list, 2 dictionary, and 8 form and CSV functions |
 | Standard modules | 3 | Math, JSON, and CSV provide 7 functions in total |
 
@@ -61,6 +61,10 @@ the examples locally.
 - [Invoice totals with defaults and null](../examples/invoice_total.pa)
 - [CSV recovery with try, catch, and throw](../examples/recover_csv.pa)
 - [Dispatch summary with queues, linked lists, and statistics](../examples/dispatch_summary.pa)
+
+- [Structured inventory errors](../examples/structured_inventory.pa)
+- [Invoice totals with named arguments](../examples/named_invoice.pa)
+- [Invoice record definitions](../examples/invoice_record.pa)
 
 ## References
 

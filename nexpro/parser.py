@@ -64,6 +64,7 @@ from nexpro.ast import (
     Binary,
     Call,
     Function,
+    Record,
     Return,
     Unary,
     Boolean,
@@ -360,8 +361,8 @@ class Parser:
         self.expect(RPAREN, "Expected ')' after arguments")
         return Call(name, arguments, namespace, tuple(named.items()))
 
-    def function(self):
-        name = self.expect(IDENTIFIER, "Expected function name")
+    def function(self, *, record=False):
+        name = self.expect(IDENTIFIER, "Expected record name" if record else "Expected function name")
         self.expect(LPAREN, "Expected '(' after function name")
         parameters = []
         defaults = []
@@ -387,6 +388,9 @@ class Parser:
                     break
         self.expect(RPAREN, "Expected ')' after parameters")
 
+        if record:
+            return Record(name.value, parameters, [], defaults)
+
         body = self.block(END, in_function=True)
         self.expect(END, "Expected 'end' after function body")
         return Function(name.value, parameters, body, defaults)
@@ -403,6 +407,10 @@ class Parser:
         return self.locate(node, token)
 
     def parse_statement(self, in_function, top_level, in_loop):
+        if top_level and self.check(IDENTIFIER) and self.current.value == "record" and self.peek().type == IDENTIFIER:
+            self.advance()
+            return self.function(record=True)
+
         if top_level and self.match(FUNCTION):
             return self.function()
 

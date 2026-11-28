@@ -4,7 +4,7 @@ from inspect import getsource
 
 from nexpro import data_builtins, standard
 from nexpro.ast import (
-    Member, Module, Slice, Assert, Assign, Binary, Boolean, Call, Function, If, Null, Number, Return, Say, String,
+    Member, Module, Slice, Assert, Assign, Binary, Boolean, Call, Function, If, Null, Number, Record, Return, Say, String,
     Unary, Variable, While, Index, ListLiteral, For, Break, Continue, Logical, Dictionary, SetItem, Try, Throw,
 )
 from nexpro.errors import EXECUTION_ERRORS
@@ -249,9 +249,12 @@ def _statements(statements, lines, indent):
                 lines.append(f"{body_indent}if {parameter!r} not in _scope:")
                 value = _expression(default, lines, body_indent + "    ")
                 lines.emit(f"{body_indent}    _scope[{parameter!r}] = {value}", statement)
-            _statements(statement.body, lines, body_indent)
+            if isinstance(statement, Record):
+                lines.emit(f"{body_indent}return _Record({statement.name!r}, {tuple(statement.parameters)!r}, _scope)", statement)
+            else:
+                _statements(statement.body, lines, body_indent)
+                lines.append(f"{body_indent}return None")
             lines.function = outer
-            lines.append(f"{indent}    return None")
             lines.append(
                 f"{indent}_functions[{statement.name!r}] = "
                 f"({tuple(statement.parameters)!r}, {len(statement.defaults)}, {name})"

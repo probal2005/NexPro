@@ -112,6 +112,10 @@ class Function(Statement):
         self.body = body
 
 
+class Record(Function):
+    pass
+
+
 class Call(Expression, Statement):
     def __init__(self, name, arguments, namespace=None, named_arguments=()):
         self.name = name

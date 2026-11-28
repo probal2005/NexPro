@@ -285,3 +285,17 @@ Named arguments may appear in any order and can fill required or optional
 parameters. Duplicate and unknown names are errors. Built-ins and standard
 library functions take positional arguments. See
 [the named invoice example](../examples/named_invoice.pa).
+
+## Structured records
+
+Declare a reusable shape at the top level with
+`record Invoice(number, amount_cents, currency = "USD")`. Call the
+record name as a constructor. Required fields must be supplied, and
+defaults are evaluated per call in declaration order. Constructors accept
+named arguments and can be exported by a module.
+
+Read and update existing fields using dictionary indexing. A record retains
+its declared fields. Adding or removing a field raises a runtime error.
+`type_of()` returns `record`. JSON exports a record as an ordinary JSON
+object. Decoding the object produces a dictionary. See
+[the invoice record example](../examples/invoice_record.pa).

@@ -1,9 +1,10 @@
 # NexPro grammar
 
 ```text
-program        -> (import | function | statement)* EOF
+program        -> (import | function | record | statement)* EOF
 import         -> "import" STRING ("as" IDENTIFIER)?
 function       -> "function" IDENTIFIER "(" parameters? ")" function_body "end"
+record         -> "record" IDENTIFIER "(" parameters? ")"
 parameters     -> parameter ("," parameter)*
 parameter      -> IDENTIFIER ("=" expression)?
 function_body  -> statement*

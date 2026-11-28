@@ -21,6 +21,7 @@ from nexpro.ast import (
     Binary,
     Call,
     Function,
+    Record,
     Return,
     Unary,
     Boolean,
@@ -37,7 +38,7 @@ from nexpro.ast import (
     SetItem,
 )
 
-from nexpro.data_builtins import DATA_BUILTINS, _argument_scope, _call_builtin, _extended_arithmetic, _say_value
+from nexpro.data_builtins import DATA_BUILTINS, _argument_scope, _call_builtin, _extended_arithmetic, _say_value, _Record
 from nexpro.errors import EXECUTION_ERRORS
 from nexpro.errors import RuntimeError as NexProRuntimeError
 from nexpro.runtime import Runtime
@@ -365,6 +366,8 @@ class Interpreter:
             for parameter, default in zip(function.parameters[first_default:], function.defaults):
                 if parameter not in supplied:
                     self.runtime.set(parameter, self.visit(default))
+            if isinstance(function, Record):
+                return _Record(function.name, function.parameters, self.runtime.variables)
             self.visit_block(function.body)
         except _ReturnFromFunction as returned:
             return returned.value
