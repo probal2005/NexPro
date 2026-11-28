@@ -42,7 +42,7 @@ from nexpro.data_builtins import DATA_BUILTINS, _argument_scope, _call_builtin, 
 from nexpro.errors import EXECUTION_ERRORS
 from nexpro.errors import RuntimeError as NexProRuntimeError
 from nexpro.runtime import Runtime
-from nexpro.standard import STANDARD_MODULES, _Record, _error_code, _error_record, _record_field, _record_set_field, _throw, _to_int, _type_of
+from nexpro.standard import STANDARD_MODULES, _Record, _error_code, _error_record, _record_field, _record_from_dict, _record_set_field, _throw, _to_int, _type_of
 
 
 BINARY_OPERATORS = {
@@ -346,17 +346,32 @@ class Interpreter:
         named = {name: self.visit(value) for name, value in node.named_arguments}
         if node.namespace is not None:
             module = self.get_module(node.namespace)
-            previous_depth = module.function_depth
-            module.function_depth = self.function_depth
-            try:
-                return module.call_function(node.name, arguments, named, node, allow_builtin=False)
-            except NexProRuntimeError as error:
-                if error.frames:
-                    error.add_frame(self.function_name, node.location)
-                raise
-            finally:
-                module.function_depth = previous_depth
+            if module.functions.get(node.name) is _record_from_dict:
+                def invoke(namespace, name, values):
+                    target = self.get_module(namespace) if namespace is not None else self
+                    if not isinstance(target.functions.get(name), Record):
+                        raise ValueError(f"'{name}' is not a record constructor.")
+                    return self.call_module_function(target, name, [], values, node)
+
+                return _call_builtin(
+                    node.name, lambda *args: _record_from_dict(invoke, *args), arguments, named,
+                )
+            return self.call_module_function(module, node.name, arguments, named, node)
         return self.call_function(node.name, arguments, named, node)
+
+    def call_module_function(self, module, name, arguments, named, node):
+        if module is self:
+            return self.call_function(name, arguments, named, node)
+        previous_depth = module.function_depth
+        module.function_depth = self.function_depth
+        try:
+            return module.call_function(name, arguments, named, node, allow_builtin=False)
+        except NexProRuntimeError as error:
+            if error.frames:
+                error.add_frame(self.function_name, node.location)
+            raise
+        finally:
+            module.function_depth = previous_depth
 
     def call_function(self, name, arguments, named, node, allow_builtin=True):
         function = self.functions.get(name)

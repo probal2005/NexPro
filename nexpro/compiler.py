@@ -51,14 +51,29 @@ def _get(scope, global_scope, name):
     raise ValueError(f"Undefined variable '{name}'")
 
 
-def _call(functions, allow_builtin, name, arguments, named):
-    if name not in functions:
-        if allow_builtin and name in _builtins:
+def _call(functions, aliases, namespace, name, arguments, named):
+    target = functions if namespace is None else _module(aliases, namespace)[1]
+    if name not in target:
+        if namespace is None and name in _builtins:
             return _call_builtin(name, _builtins[name], arguments, named)
         raise ValueError(f"Undefined function '{name}'")
-    if callable(functions[name]):
-        return _call_builtin(name, functions[name], arguments, named)
-    parameters, default_count, function = functions[name]
+    entry = target[name]
+    if entry is _record_from_dict:
+        def invoke(alias, constructor, values):
+            scope = functions if alias is None else _module(aliases, alias)[1]
+            definition = scope.get(constructor)
+            if not isinstance(definition, tuple) or not definition[3]:
+                raise ValueError(f"'{constructor}' is not a record constructor.")
+            return _invoke(definition, constructor, (), values)
+
+        return _call_builtin(name, lambda *args: _record_from_dict(invoke, *args), arguments, named)
+    if callable(entry):
+        return _call_builtin(name, entry, arguments, named)
+    return _invoke(entry, name, arguments, named)
+
+
+def _invoke(entry, name, arguments, named):
+    parameters, default_count, function, _ = entry
     return function(_argument_scope(name, parameters, default_count, arguments, named))
 
 
@@ -176,9 +191,11 @@ def _expression(node, lines, indent):
         value = f"_index({sequence}, {index})"
     elif isinstance(node, Call):
         arguments = [_expression(argument, lines, indent) for argument in node.arguments]
-        target = "_functions, True" if node.namespace is None else f"_module(_aliases, {node.namespace!r})[1], False"
         named = [f"{name!r}: {_expression(argument, lines, indent)}" for name, argument in node.named_arguments]
-        value = f"_call({target}, {node.name!r}, [{', '.join(arguments)}], {{{', '.join(named)}}})"
+        value = (
+            f"_call(_functions, _aliases, {node.namespace!r}, {node.name!r}, "
+            f"[{', '.join(arguments)}], {{{', '.join(named)}}})"
+        )
     else:
         raise TypeError(f"Unsupported expression {type(node).__name__}")
 
@@ -291,7 +308,7 @@ def _statements(statements, lines, indent):
             lines.function = outer
             lines.append(
                 f"{indent}_functions[{statement.name!r}] = "
-                f"({tuple(statement.parameters)!r}, {len(statement.defaults)}, {name})"
+                f"({tuple(statement.parameters)!r}, {len(statement.defaults)}, {name}, {isinstance(statement, Record)})"
             )
         else:
             raise TypeError(f"Unsupported statement {type(statement).__name__}")

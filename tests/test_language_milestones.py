@@ -290,3 +290,50 @@ function create()
 end
 """,
     })
+
+
+def test_csv_rows_convert_to_records_and_export_to_json():
+    source = (ROOT / "examples/csv_invoice_records.pa").read_text(encoding="utf-8")
+    check_runtimes(source, 'Skipped row 3: invalid_integer\n'
+                           '[{"number": "INV-001", "amount_cents": 1800, "paid": false}, '
+                           '{"number": "INV-003", "amount_cents": 1200, "paid": false}]\n')
+
+
+def test_record_conversion_uses_the_original_constructor_rules():
+    check_runtimes("""
+import "std/record" as records
+import "models.pa" as models
+invoice = records.from_dict("models.Invoice", {"amount": 5})
+copy = records.to_dict(invoice)
+copy["amount"] = 10
+say invoice.amount
+say invoice.fee
+say type_of(copy)
+try
+    records.from_dict("models.Invoice", {"amount": "5"})
+catch (error)
+    say error["code"]
+end
+try
+    records.from_dict("models.Invoice", {"amount": 5, "extra": 0})
+catch message
+    say message
+end
+try
+    records.from_dict("models.Invoice", {})
+catch message
+    say message
+end
+try
+    records.from_dict("models.calculate", {})
+catch message
+    say message
+end
+""", "5\n10\ndictionary\nrecord_field_type\nFunction 'Invoice' has no parameter 'extra'\n"
+     "Function 'Invoice' expects 1 to 2 argument(s), got 0\n'calculate' is not a record constructor.\n", {
+        "models.pa": """record Invoice(amount: integer, fee: integer = amount * 2)
+function calculate()
+    return 1
+end
+""",
+    })

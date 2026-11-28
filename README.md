@@ -52,11 +52,11 @@ Enter one line per `input()` call in **Program input**. Attach imported sibling
 ### Install the CLI
 
 Use Python 3.11 or later. Download the wheel from the
-[4.5.0 release](https://github.com/probal2005/NexPro/releases/tag/v4.5.0),
+[4.6.0 release](https://github.com/probal2005/NexPro/releases/tag/v4.6.0),
 then run these commands from your download directory.
 
 ```sh
-python -m pip install ./nexpro-4.5.0-py3-none-any.whl
+python -m pip install ./nexpro-4.6.0-py3-none-any.whl
 nexpro version
 ```
 

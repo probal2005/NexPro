@@ -31,6 +31,10 @@ const builtins = {
 };
 
 const modules = {
+  record: {
+    from_dict: 'from_dict(name, values) — Call a visible record constructor using a dictionary.',
+    to_dict: 'to_dict(record) — Copy the fields into a dictionary.',
+  },
   queue: {
     new: 'new(items) — Create a FIFO queue, optionally from a list.',
     enqueue: 'enqueue(queue, value) — Add a value to the back.',
@@ -85,7 +89,7 @@ const modules = {
 
 function moduleFunctions(document, alias) {
   const imports = document.getText().matchAll(
-    /^\s*import\s+["']std\/(math|json|csv|text|list|dict|queue|linked_list|stats)["']\s+as\s+([\p{L}_][\p{L}\p{N}_]*)/gmu,
+    /^\s*import\s+["']std\/(math|json|csv|text|list|dict|queue|linked_list|stats|record)["']\s+as\s+([\p{L}_][\p{L}\p{N}_]*)/gmu,
   );
   for (const [, name, importedAlias] of imports) {
     if (alias === importedAlias) return modules[name];

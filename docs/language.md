@@ -325,3 +325,17 @@ Imported aliases take precedence in names such as `models.invoice`. Use
 them to read exports and call module functions. You can update a field of
 an exported record, but assignment cannot replace the export itself.
 See [the record fields example](../examples/record_fields.pa).
+
+### Converting records and dictionaries
+
+Import `"std/record" as records`. Call
+`records.from_dict("Invoice", {"amount_cents": 1800, "number": "INV-001"})`
+to call a visible record constructor with the dictionary entries as named
+arguments. Use an alias-qualified name such as `"models.Invoice"` for an
+imported constructor. Missing fields, unknown fields, defaults, and types
+follow the same rules as a direct constructor call. CSV cells are strings.
+Convert cells such as amounts to integers before constructing the record.
+
+Use `records.to_dict(invoice)` for a new, ordinary dictionary containing the
+fields in declaration order. Nested values are shared with the source record.
+See [the CSV invoice import example](../examples/csv_invoice_records.pa).

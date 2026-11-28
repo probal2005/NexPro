@@ -95,6 +95,23 @@ def _record_set_field(record, name, value):
     record[name] = value
 
 
+def _record_from_dict(invoke, name, values):
+    if not isinstance(name, str):
+        raise TypeError("Record name must be text.")
+    parts = name.split(".")
+    if len(parts) not in (1, 2) or not all(part.isidentifier() for part in parts):
+        raise ValueError("Expected a record name or module.record name.")
+    if type(values) is not dict or any(not isinstance(key, str) for key in values):
+        raise TypeError("Record input must be a dictionary with text keys.")
+    return invoke(parts[0] if len(parts) == 2 else None, parts[-1], values)
+
+
+def _record_to_dict(value):
+    if not isinstance(value, _Record):
+        raise TypeError("Expected a record.")
+    return dict(value)
+
+
 def _throw(message, code="thrown"):
     if not isinstance(code, str) or not code.strip() or not isinstance(message, str):
         raise TypeError("throw requires a text message and a non-empty text code.")
@@ -429,6 +446,7 @@ def _stats_count_by(items, key=None):
 
 
 STANDARD_MODULES = {
+    "std/record": {"from_dict": _record_from_dict, "to_dict": _record_to_dict},
     "std/queue": {
         "new": _queue_new, "enqueue": _queue_enqueue, "dequeue": _queue_dequeue,
         "peek": _queue_peek, "to_list": _queue_to_list,
