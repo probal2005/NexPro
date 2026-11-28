@@ -34,7 +34,7 @@ from nexpro.ast import (
     SetItem,
 )
 
-from nexpro.data_builtins import DATA_BUILTINS
+from nexpro.data_builtins import DATA_BUILTINS, _extended_arithmetic
 from nexpro.errors import EXECUTION_ERRORS
 from nexpro.errors import RuntimeError as NexProRuntimeError
 from nexpro.runtime import Runtime
@@ -295,6 +295,8 @@ class Interpreter:
         left = self.visit(node.left)
         right = self.visit(node.right)
 
+        if node.operator in ("//", "%", "**"):
+            return _extended_arithmetic(node.operator, left, right)
         return BINARY_OPERATORS[node.operator](left, right)
 
     def get_module(self, namespace):

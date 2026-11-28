@@ -2,6 +2,8 @@ import json
 import runpy
 from pathlib import Path
 
+import pytest
+
 from nexpro.compiler import compile_program
 from nexpro.loader import load_program
 
@@ -76,3 +78,62 @@ def test_inventory_form_reports_columns_and_rows_and_names_the_download():
     assert invalid["downloads"] == {}
     valid = tool('sku,stock,minimum,target\n"Zoë, A",2,4,10\n')
     assert valid["downloads"] == {"reorder.csv": 'sku,quantity\r\n"Zoë, A",8\r\n'}
+
+
+@pytest.mark.parametrize(("source", "expected"), [
+    (
+        "say -7 // 3 say -7 % 3 say 7 % -3 say -2 ** 2 say 2 ** 3 ** 2 say 2 ** -2",
+        "-3\n2\n-2\n-4\n512\n0.25\n",
+    ),
+    (
+        '''import "std/text" as text
+say text.replace("Ada  Smith", "  ", " ")
+say text.find("Zoë", "ë")
+say text.find("Ada", "x")
+say text.contains("Ada Smith", "Smith")
+say text.starts_with("Ada Smith", "Ada")
+say text.ends_with("Ada Smith", "Smith")
+''',
+        "Ada Smith\n2\n-1\ntrue\ntrue\ntrue\n",
+    ),
+    (
+        '''import "std/list" as lists
+items = [1, 3, 1]
+lists.insert(items, 1, 2)
+say lists.pop(items)
+say lists.remove(items, 1)
+say lists.remove(items, 9)
+say items
+say lists.unique([[1], {"a": 2}, [1], {"a": 2}])
+''',
+        "1\ntrue\nfalse\n[2, 3]\n[[1], {'a': 2}]\n",
+    ),
+    (
+        '''import "std/dict" as records
+left = {"count": 0, "name": "Ada"}
+say records.has(left, "count")
+say records.remove(left, "count")
+say records.remove(left, "missing", 5)
+say records.merge(left, {"name": "Grace", "count": 2})
+say left
+''',
+        "true\n0\n5\n{'name': 'Grace', 'count': 2}\n{'name': 'Ada'}\n",
+    ),
+])
+def test_new_language_features_match_compiled_python(source, expected, capsys):
+    assert json.loads(run_playground(source, "run")) == {"ok": True, "output": expected}
+    tree = load_program("test.pa", lambda name: source)
+    exec(compile_program(tree), {"__name__": "__main__"})
+    assert capsys.readouterr().out == expected
+
+
+@pytest.mark.parametrize(("expression", "message"), [
+    ("1 // 0", "division"),
+    ('"x" % 2', "requires numeric operands"),
+    ("(-1) ** 0.5", "must produce a real number"),
+    ("2 ** 1000000000", "computation limit"),
+])
+def test_arithmetic_errors(expression, message):
+    result = json.loads(run_playground("say " + expression, "run"))
+    assert not result["ok"]
+    assert message in result["error"]

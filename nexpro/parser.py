@@ -17,6 +17,9 @@ from nexpro.tokens import (
     MINUS,
     STAR,
     SLASH,
+    FLOOR_DIVIDE,
+    MODULO,
+    POWER,
     LPAREN,
     RPAREN,
     LBRACKET,
@@ -472,7 +475,14 @@ class Parser:
         if self.match(PLUS, MINUS):
             operator = self.previous()
             return self.locate(Unary(operator.value, self.unary()), operator)
-        return self.postfix()
+        return self.power()
+
+    def power(self):
+        base = self.postfix()
+        if self.match(POWER):
+            operator = self.previous()
+            return self.locate(Binary(base, operator.value, self.unary()), operator)
+        return base
 
     def postfix(self):
         node = self.primary()
@@ -491,7 +501,7 @@ class Parser:
 
     def multiplication(self):
         node = self.unary()
-        while self.match(STAR, SLASH):
+        while self.match(STAR, SLASH, FLOOR_DIVIDE, MODULO):
             operator = self.previous()
             node = self.locate(Binary(node, operator.value, self.unary()), operator)
         return node

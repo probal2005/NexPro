@@ -26,8 +26,9 @@ UTF-8 text, typically saved with a `.pa` extension.
 | --- | --- |
 | Primary expressions | Literals, variable names, calls, and grouped expressions |
 | Indexing | `value[index]` |
+| Exponentiation | `**` |
 | Unary signs | `+value`, `-value` |
-| Multiplicative operators | `*`, `/` |
+| Multiplicative operators | `*`, `/`, `//`, `%` |
 | Additive operators | `+`, `-` |
 | Comparison | `==`, `!=`, `<`, `<=`, `>`, `>=` |
 | Logical negation | `not` |
@@ -37,7 +38,13 @@ UTF-8 text, typically saved with a `.pa` extension.
 Arithmetic at the same precedence groups left to right. Parentheses override
 precedence. A comparison expression has one comparison operator. Operands and
 call arguments evaluate left to right. Arithmetic and comparisons follow
-Python value semantics. Division produces a floating-point result.
+Python value semantics. Division with `/` produces a floating-point result. Floor division rounds
+toward negative infinity, so `-7 // 3` is `-3`. The remainder has the sign
+of the divisor, so `-7 % 3` is `2`. These operators take integers and floats.
+Power groups right to left. `2 ** 3 ** 2` is `512`, `-2 ** 2` is `-4`, and
+`2 ** -2` is `0.25`. Power requires real results. To bound computation,
+an integer power is rejected when the exponent times the bit length of the
+base exceeds 1,000,000 bits (for absolute bases greater than 1).
 
 An index starts at zero. Negative indexes count from the end. An invalid
 index raises a runtime error. Use `len(value)` for the length of a string or
@@ -187,3 +194,23 @@ Import `"std/math"` with an alias for `abs()`, `round()`, and `sqrt()`.
 Import `"std/json"` with an alias for `parse(text)` and `stringify(value)`.
 The JSON module preserves Unicode and rejects non-finite numeric values.
 See the [JSON student report](../examples/json_report.pa).
+
+
+## Text and collection modules
+
+Import `"std/text"`, `"std/list"`, or `"std/dict"` with an alias.
+
+| Module | Function | Behavior |
+|---|---|---|
+| Text | `replace(text, old, new)` | Replace all occurrences and return a new string. |
+| Text | `find(text, fragment)` | Return the first zero-based index, or `-1` when absent. |
+| Text | `contains(text, fragment)` | Test whether a fragment occurs in a string. |
+| Text | `starts_with(text, prefix)` | Test whether a string begins with the prefix. |
+| Text | `ends_with(text, suffix)` | Test whether a string ends with the suffix. |
+| List | `insert(items, index, value)` | Insert into the original list. Negative positions count from the end. Positions outside the list clamp to the beginning or end. |
+| List | `pop(items, index)` | Remove and return the indexed item. The index defaults to `-1`. An invalid index raises an error. |
+| List | `remove(items, value)` | Remove the first equal item and return `true`. Return `false` when absent. |
+| List | `unique(items)` | Return a new list with the first occurrence of each value, in order. Accepts nested lists and dictionaries. |
+| Dictionary | `has(record, key)` | Test whether the key exists, regardless of its value. |
+| Dictionary | `remove(record, key, default)` | Remove and return the value, or return the fallback when absent. Without a fallback, a missing key produces the missing value. |
+| Dictionary | `merge(left, right)` | Return a shallow copy with both sets of entries. Right-hand values win on shared keys. |

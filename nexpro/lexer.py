@@ -28,6 +28,8 @@ PLUS,
 MINUS,
 STAR,
 SLASH,
+FLOOR_DIVIDE,
+POWER,
 MODULO,
 
 EQUAL,
@@ -439,12 +441,18 @@ class Lexer:
 
         if ch == "*":
             self.advance()
+            if self.current == "*":
+                self.advance()
+                return Token(POWER, "**", line, column)
             return Token(STAR, "*", line, column)
 
         # /
 
         if ch == "/":
             self.advance()
+            if self.current == "/":
+                self.advance()
+                return Token(FLOOR_DIVIDE, "//", line, column)
             return Token(SLASH, "/", line, column)
 
         # %

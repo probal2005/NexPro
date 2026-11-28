@@ -58,7 +58,7 @@
     },
     {
       "name": "keyword.operator.nexpro",
-      "match": "[=<>!]=|[=<>+*/-]"
+      "match": "[=<>!]=|//|\\*\\*|[=<>+*/%-]"
     }
   ],
   "repository": {

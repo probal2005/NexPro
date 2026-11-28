@@ -127,7 +127,10 @@ def _expression(node, lines, indent):
     elif isinstance(node, Binary):
         left = _expression(node.left, lines, indent)
         right = _expression(node.right, lines, indent)
-        value = f"{left} {node.operator} {right}"
+        if node.operator in ("//", "%", "**"):
+            value = f"_extended_arithmetic({node.operator!r}, {left}, {right})"
+        else:
+            value = f"{left} {node.operator} {right}"
     elif isinstance(node, Unary):
         operand = _expression(node.operand, lines, indent)
         operator = "not " if node.operator == "not" else node.operator

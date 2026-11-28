@@ -30,6 +30,24 @@ const builtins = {
 };
 
 const modules = {
+  text: {
+    replace: 'replace(text, old, new) — Replace every occurrence.',
+    find: 'find(text, fragment) — Return the first matching index or -1.',
+    contains: 'contains(text, fragment) — Test for a substring.',
+    starts_with: 'starts_with(text, prefix) — Test the prefix.',
+    ends_with: 'ends_with(text, suffix) — Test the suffix.',
+  },
+  list: {
+    insert: 'insert(items, index, value) — Insert into the list.',
+    pop: 'pop(items, index) — Remove and return an item. Defaults to the last.',
+    remove: 'remove(items, value) — Remove the first matching item.',
+    unique: 'unique(items) — Return a new list without duplicates.',
+  },
+  dict: {
+    has: 'has(record, key) — Test whether the key exists.',
+    remove: 'remove(record, key, default) — Remove and return an entry.',
+    merge: 'merge(left, right) — Return a new dictionary with right-side values taking precedence.',
+  },
   csv: {
     parse: 'parse(text, columns) — Read CSV as a list of rows with named columns.',
     stringify: 'stringify(rows) — Write a list of dictionaries as CSV.',
@@ -47,7 +65,7 @@ const modules = {
 
 function moduleFunctions(document, alias) {
   const imports = document.getText().matchAll(
-    /^\s*import\s+["']std\/(math|json|csv)["']\s+as\s+([\p{L}_][\p{L}\p{N}_]*)/gmu,
+    /^\s*import\s+["']std\/(math|json|csv|text|list|dict)["']\s+as\s+([\p{L}_][\p{L}\p{N}_]*)/gmu,
   );
   for (const [, name, importedAlias] of imports) {
     if (alias === importedAlias) return modules[name];

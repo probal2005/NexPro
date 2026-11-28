@@ -95,6 +95,8 @@ MINUS = "MINUS"
 STAR = "STAR"
 
 SLASH = "SLASH"
+FLOOR_DIVIDE = "FLOOR_DIVIDE"
+POWER = "POWER"
 
 PERCENT = "PERCENT"
 
@@ -239,6 +241,8 @@ DOUBLE_CHAR_TOKENS = {
 
     "!=": NOT_EQUAL,
 
+    "//": FLOOR_DIVIDE,
+    "**": POWER,
     ">=": GREATER_EQUAL,
 
     "<=": LESS_EQUAL,

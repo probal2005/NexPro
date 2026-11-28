@@ -23,8 +23,9 @@ logical_not    -> "not" logical_not | comparison
 comparison     -> addition (comparison_op addition)?
 comparison_op  -> "==" | "!=" | "<" | "<=" | ">" | ">="
 addition       -> multiplication (("+" | "-") multiplication)*
-multiplication -> unary (("*" | "/") unary)*
-unary          -> ("+" | "-") unary | postfix
+multiplication -> unary (("*" | "/" | "//" | "%") unary)*
+unary          -> ("+" | "-") unary | power
+power          -> postfix ("**" unary)?
 postfix        -> primary ("[" subscript "]")*
 subscript      -> expression | expression? ":" expression? (":" expression?)?
 list           -> "[" arguments? "]"

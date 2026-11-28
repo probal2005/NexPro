@@ -214,3 +214,20 @@ def _download_csv(filename, text):
 
 
 DATA_BUILTINS.update({"csv_field": _csv_field, "download_csv": _download_csv})
+
+
+def _extended_arithmetic(symbol, left, right):
+    if type(left) not in (int, float) or type(right) not in (int, float):
+        raise TypeError(f"{symbol} requires numeric operands.")
+    if symbol == "//":
+        return left // right
+    if symbol == "%":
+        return left % right
+
+    if type(left) is int and type(right) is int and abs(left) > 1:
+        if right > 1_000_000 // abs(left).bit_length():
+            raise ValueError("Integer power exceeds the 1,000,000-bit computation limit.")
+    result = left ** right
+    if isinstance(result, complex):
+        raise ValueError("Power must produce a real number.")
+    return result
