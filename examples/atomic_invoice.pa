@@ -1,0 +1,16 @@
+import "std/record" as records
+
+record Invoice(subtotal: integer, discount: integer)
+where "discount_bounds", discount >= 0 and discount <= subtotal, "Discount must be between zero and the subtotal"
+
+invoice = Invoice(1000, 500)
+records.update(invoice, {"subtotal": 400, "discount": 100})
+say invoice.subtotal - invoice.discount
+
+try
+    records.update(invoice, {"subtotal": 300, "discount": 500})
+catch (error)
+    say error["details"]["rule"]
+end
+say invoice.subtotal
+say invoice.discount

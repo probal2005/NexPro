@@ -76,12 +76,16 @@ class _Record(dict):
             )
 
     def __setitem__(self, key, value):
-        if key not in self:
-            raise KeyError(f"Record '{self.name}' has no field '{key}'")
-        self.validate(key, value)
+        self.apply({key: value})
+
+    def apply(self, changes):
+        for key, value in changes.items():
+            if key not in self:
+                raise KeyError(f"Record '{self.name}' has no field '{key}'")
+            self.validate(key, value)
         if self.rules is not None:
-            self.rules({**self, key: value})
-        super().__setitem__(key, value)
+            self.rules({**self, **changes})
+        super().update(changes)
 
     def pop(self, key, default=None):
         if key in self:
@@ -121,6 +125,15 @@ def _record_to_dict(value):
     if not isinstance(value, _Record):
         raise TypeError("Expected a record.")
     return dict(value)
+
+
+def _record_update(record, changes):
+    if not isinstance(record, _Record):
+        raise TypeError("Expected a record.")
+    if type(changes) is not dict:
+        raise TypeError("Record changes must be a dictionary.")
+    record.apply(changes)
+    return record
 
 
 def _throw(message, code="thrown"):
@@ -457,7 +470,7 @@ def _stats_count_by(items, key=None):
 
 
 STANDARD_MODULES = {
-    "std/record": {"from_dict": _record_from_dict, "to_dict": _record_to_dict},
+    "std/record": {"from_dict": _record_from_dict, "to_dict": _record_to_dict, "update": _record_update},
     "std/queue": {
         "new": _queue_new, "enqueue": _queue_enqueue, "dequeue": _queue_dequeue,
         "peek": _queue_peek, "to_list": _queue_to_list,

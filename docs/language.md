@@ -351,3 +351,12 @@ A false condition raises `record_rule`. A structured catch receives the
 message, and `details` contains the record and rule names. A failed
 assignment preserves the previous value. Dictionary conversion also
 applies the record's rules. See [the validated CSV example](../examples/validated_invoice.pa).
+
+### Atomic record updates
+
+`records.update(invoice, {"subtotal": 400, "discount": 100})` validates field
+names and types, then checks the rules against the combined candidate.
+The original record is updated in place and returned on success. On failure
+all its fields retain their previous values. Use this operation when two
+fields must change together to satisfy a rule.
+See [the atomic invoice example](../examples/atomic_invoice.pa).

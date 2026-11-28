@@ -356,3 +356,20 @@ catch (error)
 end
 say invoice.amount
 """, "record_rule\nAmount must be nonnegative\n1800\n")
+
+
+def test_record_update_validates_the_whole_candidate_before_writing():
+    source = (ROOT / "examples/atomic_invoice.pa").read_text(encoding="utf-8")
+    check_runtimes(source, "300\ndiscount_bounds\n400\n100\n")
+    check_runtimes("""
+import "std/record" as records
+record Pair(first: integer, second: integer)
+item = Pair(1, 2)
+try
+    records.update(item, {"first": 9, "second": "bad"})
+catch (error)
+    say error["code"]
+end
+say item.first
+say item.second
+""", "record_field_type\n1\n2\n")
