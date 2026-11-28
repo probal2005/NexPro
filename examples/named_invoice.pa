@@ -1,0 +1,7 @@
+function invoice_total(unit_cents, quantity = 1, shipping_cents = 0, discount = 0)
+    subtotal = unit_cents * quantity * (100 - discount) // 100
+    return subtotal + shipping_cents
+end
+
+say invoice_total(1000, 2, discount = 10)
+say invoice_total(unit_cents = 1000, shipping_cents = 250)

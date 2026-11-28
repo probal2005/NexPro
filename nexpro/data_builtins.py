@@ -233,13 +233,29 @@ def _extended_arithmetic(symbol, left, right):
     return result
 
 
-def _argument_scope(name, parameters, default_count, arguments):
+def _argument_scope(name, parameters, default_count, arguments, named):
     maximum = len(parameters)
     minimum = maximum - default_count
-    if not minimum <= len(arguments) <= maximum:
+    if len(arguments) > maximum or (not named and len(arguments) < minimum):
         expected = str(maximum) if minimum == maximum else f"{minimum} to {maximum}"
         raise ValueError(f"Function '{name}' expects {expected} argument(s), got {len(arguments)}")
-    return dict(zip(parameters, arguments))
+    scope = dict(zip(parameters, arguments))
+    for argument, value in named.items():
+        if argument not in parameters:
+            raise ValueError(f"Function '{name}' has no parameter '{argument}'")
+        if argument in scope:
+            raise ValueError(f"Function '{name}' got multiple values for '{argument}'")
+        scope[argument] = value
+    for parameter in parameters[:minimum]:
+        if parameter not in scope:
+            raise ValueError(f"Function '{name}' is missing required argument '{parameter}'")
+    return scope
+
+
+def _call_builtin(name, function, arguments, named):
+    if named:
+        raise ValueError(f"Built-in function '{name}' accepts only positional arguments")
+    return function(*arguments)
 
 
 def _say_value(value):

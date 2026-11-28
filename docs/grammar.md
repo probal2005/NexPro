@@ -37,7 +37,9 @@ entry          -> expression ":" expression
 primary        -> NUMBER | STRING | "true" | "false" | "null"
                 | dictionary | list | call | member | IDENTIFIER | "(" expression ")"
 member         -> IDENTIFIER "." IDENTIFIER
-call           -> (IDENTIFIER | member) "(" arguments? ")"
+call           -> (IDENTIFIER | member) "(" call_arguments? ")"
+call_arguments -> call_argument ("," call_argument)*
+call_argument  -> (IDENTIFIER "=")? expression
 arguments      -> expression ("," expression)*
 ```
 

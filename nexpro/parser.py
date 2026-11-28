@@ -336,9 +336,29 @@ class Parser:
         return expressions
 
     def call(self, name, namespace=None):
-        arguments = self.expression_list(RPAREN)
+        arguments = []
+        named = {}
+        if not self.check(RPAREN):
+            while True:
+                token = self.current
+                if self.check(IDENTIFIER) and self.peek().type == ASSIGN:
+                    self.advance()
+                    self.advance()
+                    if token.value in named:
+                        raise ParserError(
+                            f"Duplicate named argument '{token.value}'", token.line, token.column, self.filename
+                        )
+                    named[token.value] = self.expression()
+                else:
+                    if named:
+                        raise ParserError(
+                            "Positional arguments must precede named arguments", token.line, token.column, self.filename
+                        )
+                    arguments.append(self.expression())
+                if not self.match(COMMA):
+                    break
         self.expect(RPAREN, "Expected ')' after arguments")
-        return Call(name, arguments, namespace)
+        return Call(name, arguments, namespace, tuple(named.items()))
 
     def function(self):
         name = self.expect(IDENTIFIER, "Expected function name")

@@ -113,9 +113,10 @@ class Function(Statement):
 
 
 class Call(Expression, Statement):
-    def __init__(self, name, arguments, namespace=None):
+    def __init__(self, name, arguments, namespace=None, named_arguments=()):
         self.name = name
         self.arguments = arguments
+        self.named_arguments = named_arguments
         self.namespace = namespace
 
 

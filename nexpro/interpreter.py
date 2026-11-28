@@ -37,7 +37,7 @@ from nexpro.ast import (
     SetItem,
 )
 
-from nexpro.data_builtins import DATA_BUILTINS, _argument_scope, _extended_arithmetic, _say_value
+from nexpro.data_builtins import DATA_BUILTINS, _argument_scope, _call_builtin, _extended_arithmetic, _say_value
 from nexpro.errors import EXECUTION_ERRORS
 from nexpro.errors import RuntimeError as NexProRuntimeError
 from nexpro.runtime import Runtime
@@ -329,29 +329,30 @@ class Interpreter:
 
     def visit_call(self, node):
         arguments = [self.visit(argument) for argument in node.arguments]
+        named = {name: self.visit(value) for name, value in node.named_arguments}
         if node.namespace is not None:
             module = self.get_module(node.namespace)
             previous_depth = module.function_depth
             module.function_depth = self.function_depth
             try:
-                return module.call_function(node.name, arguments, node, allow_builtin=False)
+                return module.call_function(node.name, arguments, named, node, allow_builtin=False)
             except NexProRuntimeError as error:
                 if error.frames:
                     error.add_frame(self.function_name, node.location)
                 raise
             finally:
                 module.function_depth = previous_depth
-        return self.call_function(node.name, arguments, node)
+        return self.call_function(node.name, arguments, named, node)
 
-    def call_function(self, name, arguments, node, allow_builtin=True):
+    def call_function(self, name, arguments, named, node, allow_builtin=True):
         function = self.functions.get(name)
         if function is None:
             if allow_builtin and name in self.builtins:
-                return self.builtins[name](*arguments)
+                return _call_builtin(name, self.builtins[name], arguments, named)
             raise NexProRuntimeError(f"Undefined function '{node.name}'")
         if callable(function):
-            return function(*arguments)
-        supplied = _argument_scope(name, function.parameters, len(function.defaults), arguments)
+            return _call_builtin(name, function, arguments, named)
+        supplied = _argument_scope(name, function.parameters, len(function.defaults), arguments, named)
 
         caller = self.runtime
         caller_name = self.function_name
@@ -361,9 +362,9 @@ class Interpreter:
         try:
             self.runtime.variables.update(supplied)
             first_default = len(function.parameters) - len(function.defaults)
-            for index in range(max(first_default, len(arguments)), len(function.parameters)):
-                value = self.visit(function.defaults[index - first_default])
-                self.runtime.set(function.parameters[index], value)
+            for parameter, default in zip(function.parameters[first_default:], function.defaults):
+                if parameter not in supplied:
+                    self.runtime.set(parameter, self.visit(default))
             self.visit_block(function.body)
         except _ReturnFromFunction as returned:
             return returned.value

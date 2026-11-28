@@ -276,3 +276,12 @@ form uses the code `thrown`.
 
 See [the inventory example](../examples/structured_inventory.pa) for errors
 that stop an import and errors that affect only the current row.
+
+## Named arguments
+
+Call a NexPro-defined function with parameter names, such as
+`invoice_total(1000, 2, discount = 10)`. Positional arguments come first.
+Named arguments may appear in any order and can fill required or optional
+parameters. Duplicate and unknown names are errors. Built-ins and standard
+library functions take positional arguments. See
+[the named invoice example](../examples/named_invoice.pa).

@@ -49,15 +49,15 @@ def _get(scope, global_scope, name):
     raise ValueError(f"Undefined variable '{name}'")
 
 
-def _call(functions, allow_builtin, name, *arguments):
+def _call(functions, allow_builtin, name, arguments, named):
     if name not in functions:
         if allow_builtin and name in _builtins:
-            return _builtins[name](*arguments)
+            return _call_builtin(name, _builtins[name], arguments, named)
         raise ValueError(f"Undefined function '{name}'")
     if callable(functions[name]):
-        return functions[name](*arguments)
+        return _call_builtin(name, functions[name], arguments, named)
     parameters, default_count, function = functions[name]
-    return function(_argument_scope(name, parameters, default_count, arguments))
+    return function(_argument_scope(name, parameters, default_count, arguments, named))
 
 
 def _module(aliases, name):
@@ -159,7 +159,8 @@ def _expression(node, lines, indent):
     elif isinstance(node, Call):
         arguments = [_expression(argument, lines, indent) for argument in node.arguments]
         target = "_functions, True" if node.namespace is None else f"_module(_aliases, {node.namespace!r})[1], False"
-        value = f"_call({target}, {', '.join([repr(node.name), *arguments])})"
+        named = [f"{name!r}: {_expression(argument, lines, indent)}" for name, argument in node.named_arguments]
+        value = f"_call({target}, {node.name!r}, [{', '.join(arguments)}], {{{', '.join(named)}}})"
     else:
         raise TypeError(f"Unsupported expression {type(node).__name__}")
 

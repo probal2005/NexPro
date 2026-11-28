@@ -159,3 +159,35 @@ end
 def test_structured_inventory_distinguishes_bad_rows_from_missing_columns():
     source = (ROOT / "examples/structured_inventory.pa").read_text(encoding="utf-8")
     check_runtimes(source, "Skipped row 3: invalid_integer\n10\nStopped: csv_missing_columns\n")
+
+
+def test_named_arguments_fill_optional_and_required_slots():
+    source = (ROOT / "examples/named_invoice.pa").read_text(encoding="utf-8")
+    check_runtimes(source, "1800\n1250\n")
+    check_runtimes("""
+function total(first, discount = first // 10, fee = 0)
+    return first - discount + fee
+end
+say total(fee = 25, first = 100)
+try
+    total(10, first = 20)
+catch message
+    say message
+end
+try
+    total(other = 10)
+catch message
+    say message
+end
+try
+    total(fee = 10)
+catch message
+    say message
+end
+""", "115\nFunction 'total' got multiple values for 'first'\n"
+         "Function 'total' has no parameter 'other'\nFunction 'total' is missing required argument 'first'\n")
+
+
+def test_named_argument_order_and_duplicates_are_checked_at_parse_time():
+    for source in ("f(a = 1, a = 2)", "f(a = 1, 2)"):
+        assert not json.loads(run_playground(source, "check"))["ok"]
