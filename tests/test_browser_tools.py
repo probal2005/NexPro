@@ -32,7 +32,7 @@ import "std/json" as json
 cells = csv.parse(json.parse(input()))
 say csv.stringify(cells)
 '''
-    csv = 'name,notes\r\n"আদা, Inc.","line 1\r\nline 2"\r\n'
+    csv = 'name,notes\r\n"Zoë, Inc.","line 1\r\nline 2"\r\n'
     input_line = json.dumps(csv)
     response = json.loads(run_playground(source, "run", input_line))
     assert response == {"ok": True, "output": csv + "\n"}
@@ -74,5 +74,5 @@ def test_inventory_form_reports_columns_and_rows_and_names_the_download():
     invalid = tool("sku,stock,minimum,target\nA,2,4,10\nB,broken,4,10\n")
     assert "CSV data row 2" in invalid["errors"]["Stock CSV"]
     assert invalid["downloads"] == {}
-    valid = tool('sku,stock,minimum,target\n"আদা, A",2,4,10\n')
-    assert valid["downloads"] == {"reorder.csv": 'sku,quantity\r\n"আদা, A",8\r\n'}
+    valid = tool('sku,stock,minimum,target\n"Zoë, A",2,4,10\n')
+    assert valid["downloads"] == {"reorder.csv": 'sku,quantity\r\n"Zoë, A",8\r\n'}

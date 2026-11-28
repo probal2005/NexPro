@@ -195,7 +195,7 @@ say 3 <= 2
 
 
 @pytest.mark.parametrize(("example", "input_text", "expected"), [
-    ("json_report", '{"name":"আদা","scores":[70,85,100]}\n', '9.0\n{"name": "আদা", "average": 85.0}\n'),
+    ("json_report", '{"name":"Zoë","scores":[70,85,100]}\n', '9.0\n{"name": "Zoë", "average": 85.0}\n'),
     ("clean_names", "  Ada, GRACE, Linus  \n", "ada | grace | linus\n"),
     ("scores", "70\n85\n100\n", "Average\n85.0\nHighest\n100.0\n"),
     ("score_series", "70\n85\n100\n\n", "Average\n85.0\nHighest\n100.0\n"),
@@ -451,9 +451,9 @@ def test_data_builtins(code, expected, status, tmp_path):
 
 
 @pytest.mark.parametrize(("code", "expected", "status"), [
-    ('say trim("  বাংলা　") say lower("ÉCOLE") say upper("straße")', 'বাংলা\nécole\nSTRASSE\n', 0),
+    ('say trim("  NexPro　") say lower("ÉCOLE") say upper("straße")', 'NexPro\nécole\nSTRASSE\n', 0),
     ('say split("", ",") say split(",x,,", ",")', "['']\n['', 'x', '', '']\n", 0),
-    ('say join([], ",") say join(["আ", "লো"], "")', '\nআলো\n', 0),
+    ('say join([], ",") say join(["Zo", "ë"], "")', '\nZoë\n', 0),
     ('say split("x", "")', 'non-empty separator', 1),
     ('say split("x", 1)', 'expects a text separator', 1),
     ('say join([1], ",")', 'expects a list of text values', 1),

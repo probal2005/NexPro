@@ -13,7 +13,7 @@ declarations, or use the same program from a terminal or as standalone Python.
 
 ## Learn NexPro
 
-Follow the [Earn NexPro course](earn%20nexpro/README.md) in Bangla, from
+Follow the [Learn NexPro course](learn%20nexpro/README.md) from
 your first `.pa` program to a shareable CSV inventory tool.
 
 ## Built with NexPro
