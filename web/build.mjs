@@ -18,6 +18,11 @@ for (const name of ['app.js', 'schemas.mjs', 'styles.css']) {
 const escape = text => text.replaceAll('&', '&amp;').replaceAll('<', '&lt;')
   .replaceAll('>', '&gt;').replaceAll('"', '&quot;');
 const projectOptions = [];
+const liveProjects = [{
+  slug: 'bill-splitter',
+  title: 'Bill Splitter',
+  description: 'Divide a bill into shares that add up to the exact total.',
+}];
 for (const project of await readdir('projects', { withFileTypes: true })) {
   if (!project.isDirectory() || project.name === 'bill-splitter') continue;
   const folder = `projects/${project.name}`;
@@ -38,9 +43,12 @@ for (const project of await readdir('projects', { withFileTypes: true })) {
   };
   await mkdir(`dist/${folder}`, { recursive: true });
   await writeFile(`dist/${folder}/example.json`, JSON.stringify(program));
+  const description = readme.split(/\r?\n/).find(line => line.includes('[Read the NexPro code]'))
+    ?.split('[Read the NexPro code]')[0].trim() ?? '';
+  if (Object.hasOwn(schemas, project.name) || project.name === 'order-dispatch') {
+    liveProjects.push({ slug: project.name, title, description });
+  }
   if (Object.hasOwn(schemas, project.name)) {
-    const description = readme.split(/\r?\n/).find(line => line.includes('[Read the NexPro code]'))
-      ?.split('[Read the NexPro code]')[0].trim() ?? '';
     const page = demoTemplate
       .replaceAll('__PROJECT_SLUG__', () => escape(project.name))
       .replaceAll('__PROJECT_TITLE__', () => escape(title))
@@ -50,8 +58,13 @@ for (const project of await readdir('projects', { withFileTypes: true })) {
   }
   projectOptions.push(`<option value="project:${escape(project.name)}">${escape(title)}</option>`);
 }
+const projectLinks = liveProjects.map(({ slug, title, description }) => (
+  `<li><a href="/projects/${encodeURIComponent(slug)}/">` +
+  `<strong>${escape(title)}</strong><span>${escape(description)}</span></a></li>`
+));
 await writeFile('dist/index.html', template.replaceAll('__NEXPRO_VERSION__', version)
-  .replace('<!-- NEXPRO_PROJECT_OPTIONS -->', projectOptions.join('\n            ')));
+  .replace('<!-- NEXPRO_PROJECT_OPTIONS -->', () => projectOptions.join('\n            '))
+  .replace('<!-- NEXPRO_PROJECT_LINKS -->', () => projectLinks.join('\n        ')));
 
 for (const name of await readdir('nexpro')) {
   if (name.endsWith('.py')) await cp(`nexpro/${name}`, `dist/nexpro/${name}`);

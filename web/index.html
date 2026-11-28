@@ -13,7 +13,10 @@
   <header class="site-header">
     <div class="shell header-inner">
       <a class="brand" href="./" aria-label="NexPro Playground"><img class="mark" src="nexpro-icon.png" alt="" width="40" height="40">NexPro</a>
-      <a class="source-link" href="https://github.com/probal2005/NexPro/tree/v__NEXPRO_VERSION__/docs">Documentation</a>
+      <nav class="header-nav" aria-label="Playground navigation">
+        <a class="source-link" href="#live-projects">Live projects</a>
+        <a class="source-link" href="https://github.com/probal2005/NexPro/tree/v__NEXPRO_VERSION__/docs">Documentation</a>
+      </nav>
     </div>
   </header>
   <main class="shell">
@@ -105,7 +108,13 @@ say (2 + 3) * 4
         <textarea id="program-input" rows="3" spellcheck="false" aria-describedby="input-help"></textarea>
       </div>
     </section>
-    <footer>Code is processed in this browser. <a href="/projects/bill-splitter/">Try Bill Splitter</a> or <a href="/projects/order-dispatch/">Order Dispatch Checker</a>.</footer>
+    <section id="live-projects" class="project-directory" aria-labelledby="live-projects-heading">
+      <h2 id="live-projects-heading">Live projects</h2>
+      <ul class="project-links">
+        <!-- NEXPRO_PROJECT_LINKS -->
+      </ul>
+    </section>
+    <footer>Code is processed in this browser.</footer>
   </main>
 </body>
 </html>

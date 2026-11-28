@@ -18,6 +18,7 @@ body { margin: 0; }
 a { color: inherit; }
 .brand { display: inline-flex; align-items: center; gap: 10px; font-weight: 750; text-decoration: none; }
 .mark { display: block; width: 40px; height: 40px; }
+.header-nav { display: flex; align-items: center; flex-wrap: wrap; gap: 12px; }
 .source-link { color: var(--muted); font-size: .875rem; text-underline-offset: 4px; }
 .intro { margin: 42px 0 28px; }
 h1 { font-size: clamp(2rem, 5vw, 3.25rem); letter-spacing: -.055em; margin: 0 0 10px; line-height: 1.1; }
@@ -75,3 +76,11 @@ footer { color: var(--muted); margin: 16px 0 28px; font-size: .875rem; }
 .example-picker { min-width: 0; flex-wrap: wrap; }
 #examples { max-width: 100%; }
 #project-demo, #project-source { color: var(--accent); font-size: .875rem; }
+
+.project-directory { margin-top: 36px; scroll-margin-top: 16px; }
+.project-directory h2 { line-height: 1.2; font-family: inherit; font-size: 1.6rem; font-weight: 750; margin-bottom: 14px; }
+.project-links { list-style: none; padding: 0; margin: 0; display: grid; gap: 10px; grid-template-columns: repeat(auto-fit, minmax(min(100%, 250px), 1fr)); }
+.project-links a { display: flex; flex-direction: column; height: 100%; gap: 6px; padding: 14px; border: 1px solid var(--border); border-radius: 8px; background: var(--surface); text-decoration: none; }
+.project-links a:hover { border-color: var(--accent); }
+.project-links strong { color: var(--accent); }
+.project-links span { color: var(--muted); font-size: .875rem; line-height: 1.4; }
