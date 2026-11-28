@@ -7,7 +7,7 @@
   <title>NexPro Playground</title>
   <link rel="icon" type="image/png" sizes="48x48" href="favicon.png">
   <link rel="stylesheet" href="styles.css">
-  <script src="app.js" defer></script>
+  <script src="app.js" type="module"></script>
 </head>
 <body>
   <header class="site-header">
@@ -50,6 +50,8 @@
             <option value="ranked_scores">Rank and slice scores</option>
             <option value="json_report">JSON student report</option>
             <option value="namespaces">Module namespaces</option>
+            <option value="tool_bill">Bill Splitter form</option>
+            <option value="tool_quote">Freelance Quote form</option>
             <option value="imports">Import math functions</option>
             <optgroup label="NexPro projects">
               <option value="bill_splitter">Bill Splitter</option>
@@ -62,6 +64,7 @@
         <div class="actions">
           <label class="trace-toggle"><input id="trace" type="checkbox"> Trace execution</label>
           <button id="run" class="primary" type="button" disabled>Run code</button>
+          <button id="preview" type="button" disabled>Preview tool</button>
           <button id="stop" type="button" hidden>Stop</button>
           <button id="check" type="button" disabled>Check syntax</button>
           <button id="compile" type="button" disabled>Compile to Python</button>
@@ -97,6 +100,14 @@ say (2 + 3) * 4
           </div>
         </section>
       </div>
+      <section id="tool-panel" class="input-panel" hidden aria-labelledby="tool-heading">
+        <h2 id="tool-heading">Tool preview</h2>
+        <form id="tool-form" novalidate>
+          <div id="tool-fields"></div>
+          <button id="tool-calculate" class="primary" type="submit">Calculate</button>
+        </form>
+        <dl id="tool-results" aria-live="polite"></dl>
+      </section>
       <div class="input-panel">
         <label for="module-files">Module files</label>
         <p id="module-help">Add .pa files referenced by import statements.</p>

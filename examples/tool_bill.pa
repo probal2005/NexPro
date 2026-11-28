@@ -1,0 +1,16 @@
+import "std/math" as math
+
+bill = number_field("Bill total", 10, 0)
+people = number_field("People", 3, 1)
+if people != int(people)
+    result("People", "Enter a whole number.")
+else
+    cents = int(math.round(bill * 100))
+    share = int(cents / people)
+    extra = cents - share * people
+    result("Base share", share / 100)
+    result("People paying one extra cent", extra)
+    if extra > 0
+        result("Share with extra cent", (share + 1) / 100)
+    end
+end

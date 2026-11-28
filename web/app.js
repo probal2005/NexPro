@@ -1,3 +1,5 @@
+import { toolPreview } from './tool-preview.js';
+
 const source = document.querySelector('#source');
 const programInput = document.querySelector('#program-input');
 const moduleFiles = document.querySelector('#module-files');
@@ -11,6 +13,7 @@ const examples = document.querySelector('#examples');
 const projectSource = document.querySelector('#project-source');
 const projectDemo = document.querySelector('#project-demo');
 const run = document.querySelector('#run');
+const preview = document.querySelector('#preview');
 const stop = document.querySelector('#stop');
 const compile = document.querySelector('#compile');
 const heading = document.querySelector('#result-heading');
@@ -25,6 +28,7 @@ let pythonOutput;
 let exampleRequest;
 let sampleInput = '';
 let exampleModules = {};
+let previewSource;
 
 function syncGutter() {
   gutter.textContent = Array.from({ length: source.value.split('\n').length }, (_, i) => i + 1).join('\n');
@@ -35,6 +39,8 @@ function refreshActions() {
   const available = runtimeReady && !exampleRequest;
   run.disabled = !available;
   check.disabled = !available;
+  preview.disabled = !available;
+  toolPreview.setEnabled(available);
   compile.disabled = !available;
 }
 
@@ -44,7 +50,8 @@ function setReady(ready) {
   refreshActions();
 }
 
-function show(action, { ok, output = '', error = '', trace = '' }) {
+function show(action, { ok, output = '', error = '', trace = '', tool }) {
+  if (action === 'preview' && previewSource === source.value) toolPreview.render(tool, ok);
   traceOutput.textContent = trace;
   traceDetails.hidden = !trace;
   traceDetails.open = Boolean(trace);
@@ -53,7 +60,7 @@ function show(action, { ok, output = '', error = '', trace = '' }) {
   result.toggleAttribute('data-error', !ok);
   pythonOutput = action === 'compile' && ok ? output : undefined;
   download.hidden = pythonOutput === undefined;
-  const completed = { check: 'Check complete', compile: 'Compiled successfully', run: 'Run complete' };
+  const completed = { check: 'Check complete', compile: 'Compiled successfully', run: 'Run complete', preview: 'Preview complete' };
   status.textContent = ok ? completed[action] : 'Program failed';
 }
 
@@ -96,19 +103,20 @@ function startWorker(stopped = false) {
   worker.postMessage({ action: 'init' });
 }
 
-async function execute(action) {
+async function execute(action, fields = {}) {
   if (run.disabled) return;
   const current = worker;
   const code = source.value;
+  if (action === 'preview') previewSource = code;
   const input = programInput.value;
   const trace = action === 'run' && traceEnabled.checked;
   const files = [...moduleFiles.files];
   const modules = { ...exampleModules };
   setReady(false);
-  stop.hidden = action !== 'run';
+  stop.hidden = action !== 'run' && action !== 'preview';
   traceDetails.hidden = true;
   download.hidden = true;
-  const pending = { check: 'Checking…', compile: 'Compiling…', run: 'Running…' };
+  const pending = { check: 'Checking…', compile: 'Compiling…', run: 'Running…', preview: 'Preparing preview…' };
   status.textContent = pending[action];
   timer = setTimeout(() => failWorker('The program took too long to finish.'), 8000);
   try {
@@ -120,7 +128,7 @@ async function execute(action) {
       names.add(file.name);
       modules[file.name] = await file.text();
     }
-    if (current === worker) current.postMessage({ action, source: code, input, modules: JSON.stringify(modules), trace });
+    if (current === worker) current.postMessage({ action, source: code, input, modules: JSON.stringify(modules), trace, fields: JSON.stringify(fields) });
   } catch (error) {
     if (current !== worker) return;
     clearTimeout(timer);
@@ -129,6 +137,8 @@ async function execute(action) {
   }
 }
 
+preview.addEventListener('click', () => execute('preview'));
+toolPreview.onSubmit(fields => execute('preview', fields));
 run.addEventListener('click', () => execute('run'));
 stop.addEventListener('click', () => {
   clearTimeout(timer);
@@ -143,6 +153,7 @@ check.addEventListener('click', () => execute('check'));
 retry.addEventListener('click', () => startWorker());
 source.addEventListener('input', () => {
   exampleRequest?.abort();
+  toolPreview.clear();
   syncGutter();
 });
 source.addEventListener('scroll', () => { gutter.scrollTop = source.scrollTop; });
@@ -181,6 +192,7 @@ examples.addEventListener('change', async () => {
       };
     }
     if (request.signal.aborted) return;
+    toolPreview.clear();
     source.value = program.source;
     exampleModules = program.modules;
     if (isProject || !programInput.value || programInput.value === sampleInput) {

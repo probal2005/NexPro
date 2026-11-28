@@ -1,0 +1,9 @@
+import "std/math" as math
+
+client = text_field("Client", "Ada")
+hours = number_field("Hours", 8, 0)
+hourly = number_field("Hourly rate", 50, 0)
+expenses = number_field("Expenses", 25, 0)
+result("Client", client)
+result("Labor subtotal", math.round(hours * hourly, 2))
+result("Total quote", math.round(hours * hourly + expenses, 2))

@@ -114,3 +114,33 @@ def _reverse_items(items):
 
 
 DATA_BUILTINS.update({"range": _range_items, "sorted": _sorted_items, "reverse": _reverse_items})
+
+
+def _field_label(label):
+    if not isinstance(label, str) or not label.strip() or len(label) > 120:
+        raise ValueError("A field or result label must contain 1 to 120 characters.")
+
+
+def _number_field(label, default, minimum=None):
+    _field_label(label)
+    for value in (default,) if minimum is None else (default, minimum):
+        if type(value) not in (int, float) or not -float("inf") < value < float("inf"):
+            raise ValueError("Number fields require finite numbers.")
+    if minimum is not None and default < minimum:
+        raise ValueError(f"{label} must be at least {minimum}.")
+    return default
+
+
+def _text_field(label, default=""):
+    _field_label(label)
+    if not isinstance(default, str) or len(default) > 4096:
+        raise ValueError("Text fields accept up to 4096 characters.")
+    return default
+
+
+def _result(label, value):
+    _field_label(label)
+    print(f"{label}: {value}")
+
+
+DATA_BUILTINS.update({"number_field": _number_field, "text_field": _text_field, "result": _result})

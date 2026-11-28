@@ -3,7 +3,7 @@ import { schemas } from './project-demo/schemas.mjs';
 
 await mkdir('dist/nexpro', { recursive: true });
 await mkdir('dist/examples', { recursive: true });
-for (const name of ['styles.css', 'app.js', 'worker.js', 'playground.py', 'nexpro-icon.png', 'favicon.png']) {
+for (const name of ['styles.css', 'app.js', 'tool-preview.js', 'worker.js', 'playground.py', 'nexpro-icon.png', 'favicon.png']) {
   await cp(`web/${name}`, `dist/${name}`);
 }
 const versionFile = await readFile('nexpro/__version__.py', 'utf8');
@@ -71,7 +71,7 @@ for (const name of await readdir('nexpro')) {
 }
 for (const name of [
   'hello', 'variables', 'precedence', 'functions', 'scope', 'temperature', 'greeting',
-  'grades', 'multiplication_table', 'sum_1_to_10', 'lists', 'scores', 'input', 'imports', 'math_utils', 'score_series', 'score_filter', 'scorecard', 'student_report', 'clean_names', 'namespaces', 'namespace_math', 'namespace_report', 'ranked_scores', 'json_report',
+  'grades', 'multiplication_table', 'sum_1_to_10', 'lists', 'scores', 'input', 'imports', 'math_utils', 'score_series', 'score_filter', 'scorecard', 'student_report', 'clean_names', 'namespaces', 'namespace_math', 'namespace_report', 'ranked_scores', 'json_report', 'tool_bill', 'tool_quote',
 ]) {
   await cp(`examples/${name}.pa`, `dist/examples/${name}.pa`);
 }
