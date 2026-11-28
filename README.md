@@ -32,8 +32,8 @@ project includes a live form, its `.pa` source, a sample input, and the expected
 
 Try **Bill Splitter form**, **Freelance Quote form**, or **Inventory reorder from CSV**
 in the playground. Select **Preview tool** to generate a form from `.pa` code, or
-**Run code** to process a CSV. **Share tool** creates a link to a standalone form. **Share code** opens the
-same source and attached modules in the playground.
+**Run code** to process a CSV. Under **More**, choose **Share tool** for a standalone form link or **Share code**
+for a link to the source and attached modules in the playground.
 
 [Try the Inventory Reorder tool](https://nexpro-playground.vercel.app/tool.html?example=inventory) ·
 [Browser tool guide](docs/HELP.md#build-a-browser-tool-with-nexpro)
@@ -43,11 +43,10 @@ same source and attached modules in the playground.
 ### Try it in your browser
 
 Open the [playground](https://nexpro-playground.vercel.app/), choose **Hello world**
-from **Examples**, and select **Run code**. Use **Check syntax** to validate a
-program or **Compile to Python** to preview and download the generated script.
+from **Examples**, and select **Run code**. Open **More** to check syntax or compile to Python and download the generated script.
 
-Enter one line per `input()` call in **Program input**. Attach imported sibling
-`.pa` files under **Module files**. Select **Stop** to interrupt a running program.
+Expand **Inputs & files** to enter one line per `input()` call, upload a CSV,
+or attach imported sibling `.pa` files. Select **Stop** to interrupt a running program.
 
 ### Install the CLI
 

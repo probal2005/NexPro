@@ -8,15 +8,15 @@ The Playground can share source code or a form generated from that source.
 
 | Type | Syntax | Definition |
 |---|---|---|
-| Check syntax | Playground action | Checks parsing and imports. |
-| Compile to Python | Playground action | Generates standalone Python source. |
-| Share code | Playground action | Opens the source and modules in the recipient's editor. |
-| Share tool | Playground action | Creates a link to a standalone tool page. |
+| Check syntax | More menu | Checks parsing and imports. |
+| Compile to Python | More menu | Generates standalone Python source. |
+| Share code | More menu | Opens the source and modules in the recipient's editor. |
+| Share tool | More menu | Creates a link to a standalone tool page. |
 | View source | Tool page action | Displays the source and offers a link back to the Playground. |
 
 ## When and why to use it
 
-Paste the example into the Playground and select Share tool. Open the link in a new tab and choose Start tool.
+Paste the example into the Playground and select **More → Share tool**. Open the link in a new tab and choose Start tool.
 
 **Advantages.** The recipient can use the form without working in an editor and inspect the source when needed.
 

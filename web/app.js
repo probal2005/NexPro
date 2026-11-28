@@ -1,6 +1,14 @@
 import { shareUrl, sharedTool } from './tool-share.js';
 import { toolPreview } from './tool-preview.js';
 
+const actionPanel = document.querySelector('#action-panel');
+const actions = document.querySelector('.actions');
+const moreActions = document.querySelector('#more-actions');
+const inputSettings = document.querySelector('#input-settings');
+const toolHeading = document.querySelector('#tool-heading');
+const projectSearch = document.querySelector('#project-search');
+const projectItems = [...document.querySelectorAll('#live-projects li')];
+const projectEmpty = document.querySelector('#project-empty');
 const source = document.querySelector('#source');
 const programInput = document.querySelector('#program-input');
 const csvFile = document.querySelector('#csv-file');
@@ -41,6 +49,7 @@ let exampleRequest;
 let sampleInput = '';
 let exampleModules = {};
 let previewSource;
+let focusPreview = false;
 let sharedMessage = '';
 
 function syncGutter() {
@@ -65,7 +74,11 @@ function setReady(ready) {
 }
 
 function show(action, { ok, output = '', error = '', trace = '', tool }) {
-  if (action === 'preview' && previewSource === source.value) toolPreview.render(tool, ok);
+  if (action === 'preview' && previewSource === source.value) {
+    toolPreview.render(tool, ok);
+    if (focusPreview && ok && tool) toolHeading.focus();
+    focusPreview = false;
+  }
   traceOutput.textContent = trace;
   traceDetails.hidden = !trace;
   traceDetails.open = Boolean(trace);
@@ -105,7 +118,7 @@ function startWorker(stopped = false) {
         failWorker(data.error);
         return;
       }
-      result.textContent = stopped ? 'Execution stopped.' : 'Run your program to see its output.';
+      result.textContent = stopped ? 'Execution stopped.' : 'Run code to see the output.';
       result.removeAttribute('data-error');
       status.textContent = sharedMessage || 'Ready';
     } else {
@@ -135,12 +148,15 @@ async function readModules() {
   return modules;
 }
 
-async function execute(action, fields = {}) {
+async function execute(action, fields = {}, showPreview = false) {
   if (run.disabled) return;
   sharedMessage = '';
   const current = worker;
   const code = source.value;
-  if (action === 'preview') previewSource = code;
+  if (action === 'preview') {
+    previewSource = code;
+    focusPreview = showPreview;
+  }
   const input = programInput.value;
   csvRun = input === csvInput || examples.value === 'inventory_csv';
   const trace = action === 'run' && traceEnabled.checked;
@@ -163,6 +179,41 @@ async function execute(action, fields = {}) {
   }
 }
 
+function positionActions() {
+  if (!actionPanel.matches(':popover-open')) return;
+  const anchor = moreActions.getBoundingClientRect();
+  const width = actionPanel.offsetWidth;
+  const left = Math.min(Math.max(12, anchor.left), document.documentElement.clientWidth - width - 12);
+  actionPanel.style.left = `${left}px`;
+  const below = anchor.bottom + 8;
+  const above = anchor.top - actionPanel.offsetHeight - 8;
+  const top = below + actionPanel.offsetHeight <= window.innerHeight ? below : Math.max(12, above);
+  actionPanel.style.top = `${top}px`;
+}
+
+moreActions.addEventListener('click', () => requestAnimationFrame(positionActions));
+window.addEventListener('resize', positionActions);
+window.addEventListener('scroll', positionActions, { passive: true });
+actionPanel.addEventListener('click', ({ target }) => {
+  if (target instanceof HTMLButtonElement) actionPanel.hidePopover();
+});
+actions.addEventListener('focusout', ({ relatedTarget }) => {
+  if (relatedTarget && !actions.contains(relatedTarget) && actionPanel.matches(':popover-open')) {
+    actionPanel.hidePopover();
+  }
+});
+
+projectSearch.addEventListener('input', () => {
+  const words = projectSearch.value.trim().toLowerCase().split(/\s+/);
+  let hasMatches = false;
+  for (const item of projectItems) {
+    const text = item.textContent.toLowerCase();
+    item.hidden = !words.every(word => text.includes(word));
+    hasMatches ||= !item.hidden;
+  }
+  projectEmpty.hidden = hasMatches;
+});
+
 share.addEventListener('click', () => shareCurrentCode(false));
 shareTool.addEventListener('click', () => shareCurrentCode(true));
 
@@ -177,6 +228,7 @@ async function shareCurrentCode(standalone) {
     try {
       await navigator.clipboard.writeText(shareInput.value);
       shareNote.textContent = 'Link copied. It contains code and modules only.';
+      shareInput.focus();
     } catch {
       shareInput.focus();
       shareInput.select();
@@ -187,7 +239,7 @@ async function shareCurrentCode(standalone) {
   }
 }
 
-preview.addEventListener('click', () => execute('preview'));
+preview.addEventListener('click', () => execute('preview', {}, true));
 toolPreview.onSubmit(fields => execute('preview', fields));
 run.addEventListener('click', () => execute('run'));
 stop.addEventListener('click', () => {
@@ -248,6 +300,7 @@ examples.addEventListener('change', async () => {
     if (isProject || !programInput.value || programInput.value === sampleInput) {
       sampleInput = program.input;
       programInput.value = sampleInput;
+      if (sampleInput) inputSettings.open = true;
     }
     const directory = slug ?? (name === 'bill_splitter' ? 'bill-splitter' : undefined);
     projectSource.hidden = !directory;

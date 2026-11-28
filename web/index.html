@@ -9,64 +9,71 @@
   <link rel="stylesheet" href="styles.css">
   <script src="app.js" type="module"></script>
 </head>
-<body>
+<body class="playground">
   <header class="site-header">
     <div class="shell header-inner">
-      <a class="brand" href="./" aria-label="NexPro Playground"><img class="mark" src="nexpro-icon.png" alt="" width="40" height="40">NexPro</a>
+      <div class="brand">
+        <img class="mark" src="nexpro-icon.png" alt="" width="40" height="40">
+        <h1>NexPro Playground</h1>
+      </div>
       <nav class="header-nav" aria-label="Playground navigation">
         <a class="source-link" href="#live-projects">Live projects</a>
-        <a class="source-link" href="https://github.com/probal2005/NexPro/tree/v__NEXPRO_VERSION__/docs">Documentation</a>
+        <a class="source-link" href="https://github.com/probal2005/NexPro/tree/v__NEXPRO_VERSION__/docs" aria-label="Documentation">Docs</a>
       </nav>
     </div>
   </header>
   <main class="shell">
-    <div class="intro">
-      <h1>NexPro Playground</h1>
-      <p>Run NexPro code in your browser or compile it to standalone Python.</p>
-    </div>
     <section class="workbench" aria-label="Compiler workspace">
       <div class="toolbar">
         <div class="example-picker">
           <label for="examples">Examples</label>
           <select id="examples">
-            <option value="hello">Hello world</option>
-            <option value="variables">Variables</option>
-            <option value="precedence" selected>Arithmetic precedence</option>
-            <option value="functions">Functions and return values</option>
-            <option value="scope">Local and global variables</option>
-            <option value="temperature">Temperature conversion</option>
-            <option value="greeting">Greeting function</option>
-            <option value="grades">Grade calculator</option>
-            <option value="multiplication_table">Multiplication table</option>
-            <option value="sum_1_to_10">Sum from 1 to 10</option>
-            <option value="lists">Lists and indexing</option>
-            <option value="clean_names">Clean up a list of names</option>
-            <option value="student_report">Student report</option>
-            <option value="scorecard">Student scorecard dictionary</option>
-            <option value="score_filter">Filter invalid scores</option>
-            <option value="score_series">Variable-length score input</option>
-            <option value="scores">Score average and highest score</option>
-            <option value="input">Greeting with input</option>
-            <option value="ranked_scores">Rank and slice scores</option>
-            <option value="json_report">JSON student report</option>
-            <option value="namespaces">Module namespaces</option>
-            <option value="tool_bill">Bill Splitter form</option>
-            <option value="tool_quote">Freelance Quote form</option>
-            <option value="tool_inventory">Inventory CSV form</option>
-            <option value="inventory_csv">Inventory reorder from CSV</option>
-            <option value="invoice_total">Invoice totals with default arguments</option>
-            <option value="recover_csv">Recover from invalid CSV rows</option>
-            <option value="dispatch_summary">Dispatch queue and statistics</option>
-            <option value="structured_inventory">Inventory import with structured errors</option>
-            <option value="named_invoice">Invoice totals with named arguments</option>
-            <option value="record_fields">Record fields with dot access</option>
-            <option value="csv_invoice_records">Import CSV into typed invoice records</option>
-            <option value="validated_invoice">Validate invoice CSV rows</option>
-            <option value="atomic_invoice">Update invoice fields together</option>
-            <option value="nested_invoice">Convert nested invoice records</option>
-            <option value="typed_invoice">Typed invoice with validated fields</option>
-            <option value="invoice_record">Invoice records with required fields</option>
-            <option value="imports">Import math functions</option>
+            <optgroup label="Language basics">
+              <option value="hello">Hello world</option>
+              <option value="precedence" selected>Arithmetic precedence</option>
+              <option value="variables">Variables</option>
+              <option value="functions">Functions and return values</option>
+              <option value="scope">Local and global variables</option>
+              <option value="input">Greeting with input</option>
+              <option value="temperature">Temperature conversion</option>
+              <option value="greeting">Greeting function</option>
+              <option value="grades">Grade calculator</option>
+              <option value="multiplication_table">Multiplication table</option>
+              <option value="sum_1_to_10">Sum from 1 to 10</option>
+            </optgroup>
+            <optgroup label="Data and modules">
+              <option value="lists">Lists and indexing</option>
+              <option value="clean_names">Clean up a list of names</option>
+              <option value="student_report">Student report</option>
+              <option value="scorecard">Student scorecard dictionary</option>
+              <option value="score_filter">Filter invalid scores</option>
+              <option value="score_series">Variable-length score input</option>
+              <option value="scores">Score average and highest score</option>
+              <option value="ranked_scores">Rank and slice scores</option>
+              <option value="json_report">JSON student report</option>
+              <option value="namespaces">Module namespaces</option>
+              <option value="imports">Import math functions</option>
+            </optgroup>
+            <optgroup label="Errors and records">
+              <option value="invoice_total">Invoice totals with default arguments</option>
+              <option value="named_invoice">Invoice totals with named arguments</option>
+              <option value="recover_csv">Recover from invalid CSV rows</option>
+              <option value="structured_inventory">Inventory import with structured errors</option>
+              <option value="dispatch_summary">Dispatch queue and statistics</option>
+              <option value="invoice_record">Invoice records with required fields</option>
+              <option value="typed_invoice">Typed invoice with validated fields</option>
+              <option value="record_fields">Record fields with dot access</option>
+              <option value="csv_invoice_records">Import CSV into typed invoice records</option>
+              <option value="validated_invoice">Validate invoice CSV rows</option>
+              <option value="atomic_invoice">Update invoice fields together</option>
+              <option value="nested_invoice">Convert nested invoice records</option>
+            </optgroup>
+            <optgroup label="Forms and CSV">
+              <option value="tool_bill">Bill Splitter form</option>
+              <option value="tool_quote">Freelance Quote form</option>
+              <option value="tool_inventory">Inventory CSV form</option>
+              <option value="inventory_csv">Inventory reorder from CSV</option>
+            </optgroup>
             <optgroup label="NexPro projects">
               <option value="bill_splitter">Bill Splitter</option>
               <!-- NEXPRO_PROJECT_OPTIONS -->
@@ -76,14 +83,19 @@
           <a id="project-source" href="#" hidden>Project files</a>
         </div>
         <div class="actions">
-          <label class="trace-toggle"><input id="trace" type="checkbox"> Trace execution</label>
-          <button id="run" class="primary" type="button" disabled>Run code</button>
+          <button id="more-actions" type="button" popovertarget="action-panel">More <span aria-hidden="true">▾</span></button>
+          <div id="action-panel" popover aria-label="More actions">
+            <button id="check" type="button" disabled>Check syntax</button>
+            <button id="compile" type="button" disabled>Compile to Python</button>
+            <label class="trace-toggle"><input id="trace" type="checkbox"> Trace execution</label>
+            <div class="share-actions">
+              <button id="share" type="button">Share code</button>
+              <button id="share-tool" type="button">Share tool</button>
+            </div>
+          </div>
           <button id="preview" type="button" disabled>Preview tool</button>
-          <button id="share" type="button">Share code</button>
-          <button id="share-tool" type="button">Share tool</button>
+          <button id="run" class="primary" type="button" disabled>Run code</button>
           <button id="stop" type="button" hidden>Stop</button>
-          <button id="check" type="button" disabled>Check syntax</button>
-          <button id="compile" type="button" disabled>Compile to Python</button>
         </div>
       </div>
       <div class="panels">
@@ -106,7 +118,7 @@ say (2 + 3) * 4
             <button id="download-csv" type="button" hidden>Download CSV output</button>
             <button id="download" type="button" hidden>Download .py</button>
           </div>
-          <pre id="result" tabindex="0" aria-labelledby="result-heading">Run your program to see its output.</pre>
+          <pre id="result" tabindex="0" aria-labelledby="result-heading">Run code to see the output.</pre>
           <details id="execution-trace" hidden>
             <summary>Execution trace</summary>
             <pre id="trace-output"></pre>
@@ -123,7 +135,7 @@ say (2 + 3) * 4
         <p id="share-note" role="status"></p>
       </div>
       <section id="tool-panel" class="input-panel" hidden aria-labelledby="tool-heading">
-        <h2 id="tool-heading">Tool preview</h2>
+        <h2 id="tool-heading" tabindex="-1">Tool preview</h2>
         <form id="tool-form" novalidate>
           <div id="tool-fields"></div>
           <button id="tool-calculate" class="primary" type="submit">Calculate</button>
@@ -131,33 +143,41 @@ say (2 + 3) * 4
         <dl id="tool-results" aria-live="polite"></dl>
         <div id="tool-downloads"></div>
       </section>
-      <div class="input-panel">
-        <label for="module-files">Module files</label>
-        <p id="module-help">Add .pa files referenced by import statements.</p>
-        <input id="module-files" type="file" accept=".pa" multiple aria-describedby="module-help">
-      </div>
-      <div class="input-panel">
-        <label for="program-input">Program input</label>
-        <p id="input-help">Enter one line per input() call.</p>
-        <textarea id="program-input" rows="3" spellcheck="false" aria-describedby="input-help"></textarea>
-        <label for="csv-file">Open CSV</label>
-        <input id="csv-file" type="file" accept=".csv,text/csv" aria-describedby="csv-help">
-        <p id="csv-help">The CSV becomes one JSON-encoded input line. Use <code>csv.parse(json.parse(input()))</code> to read it.</p>
-      </div>
+      <details id="input-settings" class="input-settings">
+        <summary>Inputs &amp; files</summary>
+        <div class="input-settings-grid">
+          <div>
+            <label for="program-input">Program input</label>
+            <p id="input-help">One line per <code>input()</code> call.</p>
+            <textarea id="program-input" rows="4" spellcheck="false" aria-describedby="input-help"></textarea>
+          </div>
+          <div class="file-settings">
+            <div>
+              <label for="module-files">Module files</label>
+              <input id="module-files" type="file" accept=".pa" multiple aria-describedby="module-help">
+              <p id="module-help">Attach the <code>.pa</code> files your code imports.</p>
+            </div>
+            <div>
+              <label for="csv-file">Open CSV</label>
+              <input id="csv-file" type="file" accept=".csv,text/csv" aria-describedby="csv-help">
+              <p id="csv-help">Read the uploaded text with <code>csv.parse(json.parse(input()))</code>.</p>
+            </div>
+          </div>
+        </div>
+      </details>
     </section>
-    <section class="project-directory" aria-labelledby="tool-examples-heading">
-      <h2 id="tool-examples-heading">Tools generated from NexPro</h2>
+    <section id="live-projects" class="project-directory" aria-labelledby="live-projects-heading">
+      <div class="directory-heading">
+        <h2 id="live-projects-heading">Live projects</h2>
+        <input id="project-search" type="search" aria-label="Search live projects" placeholder="Search projects…">
+      </div>
       <ul class="project-links">
         <li><a href="tool.html?example=bill"><strong>Bill Splitter form</strong><span>Split a bill and distribute its remaining cents.</span></a></li>
         <li><a href="tool.html?example=quote"><strong>Freelance Quote form</strong><span>Calculate a quote from your rate, hours and expenses.</span></a></li>
         <li><a href="tool.html?example=inventory"><strong>Inventory CSV form</strong><span>Upload a stock file and download a reorder list.</span></a></li>
-      </ul>
-    </section>
-    <section id="live-projects" class="project-directory" aria-labelledby="live-projects-heading">
-      <h2 id="live-projects-heading">Live projects</h2>
-      <ul class="project-links">
         <!-- NEXPRO_PROJECT_LINKS -->
       </ul>
+      <p id="project-empty" role="status" hidden>No matching projects.</p>
     </section>
     <footer>Code is processed in this browser.</footer>
   </main>
