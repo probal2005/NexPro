@@ -9,7 +9,33 @@ const versionFile = await readFile('nexpro/__version__.py', 'utf8');
 const version = versionFile.match(/^VERSION = "([^"]+)"/m)?.[1];
 if (!version) throw new Error('NexPro version not found');
 const template = await readFile('web/index.html', 'utf8');
-await writeFile('dist/index.html', template.replaceAll('__NEXPRO_VERSION__', version));
+const projectOptions = [];
+for (const project of await readdir('projects', { withFileTypes: true })) {
+  if (!project.isDirectory() || project.name === 'bill-splitter') continue;
+  const folder = `projects/${project.name}`;
+  const readme = await readFile(`${folder}/README.md`, 'utf8');
+  const title = readme.match(/^# (.+)$/m)?.[1].trim();
+  const sample = readme.match(/^```json\s*\n([\s\S]*?)\n```/m)?.[1];
+  if (!title || !sample) throw new Error(`Project name or sample missing in ${folder}/README.md`);
+  const modules = {};
+  for (const name of await readdir(folder)) {
+    if (name.endsWith('.pa') && name !== 'main.pa' && !name.startsWith('test_')) {
+      modules[name] = await readFile(`${folder}/${name}`, 'utf8');
+    }
+  }
+  const program = {
+    source: await readFile(`${folder}/main.pa`, 'utf8'),
+    input: JSON.stringify(JSON.parse(sample)),
+    modules,
+  };
+  await mkdir(`dist/${folder}`, { recursive: true });
+  await writeFile(`dist/${folder}/example.json`, JSON.stringify(program));
+  const escape = text => text.replaceAll('&', '&amp;').replaceAll('<', '&lt;')
+    .replaceAll('>', '&gt;').replaceAll('"', '&quot;');
+  projectOptions.push(`<option value="project:${escape(project.name)}">${escape(title)}</option>`);
+}
+await writeFile('dist/index.html', template.replaceAll('__NEXPRO_VERSION__', version)
+  .replace('<!-- NEXPRO_PROJECT_OPTIONS -->', projectOptions.join('\n            ')));
 
 for (const name of await readdir('nexpro')) {
   if (name.endsWith('.py')) await cp(`nexpro/${name}`, `dist/nexpro/${name}`);

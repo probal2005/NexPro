@@ -1,6 +1,6 @@
 # Projects built with NexPro
 
-Each program reads one line of JSON and prints one JSON result. The program source is in `.pa` files. Use NexPro 3.0 or later.
+Each program reads one line of JSON and prints one JSON result. The program source is in `.pa` files. Use NexPro 3.0 or later. In the [live playground](https://nexpro-playground.vercel.app/), open **Examples → NexPro projects** to load a program, its sample input, and any modules automatically.
 
 | Project | What it does |
 | --- | --- |

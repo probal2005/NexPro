@@ -8,6 +8,7 @@ const traceOutput = document.querySelector('#trace-output');
 const sampleInputs = new Map([['bill_splitter', '{"bill":"10.00","people":"3"}'], ['json_report', '{"name":"আদা","scores":[70,85,100]}'], ['clean_names', '  Ada, GRACE, Linus  '], ['scores', '70\n85\n100'], ['input', 'Ada\n2000'], ['score_series', '70\n85\n100\n\n']]);
 const gutter = document.querySelector('#gutter');
 const examples = document.querySelector('#examples');
+const projectSource = document.querySelector('#project-source');
 const run = document.querySelector('#run');
 const stop = document.querySelector('#stop');
 const compile = document.querySelector('#compile');
@@ -17,6 +18,7 @@ const status = document.querySelector('#status');
 const download = document.querySelector('#download');
 const retry = document.querySelector('#retry');
 let worker;
+let runtimeReady = false;
 let timer;
 let pythonOutput;
 let exampleRequest;
@@ -28,11 +30,17 @@ function syncGutter() {
   gutter.scrollTop = source.scrollTop;
 }
 
+function refreshActions() {
+  const available = runtimeReady && !exampleRequest;
+  run.disabled = !available;
+  check.disabled = !available;
+  compile.disabled = !available;
+}
+
 function setReady(ready) {
+  runtimeReady = ready;
   stop.hidden = true;
-  run.disabled = !ready;
-  check.disabled = !ready;
-  compile.disabled = !ready;
+  refreshActions();
 }
 
 function show(action, { ok, output = '', error = '', trace = '' }) {
@@ -147,28 +155,49 @@ examples.addEventListener('change', async () => {
   exampleRequest?.abort();
   const request = new AbortController();
   exampleRequest = request;
+  refreshActions();
   try {
-    async function loadExample(name) {
-      const response = await fetch(`examples/${name}.pa`, { signal: request.signal });
-      if (!response.ok) throw new Error('The example could not be loaded.');
-      return response.text();
-    }
-
     const name = examples.value;
-    const modules = { imports: ['math_utils'], namespaces: ['namespace_math', 'namespace_report'] };
-    const required = modules[name] ?? [];
-    const [code, ...sources] = await Promise.all([loadExample(name), ...required.map(loadExample)]);
+    const isProject = name.startsWith('project:');
+    const slug = isProject ? name.slice('project:'.length) : undefined;
+    const load = async path => {
+      const response = await fetch(path, { signal: request.signal });
+      if (!response.ok) throw new Error('The example could not be loaded.');
+      return response;
+    };
+    let program;
+    if (isProject) {
+      program = await (await load(`projects/${encodeURIComponent(slug)}/example.json`)).json();
+    } else {
+      const modules = { imports: ['math_utils'], namespaces: ['namespace_math', 'namespace_report'] };
+      const required = modules[name] ?? [];
+      const readExample = async file => (await load(`examples/${file}.pa`)).text();
+      const [code, ...sources] = await Promise.all([readExample(name), ...required.map(readExample)]);
+      program = {
+        source: code,
+        input: sampleInputs.get(name) ?? '',
+        modules: Object.fromEntries(required.map((module, i) => [module + '.pa', sources[i]])),
+      };
+    }
     if (request.signal.aborted) return;
-    exampleModules = Object.fromEntries(required.map((module, i) => [module + '.pa', sources[i]]));
-    source.value = code;
-    if (!programInput.value || programInput.value === sampleInput) {
-      sampleInput = sampleInputs.get(examples.value) ?? '';
+    source.value = program.source;
+    exampleModules = program.modules;
+    if (isProject || !programInput.value || programInput.value === sampleInput) {
+      sampleInput = program.input;
       programInput.value = sampleInput;
     }
+    const directory = slug ?? (name === 'bill_splitter' ? 'bill-splitter' : undefined);
+    projectSource.hidden = !directory;
+    if (directory) projectSource.href = `https://github.com/probal2005/NexPro/tree/main/projects/${encodeURIComponent(directory)}`;
     syncGutter();
     source.focus();
   } catch (error) {
     if (!request.signal.aborted) status.textContent = error.message;
+  } finally {
+    if (exampleRequest === request) {
+      exampleRequest = undefined;
+      refreshActions();
+    }
   }
 });
 download.addEventListener('click', () => {

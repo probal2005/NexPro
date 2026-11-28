@@ -71,3 +71,7 @@ footer { color: var(--muted); margin: 16px 0 28px; font-size: .875rem; }
 #execution-trace { padding: 10px 16px; border-top: 1px solid var(--border); }
 #execution-trace summary { cursor: pointer; font-size: .875rem; }
 #trace-output { height: auto; max-height: 180px; margin-top: 8px; padding: 10px; }
+
+.example-picker { min-width: 0; flex-wrap: wrap; }
+#examples { max-width: 100%; }
+#project-source { color: var(--accent); font-size: .875rem; }
