@@ -1,0 +1,73 @@
+import "std/dict" as dictionaries
+import "std/json" as json
+import "std/list" as lists
+import "std/record" as records
+
+record Booking(id: string, start: integer, finish: integer, value_cents: integer)
+where "booking_window", id != "" and start >= 0 and finish > start and value_cents >= 0, "Invalid booking window or value"
+
+function optimize(rows)
+    if type_of(rows) != "list"
+        throw "invalid_bookings", "Bookings must be a list"
+    end
+    ordered = []
+    ids = {}
+    for row in rows
+        booking = records.from_dict("Booking", row)
+        if dictionaries.has(ids, booking.id)
+            throw "duplicate_booking", "Repeated booking: " + booking.id
+        end
+        ids[booking.id] = true
+        position = len(ordered)
+        while position > 0
+            if ordered[position - 1].finish <= booking.finish
+                break
+            end
+            position = position - 1
+        end
+        lists.insert(ordered, position, booking)
+    end
+
+    # best[i] holds the maximum revenue using the first i sorted requests.
+    best = [0]
+    choices = [0]
+    for i in range(len(ordered))
+        booking = ordered[i]
+        low = 0
+        high = i
+        while low < high
+            middle = (low + high) // 2
+            if ordered[middle].finish <= booking.start
+                low = middle + 1
+            else
+                high = middle
+            end
+        end
+        value = booking.value_cents + best[low]
+        if value > best[i]
+            append(best, value)
+            append(choices, low + 1)
+        else
+            append(best, best[i])
+            append(choices, 0)
+        end
+    end
+
+    accepted = []
+    i = len(ordered)
+    while i > 0
+        if choices[i] > 0
+            append(accepted, ordered[i - 1].id)
+            i = choices[i] - 1
+        else
+            i = i - 1
+        end
+    end
+    return {"accepted": reverse(accepted), "value_cents": best[-1], "requests": len(ordered)}
+end
+
+try
+    say json.stringify(optimize(json.parse(input())))
+catch (error)
+    say json.stringify({"error": {"code": error["code"], "message": error["message"]}})
+end

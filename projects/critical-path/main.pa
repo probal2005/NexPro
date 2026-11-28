@@ -1,0 +1,80 @@
+import "std/dict" as dictionaries
+import "std/json" as json
+import "std/record" as records
+
+record Task(id: string, duration: integer, after: list)
+where "task_fields", id != "" and duration >= 0, "Task ID and nonnegative duration are required"
+
+function schedule(rows)
+    tasks = {}
+    for row in rows
+        task = records.from_dict("Task", row)
+        if dictionaries.has(tasks, task.id)
+            throw "duplicate_task", "Repeated task: " + task.id
+        end
+        tasks[task.id] = task
+    end
+    for id in tasks
+        task = tasks[id]
+        for prerequisite in task.after
+            if not dictionaries.has(tasks, prerequisite)
+                throw "unknown_dependency", "Unknown prerequisite for task " + id
+            end
+        end
+    end
+
+    finished = {}
+    schedule = []
+    previous = {}
+    last = null
+    finish = 0
+    while len(finished) < len(tasks)
+        progressed = false
+        for id in tasks
+            if dictionaries.has(finished, id)
+                continue
+            end
+            task = tasks[id]
+            start = 0
+            predecessor = null
+            ready = true
+            for prerequisite in task.after
+                if not dictionaries.has(finished, prerequisite)
+                    ready = false
+                    break
+                end
+                if predecessor == null or finished[prerequisite] > start
+                    start = finished[prerequisite]
+                    predecessor = prerequisite
+                end
+            end
+            if ready
+                end_time = start + task.duration
+                finished[id] = end_time
+                previous[id] = predecessor
+                append(schedule, {"id": id, "start": start, "finish": end_time})
+                if last == null or end_time > finish
+                    last = id
+                    finish = end_time
+                end
+                progressed = true
+            end
+        end
+        if not progressed
+            throw "dependency_cycle", "A cycle prevents the remaining tasks from starting"
+        end
+    end
+
+    path = []
+    while last != null
+        append(path, last)
+        last = previous[last]
+    end
+    return {"schedule": schedule, "duration": finish, "critical_path": reverse(path)}
+end
+
+try
+    say json.stringify(schedule(json.parse(input())))
+catch (error)
+    say json.stringify({"error": {"code": error["code"], "message": error["message"]}})
+end

@@ -6,6 +6,8 @@ All executable project code is written in NexPro. Use NexPro 4.9 or later.
 
 ## Run it
 
+[Open the live form](https://nexpro-playground.vercel.app/projects/fulfillment-planner/) to edit inventory, orders, and individual order lines.
+
 In the [NexPro Playground](https://nexpro-playground.vercel.app/), select
 **Examples → NexPro projects → Multi-Warehouse Fulfillment Planner**. The editor
 loads the entry point and its module, and **Inputs & files** contains the

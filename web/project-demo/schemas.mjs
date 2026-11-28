@@ -1,5 +1,5 @@
 // Input forms for the NexPro project demos.
-const text = (label, required = true) => ({ type: 'text', label, required });
+const text = (label, required = true, initial = '') => ({ type: 'text', label, required, initial });
 const multiline = label => ({ type: 'textarea', label, required: true });
 const number = (label, step = 'any', initial = 0) => ({ type: 'number', label, step, initial });
 const object = fields => ({ type: 'object', fields });
@@ -7,6 +7,27 @@ const list = (label, itemName, item) => ({ type: 'list', label, itemName, item }
 const rows = (label, itemName, fields) => list(label, itemName, object(fields));
 
 export const schemas = {
+  'fulfillment-planner': object({
+    inventory: rows('Inventory', 'Stock entry', {
+      warehouse: text('Warehouse'), sku: text('SKU'), available: number('Available units', '1'),
+    }),
+    orders: rows('Orders', 'Order', {
+      id: text('Order ID'), priority: text('Priority (rush or standard)', true, 'standard'),
+      lines: rows('Order lines', 'Order line', { sku: text('Line SKU'), quantity: number('Quantity', '1', 1) }),
+    }),
+  }),
+  'critical-path': rows('Tasks', 'Task', {
+    id: text('Task ID'), duration: number('Duration', '1'),
+    after: list('Prerequisites', 'Prerequisite', text('Prerequisite task ID')),
+  }),
+  reconciliation: object({
+    ledger: rows('Ledger entries', 'Ledger entry', { reference: text('Ledger reference'), cents: number('Ledger amount (cents)', '1') }),
+    bank: rows('Bank entries', 'Bank entry', { reference: text('Bank reference'), cents: number('Bank amount (cents)', '1') }),
+  }),
+  'booking-optimizer': rows('Booking requests', 'Booking', {
+    id: text('Booking ID'), start: number('Start time', '1'), finish: number('Finish time', '1', 1),
+    value_cents: number('Booking value (cents)', '1'),
+  }),
   'invoice-audit': rows('Invoices', 'Invoice', {
     number: text('Invoice number'), cents: number('Amount (cents)', '1'),
     customer: object({ name: text('Customer name'), email: text('Customer email', false) }),

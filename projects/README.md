@@ -34,6 +34,11 @@ These projects use recent language features. Select a live form to try any of th
 | [Production Batch Quality Review](batch-quality/) | Classifies CSV production batches against a maximum rejection rate. | [Open](https://nexpro-playground.vercel.app/projects/batch-quality/) |
 | [Principal Repayment Ledger](loan-repayment/) | Applies principal payments in order and keeps the balance consistent when a payment fails. | [Open](https://nexpro-playground.vercel.app/projects/loan-repayment/) |
 
-## Advanced project
+## Advanced projects
 
-[Multi-Warehouse Fulfillment Planner](fulfillment-planner/) uses multiple .pa files, typed records, FIFO queues, and staged allocations. Run it from the Playground project picker or the CLI.
+| Project | What it does | Live demo |
+| --- | --- | --- |
+| [Multi-Warehouse Fulfillment Planner](fulfillment-planner/) | Prioritizes and splits orders with all-or-nothing inventory allocation. | [Open](https://nexpro-playground.vercel.app/projects/fulfillment-planner/) |
+| [Critical Path Scheduler](critical-path/) | Calculates earliest task starts, total duration, and a critical path from task dependencies. | [Open](https://nexpro-playground.vercel.app/projects/critical-path/) |
+| [Ledger Reconciliation](reconciliation/) | Compares a ledger and bank statement by reference, then reports unmatched entries and balance differences. | [Open](https://nexpro-playground.vercel.app/projects/reconciliation/) |
+| [Booking Revenue Optimizer](booking-optimizer/) | Finds the highest-value set of non-overlapping bookings for one resource. | [Open](https://nexpro-playground.vercel.app/projects/booking-optimizer/) |

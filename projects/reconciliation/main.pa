@@ -1,0 +1,58 @@
+import "std/dict" as dictionaries
+import "std/json" as json
+import "std/record" as records
+
+record Entry(reference: string, cents: integer)
+where "reference_required", reference != "", "A transaction reference is required"
+record Statement(ledger: list, bank: list)
+
+function index_entries(rows, source)
+    entries = {}
+    for row in rows
+        entry = records.from_dict("Entry", row)
+        if dictionaries.has(entries, entry.reference)
+            throw "duplicate_reference", source + " contains a duplicate reference: " + entry.reference
+        end
+        entries[entry.reference] = entry.cents
+    end
+    return entries
+end
+
+function reconcile(data)
+    statement = records.from_dict("Statement", data)
+    ledger = index_entries(statement.ledger, "Ledger")
+    bank = index_entries(statement.bank, "Bank")
+    matched = []
+    mismatches = []
+    ledger_only = []
+    bank_only = []
+    ledger_total = 0
+    bank_total = 0
+    for reference in ledger
+        cents = ledger[reference]
+        ledger_total = ledger_total + cents
+        if not dictionaries.has(bank, reference)
+            append(ledger_only, {"reference": reference, "cents": cents})
+        elif cents == bank[reference]
+            append(matched, reference)
+        else
+            append(mismatches, {"reference": reference, "ledger_cents": cents, "bank_cents": bank[reference],
+                                "difference_cents": bank[reference] - cents})
+        end
+    end
+    for reference in bank
+        cents = bank[reference]
+        bank_total = bank_total + cents
+        if not dictionaries.has(ledger, reference)
+            append(bank_only, {"reference": reference, "cents": cents})
+        end
+    end
+    return {"matched": matched, "mismatches": mismatches, "ledger_only": ledger_only, "bank_only": bank_only,
+            "balance_difference_cents": bank_total - ledger_total}
+end
+
+try
+    say json.stringify(reconcile(json.parse(input())))
+catch (error)
+    say json.stringify({"error": {"code": error["code"], "message": error["message"]}})
+end

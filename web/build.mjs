@@ -51,12 +51,17 @@ for (const project of await readdir('projects', { withFileTypes: true })) {
     liveProjects.push({ slug: project.name, title, description });
   }
   if (Object.hasOwn(schemas, project.name)) {
+    const moduleDownloads = Object.keys(modules).map(name =>
+      `<a href="/projects/${encodeURIComponent(project.name)}/${encodeURIComponent(name)}" download>Download ${escape(name)}</a>`
+    ).join('\n      ');
     const page = demoTemplate
+      .replace('<!-- NEXPRO_MODULE_DOWNLOADS -->', () => moduleDownloads)
       .replaceAll('__PROJECT_SLUG__', () => escape(project.name))
       .replaceAll('__PROJECT_TITLE__', () => escape(title))
       .replaceAll('__PROJECT_DESCRIPTION__', () => escape(description));
     await writeFile(`dist/${folder}/index.html`, page);
     await cp(`${folder}/main.pa`, `dist/${folder}/main.pa`);
+    for (const name of Object.keys(modules)) await cp(`${folder}/${name}`, `dist/${folder}/${name}`);
   }
   projectOptions.push(`<option value="project:${escape(project.name)}">${escape(title)}</option>`);
 }
