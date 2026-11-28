@@ -23,7 +23,7 @@ _globals = {}
 _functions = {}
 _aliases = {}
 _module_cache = {}
-_builtins = {**DATA_BUILTINS, "len": len, "int": _to_int, "float": float, "input": input, "append": list.append}
+_builtins = {**DATA_BUILTINS, "len": len, "int": _to_int, "type_of": _type_of, "float": float, "input": input, "append": list.append}
 
 
 def _error_frames(error):
@@ -38,7 +38,9 @@ def _error_frames(error):
 
 def _caught_record(error):
     frames = _error_frames(error)
-    return _error_record(_error_code(error), str(error), frames[-1] if frames else None)
+    return _error_record(
+        _error_code(error), str(error), frames[-1] if frames else None, getattr(error, "details", None),
+    )
 
 
 def _get(scope, global_scope, name):
@@ -250,7 +252,10 @@ def _statements(statements, lines, indent):
                 value = _expression(default, lines, body_indent + "    ")
                 lines.emit(f"{body_indent}    _scope[{parameter!r}] = {value}", statement)
             if isinstance(statement, Record):
-                lines.emit(f"{body_indent}return _Record({statement.name!r}, {tuple(statement.parameters)!r}, _scope)", statement)
+                fields = tuple(statement.parameters)
+                lines.append(
+                    f"{body_indent}return _Record({statement.name!r}, {fields!r}, _scope, {statement.field_types!r})"
+                )
             else:
                 _statements(statement.body, lines, body_indent)
                 lines.append(f"{body_indent}return None")

@@ -38,11 +38,11 @@ from nexpro.ast import (
     SetItem,
 )
 
-from nexpro.data_builtins import DATA_BUILTINS, _argument_scope, _call_builtin, _extended_arithmetic, _say_value, _Record
+from nexpro.data_builtins import DATA_BUILTINS, _argument_scope, _call_builtin, _extended_arithmetic, _say_value
 from nexpro.errors import EXECUTION_ERRORS
 from nexpro.errors import RuntimeError as NexProRuntimeError
 from nexpro.runtime import Runtime
-from nexpro.standard import STANDARD_MODULES, _error_code, _error_record, _throw, _to_int
+from nexpro.standard import STANDARD_MODULES, _Record, _error_code, _error_record, _throw, _to_int, _type_of
 
 
 BINARY_OPERATORS = {
@@ -89,6 +89,7 @@ class Interpreter:
             **DATA_BUILTINS,
             "len": len,
             "int": _to_int,
+            "type_of": _type_of,
             "float": float,
             "input": read_input,
             "append": list.append,
@@ -104,7 +105,7 @@ class Interpreter:
                 error.add_frame(self.function_name, node.location)
             raise
         except EXECUTION_ERRORS as error:
-            runtime_error = NexProRuntimeError(str(error), _error_code(error))
+            runtime_error = NexProRuntimeError(str(error), _error_code(error), getattr(error, "details", None))
             runtime_error.add_frame(self.function_name, node.location)
             raise runtime_error from error
 
@@ -184,7 +185,9 @@ class Interpreter:
                 self.visit_block(node.body)
             except NexProRuntimeError as error:
                 location = error.frames[0] if error.frames else None
-                value = _error_record(error.code, error.message, location) if node.structured else error.message
+                value = error.message
+                if node.structured:
+                    value = _error_record(error.code, error.message, location, error.details)
                 self.runtime.set(node.error_name, value)
                 self.visit_block(node.handler)
             return None
@@ -367,7 +370,9 @@ class Interpreter:
                 if parameter not in supplied:
                     self.runtime.set(parameter, self.visit(default))
             if isinstance(function, Record):
-                return _Record(function.name, function.parameters, self.runtime.variables)
+                return _Record(
+                    function.name, function.parameters, self.runtime.variables, function.field_types,
+                )
             self.visit_block(function.body)
         except _ReturnFromFunction as returned:
             return returned.value

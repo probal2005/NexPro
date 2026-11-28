@@ -113,7 +113,9 @@ class Function(Statement):
 
 
 class Record(Function):
-    pass
+    def __init__(self, name, parameters, defaults, field_types):
+        super().__init__(name, parameters, [], defaults)
+        self.field_types = field_types
 
 
 class Call(Expression, Statement):

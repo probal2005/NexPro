@@ -10,9 +10,10 @@ from io import StringIO
 
 
 class _CodedError(ValueError):
-    def __init__(self, code, message):
+    def __init__(self, code, message, details=None):
         super().__init__(message)
         self.code = code
+        self.details = details
 
 
 def _error_code(error):
@@ -29,9 +30,57 @@ def _error_code(error):
     return "runtime_error"
 
 
-def _error_record(code, message, location):
+def _error_record(code, message, location, details=None):
     function, filename, line = location or (None, None, None)
-    return {"code": code, "message": message, "file": filename, "line": line, "function": function}
+    record = {"code": code, "message": message, "file": filename, "line": line, "function": function}
+    if details is not None:
+        record["details"] = details
+    return record
+
+
+_TYPE_NAMES = {
+    type(None): "null", bool: "boolean", int: "integer", float: "float",
+    str: "string", list: "list", dict: "dictionary",
+}
+RECORD_FIELD_TYPES = frozenset((*_TYPE_NAMES.values(), "queue", "linked_list", "record"))
+
+
+def _type_of(value):
+    kind = type(value)
+    return _TYPE_NAMES.get(kind, getattr(kind, "_nexpro_type", kind.__name__))
+
+
+class _Record(dict):
+    _nexpro_type = "record"
+
+    def __init__(self, name, fields, scope, field_types):
+        self.name = name
+        self.field_types = field_types
+        for field in fields:
+            self.validate(field, scope[field])
+        super().__init__((field, scope[field]) for field in fields)
+
+    def validate(self, field, value):
+        expected = self.field_types.get(field)
+        if expected is None:
+            return
+        actual = _type_of(value)
+        if actual != expected:
+            raise _CodedError(
+                "record_field_type", f"Field '{field}' of record '{self.name}' expects {expected}, got {actual}",
+                {"record": self.name, "field": field, "expected": expected, "actual": actual},
+            )
+
+    def __setitem__(self, key, value):
+        if key not in self:
+            raise KeyError(f"Record '{self.name}' has no field '{key}'")
+        self.validate(key, value)
+        super().__setitem__(key, value)
+
+    def pop(self, key, default=None):
+        if key in self:
+            raise ValueError(f"Cannot remove field '{key}' from record '{self.name}'")
+        return default
 
 
 def _throw(message, code="thrown"):

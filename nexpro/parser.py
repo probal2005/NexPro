@@ -88,6 +88,7 @@ from nexpro.ast import (
 )
 
 from nexpro.errors import ParserError
+from nexpro.standard import RECORD_FIELD_TYPES
 
 
 class Parser:
@@ -366,6 +367,7 @@ class Parser:
         self.expect(LPAREN, "Expected '(' after function name")
         parameters = []
         defaults = []
+        field_types = {}
         if not self.check(RPAREN):
             while True:
                 parameter = self.expect(IDENTIFIER, "Expected parameter name")
@@ -377,6 +379,14 @@ class Parser:
                         self.filename,
                     )
                 parameters.append(parameter.value)
+                if record and self.match(COLON):
+                    annotation = self.current
+                    if not self.match(IDENTIFIER, NULL) or annotation.value not in RECORD_FIELD_TYPES:
+                        raise ParserError(
+                            "Expected a supported record field type",
+                            annotation.line, annotation.column, self.filename,
+                        )
+                    field_types[parameter.value] = annotation.value
                 if self.match(ASSIGN):
                     defaults.append(self.expression())
                 elif defaults:
@@ -389,7 +399,7 @@ class Parser:
         self.expect(RPAREN, "Expected ')' after parameters")
 
         if record:
-            return Record(name.value, parameters, [], defaults)
+            return Record(name.value, parameters, defaults, field_types)
 
         body = self.block(END, in_function=True)
         self.expect(END, "Expected 'end' after function body")

@@ -228,3 +228,37 @@ say models.make(count = 7, sku = "A")["count"]
 say models.Item(sku = "B")["count"]
 '''
     check_runtimes(source, "7\n0\n", modules)
+
+
+def test_typed_record_rejects_invalid_assignment_without_changing_the_value():
+    source = (ROOT / "examples/typed_invoice.pa").read_text(encoding="utf-8")
+    check_runtimes(source, "record_field_type\namount_cents\n1800\ntrue\n")
+
+
+def test_typed_record_checks_required_values_defaults_and_error_details():
+    check_runtimes("""record Invoice(amount: integer, paid: boolean = "no")
+try
+    Invoice(true, false)
+catch (error)
+    say error["details"]["record"]
+    say error["details"]["field"]
+    say error["details"]["expected"]
+    say error["details"]["actual"]
+    say error["line"]
+end
+try
+    Invoice(1800)
+catch (error)
+    say error["details"]["field"]
+end
+invoice = Invoice(amount = 1800, paid = false)
+say invoice["paid"]
+record Flexible(metadata, missing: null = null)
+instance = Flexible("text")
+instance["metadata"] = 42
+say instance["metadata"]
+say instance["missing"]
+""", "Invoice\namount\ninteger\nboolean\n3\npaid\nfalse\n42\nnull\n")
+    invalid = json.loads(run_playground("record Invoice(amount: money)", "check"))
+    assert not invalid["ok"]
+    assert "supported record field type" in invalid["error"]

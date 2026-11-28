@@ -299,3 +299,17 @@ its declared fields. Adding or removing a field raises a runtime error.
 `type_of()` returns `record`. JSON exports a record as an ordinary JSON
 object. Decoding the object produces a dictionary. See
 [the invoice record example](../examples/invoice_record.pa).
+
+### Typed fields
+
+Use an annotation such as `record Invoice(number: string, amount_cents: integer, paid: boolean = false)`
+to check values at construction and indexed assignment. Unannotated fields
+accept any value. Annotations match `type_of()` exactly. Supported names are
+`null`, `boolean`, `integer`, `float`, `string`, `list`, `dictionary`,
+`record`, `queue`, and `linked_list`. Annotations apply to the field's value
+itself. They do not validate the contents of a collection or convert values.
+
+A mismatch raises `record_field_type` and leaves the field's existing value
+intact. In `catch (error)`, the `details` dictionary contains `record`,
+`field`, `expected`, and `actual`. Invalid defaults are reported when used.
+See [the typed invoice example](../examples/typed_invoice.pa).

@@ -1,6 +1,6 @@
 # Learn NexPro
 
-A complete course for NexPro 4.3, from your first `.pa` program to a shareable
+A complete course for NexPro 4.4, from your first `.pa` program to a shareable
 CSV inventory tool. Each of the 23 lessons includes definitions, syntax, use
 cases, advantages, limitations, a runnable example, expected output, and an
 exercise with an answer.
@@ -65,6 +65,8 @@ the examples locally.
 - [Structured inventory errors](../examples/structured_inventory.pa)
 - [Invoice totals with named arguments](../examples/named_invoice.pa)
 - [Invoice record definitions](../examples/invoice_record.pa)
+
+- [Typed invoice and validation errors](../examples/typed_invoice.pa)
 
 ## References
 
