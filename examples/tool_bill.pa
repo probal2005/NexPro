@@ -1,7 +1,7 @@
 import "std/math" as math
 
 bill = number_field("Bill total", 10, 0)
-people = number_field("People", 3, 1)
+people = number_field("People", 3, 1, 10000, 1, "Enter a whole number from 1 to 10000.")
 if people != int(people)
     result("People", "Enter a whole number.")
 else

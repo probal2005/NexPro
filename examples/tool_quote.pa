@@ -1,9 +1,18 @@
 import "std/math" as math
 
 client = text_field("Client", "Ada")
+currency = select_field("Currency", ["USD", "BDT", "INR"], "USD")
 hours = number_field("Hours", 8, 0)
 hourly = number_field("Hourly rate", 50, 0)
 expenses = number_field("Expenses", 25, 0)
-result("Client", client)
-result("Labor subtotal", math.round(hours * hourly, 2))
-result("Total quote", math.round(hours * hourly + expenses, 2))
+include_expenses = checkbox_field("Include expenses", true)
+if field_check("Client", len(trim(client)) > 0, "Enter a client name.")
+    total = hours * hourly
+    if include_expenses
+        total = total + expenses
+    end
+    result("Client", client)
+    result("Currency", currency)
+    result("Labor subtotal", math.round(hours * hourly, 2))
+    result("Total quote", math.round(total, 2))
+end

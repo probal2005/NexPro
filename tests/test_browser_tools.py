@@ -23,7 +23,7 @@ def test_form_results_use_current_field_values():
     ]
     invalid = json.loads(run_playground(source, "preview", fields_json='{"People": 0}'))
     assert not invalid["ok"]
-    assert "People must be at least 1" in invalid["error"]
+    assert "Enter a whole number from 1 to 10000" in invalid["error"]
 
 
 def test_csv_preserves_quoted_cells_in_both_runtimes(capsys):

@@ -1,14 +1,14 @@
-# Install and use NexPro 3.3
+# Install and use NexPro 3.4
 
-Use Python 3.11 or later. Download `nexpro-3.3.0-py3-none-any.whl` from the
-[GitHub release](https://github.com/probal2005/NexPro/releases/tag/v3.3.0)
+Use Python 3.11 or later. Download `nexpro-3.4.0-py3-none-any.whl` from the
+[GitHub release](https://github.com/probal2005/NexPro/releases/tag/v3.4.0)
 and open a terminal in the download directory.
 
 ## macOS and Linux
 
 ```sh
 python3 -m venv .venv
-.venv/bin/python -m pip install ./nexpro-3.3.0-py3-none-any.whl
+.venv/bin/python -m pip install ./nexpro-3.4.0-py3-none-any.whl
 source .venv/bin/activate
 nexpro version
 ```
@@ -17,11 +17,11 @@ nexpro version
 
 ```powershell
 py -3 -m venv .venv
-.\.venv\Scripts\python.exe -m pip install .\nexpro-3.3.0-py3-none-any.whl
+.\.venv\Scripts\python.exe -m pip install .\nexpro-3.4.0-py3-none-any.whl
 .\.venv\Scripts\nexpro.exe version
 ```
 
-The version command prints `NexPro 3.3.0`. On Windows, use
+The version command prints `NexPro 3.4.0`. On Windows, use
 `.\.venv\Scripts\nexpro.exe` in place of `nexpro` if the environment is inactive.
 Use `py -3` for Python commands if `python` is unavailable.
 
@@ -69,3 +69,13 @@ Defaults and other values written directly in source are part of the code.
 The recipient can inspect the shared code and choose when to execute it.
 Links support up to 12,000 bytes of source and module data combined, including
 JSON encoding.
+
+### Field controls and validation
+
+Use `number_field(label, default, min, max, step, message)` for numeric bounds,
+increments and a custom message. The last four arguments are optional.
+Use `select_field(label, options, default)` for a dropdown and
+`checkbox_field(label, default)` for a true or false value.
+`field_check(label, condition, message)` displays a message alongside a declared
+field and returns the condition. Use it in an `if` block to skip calculations
+when a field is invalid. In terminal programs an unsuccessful check raises an error.

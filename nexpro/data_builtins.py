@@ -1,5 +1,6 @@
 """Data helpers used by the interpreter and standalone Python output."""
 
+from fractions import Fraction
 
 def _numeric_items(items, name):
     if not isinstance(items, list) or any(type(item) not in (int, float) for item in items):
@@ -121,14 +122,57 @@ def _field_label(label):
         raise ValueError("A field or result label must contain 1 to 120 characters.")
 
 
-def _number_field(label, default, minimum=None):
+def _number_field(label, default, minimum=None, maximum=None, step=None, message=None):
     _field_label(label)
-    for value in (default,) if minimum is None else (default, minimum):
+    for value in [default, *(bound for bound in (minimum, maximum, step) if bound is not None)]:
         if type(value) not in (int, float) or not -float("inf") < value < float("inf"):
             raise ValueError("Number fields require finite numbers.")
+    if message is not None and not isinstance(message, str):
+        raise TypeError("A field message must be text.")
+    if minimum is not None and maximum is not None and minimum > maximum:
+        raise ValueError("Field minimum cannot exceed its maximum.")
+    if step is not None and step <= 0:
+        raise ValueError("A number field step must be positive.")
     if minimum is not None and default < minimum:
-        raise ValueError(f"{label} must be at least {minimum}.")
+        raise ValueError(message or f"{label} must be at least {minimum}.")
+    if maximum is not None and default > maximum:
+        raise ValueError(message or f"{label} must be at most {maximum}.")
+    if step is not None:
+        value, base, increment = map(lambda number: Fraction(str(number)), (default, minimum or 0, step))
+        # Integer ratios preserve decimal steps without rounding large or tiny values.
+        numerator, denominator = (value - base).as_integer_ratio()
+        step_numerator, step_denominator = increment.as_integer_ratio()
+        if numerator * step_denominator % (denominator * step_numerator):
+            raise ValueError(message or f"{label} must follow the step of {step}.")
     return default
+
+
+def _select_field(label, options, default=None):
+    _field_label(label)
+    if (not isinstance(options, list) or not 1 <= len(options) <= 100
+            or any(not isinstance(option, str) or not 1 <= len(option) <= 120 for option in options)
+            or len(set(options)) != len(options)):
+        raise ValueError("Select fields need 1 to 100 unique text options.")
+    value = options[0] if default is None else default
+    if value not in options:
+        raise ValueError(f"{label} must be one of its options.")
+    return value
+
+
+def _checkbox_field(label, default=False):
+    _field_label(label)
+    if type(default) is not bool:
+        raise TypeError("Checkbox fields require a boolean.")
+    return default
+
+
+def _field_check(label, condition, message):
+    _field_label(label)
+    if not isinstance(message, str) or not 1 <= len(message) <= 500:
+        raise ValueError("A validation message must contain 1 to 500 characters.")
+    if not condition:
+        raise ValueError(f"{label}: {message}")
+    return True
 
 
 def _text_field(label, default=""):
@@ -144,3 +188,5 @@ def _result(label, value):
 
 
 DATA_BUILTINS.update({"number_field": _number_field, "text_field": _text_field, "result": _result})
+
+DATA_BUILTINS.update({"select_field": _select_field, "checkbox_field": _checkbox_field, "field_check": _field_check})

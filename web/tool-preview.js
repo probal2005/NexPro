@@ -13,15 +13,22 @@ function render(tool, ok) {
   for (const [index, field] of tool.fields.entries()) {
     const wrapper = document.createElement('div');
     const label = document.createElement('label');
-    const input = document.createElement('input');
+    const input = document.createElement(field.kind === 'select' ? 'select' : 'input');
     input.id = `tool-field-${index}`;
     input.name = field.label;
-    input.type = field.kind;
+    if (field.kind === 'select') {
+      for (const option of field.options) input.add(new Option(option));
+    } else {
+      input.type = field.kind;
+    }
     input.value = field.value;
+    if (field.kind === 'checkbox') input.checked = field.value;
     if (field.kind === 'number') {
-      input.step = 'any';
+      input.step = field.step ?? 'any';
       input.required = true;
       if (field.minimum !== null) input.min = field.minimum;
+      if (field.maximum !== null) input.max = field.maximum;
+      input.dataset.message = field.message ?? '';
     } else {
       input.maxLength = 4096;
     }
@@ -36,6 +43,11 @@ function render(tool, ok) {
     });
     wrapper.append(label, input, message);
     fieldList.append(wrapper);
+    const error = tool.errors?.[field.label];
+    if (typeof error === 'string') {
+      message.textContent = error;
+      input.setAttribute('aria-invalid', 'true');
+    }
   }
   for (const { label, value } of tool.results) {
     const term = document.createElement('dt');
@@ -53,7 +65,7 @@ function validate(input) {
   const invalid = !input.validity.valid;
   if (invalid) input.setAttribute('aria-invalid', 'true');
   else input.removeAttribute('aria-invalid');
-  document.getElementById(`${input.id}-error`).textContent = input.validationMessage;
+  document.getElementById(`${input.id}-error`).textContent = (invalid ? input.dataset.message || input.validationMessage : '');
   return !invalid;
 }
 
@@ -70,14 +82,14 @@ export const toolPreview = {
   onSubmit(run) {
     form.addEventListener('submit', event => {
       event.preventDefault();
-      const inputs = [...fieldList.querySelectorAll('input')];
+      const inputs = [...fieldList.querySelectorAll('input, select')];
       const invalid = inputs.filter(input => !validate(input));
       if (invalid.length) {
         invalid[0].focus();
         return;
       }
       const fields = Object.fromEntries(inputs.map(input => [
-        input.name, input.type === 'number' ? input.valueAsNumber : input.value,
+        input.name, input.type === 'number' ? input.valueAsNumber : input.type === 'checkbox' ? input.checked : input.value,
       ]));
       run(fields);
     });
