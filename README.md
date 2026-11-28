@@ -9,6 +9,7 @@ declarations, or use the same program from a terminal or as standalone Python.
 [Online Playground](https://nexpro-playground.vercel.app/) ·
 [Latest release](https://github.com/probal2005/NexPro/releases/latest) ·
 [Language reference](docs/language.md) ·
+[History and creator](history.md) ·
 [VS Code extension](editors/vscode/README.md)
 
 ## Learn NexPro
