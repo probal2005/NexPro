@@ -1,0 +1,44 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Split a bill into shares that add up exactly. A web calculator powered by NexPro.">
+  <title>Bill Splitter | NexPro</title>
+  <link rel="icon" type="image/png" href="/favicon.png">
+  <link rel="stylesheet" href="/projects/bill-splitter/styles.css">
+  <script src="/projects/bill-splitter/app.js" defer></script>
+</head>
+<body>
+  <header>
+    <a class="brand" href="/"><img src="/nexpro-icon.png" width="36" height="36" alt=""> NexPro</a>
+    <a href="https://github.com/probal2005/NexPro/tree/main/projects/bill-splitter">View source</a>
+  </header>
+  <main>
+    <div class="intro">
+      <h1>Bill Splitter</h1>
+      <p>Divide a bill into shares that add up to the exact total.</p>
+    </div>
+    <div class="calculator">
+      <form id="bill-form">
+        <label for="bill">Bill amount</label>
+        <input id="bill" name="bill" type="text" inputmode="decimal" value="10.00" maxlength="12" required>
+        <label for="people">Number of people</label>
+        <input id="people" name="people" type="text" inputmode="numeric" value="3" maxlength="4" required>
+        <button id="calculate" type="submit" disabled>Split bill</button>
+        <p id="status" role="status">Loading NexPro…</p>
+      </form>
+      <section class="result" aria-labelledby="result-heading" aria-live="polite" aria-atomic="true">
+        <h2 id="result-heading">Split breakdown</h2>
+        <ul id="shares"></ul>
+        <p id="total" hidden></p>
+      </section>
+    </div>
+    <footer>
+      <a href="/projects/bill-splitter/main.pa" download="bill-splitter.pa">Download .pa source</a>
+      <button class="secondary" id="share" type="button">Copy link</button>
+      <span id="share-status" role="status"></span>
+    </footer>
+  </main>
+</body>
+</html>

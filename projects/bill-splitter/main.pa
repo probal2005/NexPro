@@ -1,0 +1,61 @@
+import "std/json" as json
+
+function digits_only(text)
+    if len(text) == 0
+        return false
+    end
+    for char in text
+        if char < "0" or char > "9"
+            return false
+        end
+    end
+    return true
+end
+
+function amount_in_cents(amount)
+    parts = split(trim(amount), ".")
+    whole = parts[0]
+    if len(parts) > 2 or len(whole) > 9 or not digits_only(whole)
+        return -1
+    end
+    cents = int(whole) * 100
+    if len(parts) == 2
+        fraction = parts[1]
+        if len(fraction) > 2 or not digits_only(fraction)
+            return -1
+        end
+        if len(fraction) == 1
+            fraction = fraction + "0"
+        end
+        cents = cents + int(fraction)
+    end
+    return cents
+end
+
+function split_bill(amount, people)
+    total = amount_in_cents(amount)
+    if total < 0
+        return {"error": "Enter a non-negative bill with at most two decimal places."}
+    end
+    people = trim(people)
+    if len(people) > 4 or not digits_only(people)
+        return {"error": "Enter a whole number of people from 1 to 1,000."}
+    end
+    count = int(people)
+    if count < 1 or count > 1000
+        return {"error": "Enter a whole number of people from 1 to 1,000."}
+    end
+
+    base = int(total / count)
+    extra = total - base * count
+    return {
+        "total_cents": total,
+        "base_cents": base,
+        "base_people": count - extra,
+        "extra_cents": base + 1,
+        "extra_people": extra
+    }
+end
+
+request = json.parse(input())
+say json.stringify(split_bill(get(request, "bill", ""), get(request, "people", "")))

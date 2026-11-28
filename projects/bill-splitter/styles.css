@@ -1,0 +1,44 @@
+:root {
+  color-scheme: dark;
+  font-family: system-ui, sans-serif;
+  background: #101418;
+  color: #eaf1f4;
+  --muted: #b2c0c8;
+  --border: #36454d;
+  --mint: #9df5bc;
+}
+* { box-sizing: border-box; }
+body { margin: 0; }
+header, main { width: min(880px, calc(100% - 40px)); margin-inline: auto; }
+header { min-height: 72px; display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid var(--border); }
+a { color: var(--mint); text-underline-offset: 4px; }
+.brand { display: inline-flex; align-items: center; color: inherit; font-weight: 700; text-decoration: none; }
+main { padding-block: 38px; }
+.intro { margin-bottom: 24px; }
+h1 { margin: 0; font-size: clamp(2rem, 6vw, 3rem); letter-spacing: -.04em; }
+p { color: var(--muted); margin: 8px 0 0; line-height: 1.5; }
+.calculator { display: grid; grid-template-columns: 1fr 1fr; border: 1px solid var(--border); border-radius: 12px; overflow: hidden; }
+form, .result { padding: 24px; min-width: 0; }
+form { background: #171e23; display: grid; align-content: start; gap: 10px; }
+label { font-weight: 600; margin-top: 5px; }
+input, button { font: inherit; border: 1px solid var(--border); border-radius: 8px; min-height: 44px; }
+input { width: 100%; background: #101418; color: inherit; padding: 8px 12px; }
+button { cursor: pointer; padding: 8px 16px; }
+button:disabled { cursor: wait; opacity: .7; }
+button[type=submit] { margin-top: 8px; background: var(--mint); color: #11291b; font-weight: 750; }
+:focus-visible { outline: 2px solid var(--mint); outline-offset: 3px; }
+#status { min-height: 1.5em; margin: 0; font-size: .875rem; }
+.result { background: #131a1e; border-left: 1px solid var(--border); }
+h2 { margin: 0 0 16px; font-size: 1rem; }
+ul { margin: 0; padding: 0; list-style: none; }
+li { display: flex; justify-content: space-between; align-items: baseline; gap: 12px; padding: 10px 0; border-bottom: 1px solid var(--border); }
+li strong { font-size: 1.35rem; font-variant-numeric: tabular-nums; }
+#total { margin-top: 16px; }
+footer { display: flex; gap: 12px 18px; align-items: center; flex-wrap: wrap; margin-top: 18px; }
+.secondary { background: #202b31; color: inherit; }
+#share-status { color: var(--muted); font-size: .875rem; }
+@media (max-width: 600px) {
+  .calculator { grid-template-columns: 1fr; }
+  .result { border-left: 0; border-top: 1px solid var(--border); }
+  form, .result { padding: 18px; }
+}

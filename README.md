@@ -11,6 +11,16 @@ and compile it to standalone Python.
 [Language reference](docs/language.md) ·
 [VS Code extension](editors/vscode/README.md)
 
+## Built with NexPro
+
+**Bill Splitter** divides a bill into shares that add up to the exact total.
+Its calculation and input validation are written in NexPro. For a bill of
+`10.00` split three ways, two people pay `3.33` and one pays `3.34`.
+
+[Use the Bill Splitter](https://nexpro-playground.vercel.app/projects/bill-splitter/) ·
+[Read the NexPro source](projects/bill-splitter/main.pa) ·
+[Explore the project files](projects/bill-splitter/)
+
 ## Quick start
 
 ### Try it in your browser

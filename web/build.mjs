@@ -20,3 +20,10 @@ for (const name of [
 ]) {
   await cp(`examples/${name}.pa`, `dist/examples/${name}.pa`);
 }
+
+const demo = 'projects/bill-splitter';
+await mkdir(`dist/${demo}`, { recursive: true });
+for (const name of ['index.html', 'app.js', 'styles.css', 'main.pa']) {
+  await cp(`${demo}/${name}`, `dist/${demo}/${name}`);
+}
+await cp(`${demo}/main.pa`, 'dist/examples/bill_splitter.pa');

@@ -588,3 +588,25 @@ def test_project_upgrade_flow(tmp_path):
     existing = run("nexpro", "init", project, cwd=tmp_path)
     assert existing.returncode == 1
     assert 'import "std/json"' in source.read_text(encoding="utf-8")
+
+
+@pytest.mark.parametrize(("bill", "people", "expected"), [
+    ("10.00", "3", {"total_cents": 1000, "base_cents": 333, "base_people": 2,
+                    "extra_cents": 334, "extra_people": 1}),
+    ("2.5", "2", {"total_cents": 250, "base_cents": 125, "base_people": 2,
+                 "extra_cents": 126, "extra_people": 0}),
+    ("0.01", "4", {"total_cents": 1, "base_cents": 0, "base_people": 3,
+                  "extra_cents": 1, "extra_people": 1}),
+    ("1.234", "3", {"error": "Enter a non-negative bill with at most two decimal places."}),
+    ("10", "0", {"error": "Enter a whole number of people from 1 to 1,000."}),
+])
+def test_bill_splitter_example(bill, people, expected, tmp_path):
+    source = EXAMPLES.parent / "projects" / "bill-splitter" / "main.pa"
+    stdin = json.dumps({"bill": bill, "people": people}) + "\n"
+    compiled = tmp_path / "bill.py"
+    result = run("nexpro", "compile", source, "-o", compiled, cwd=tmp_path)
+    assert result.returncode == 0, result.stderr
+    for args in (("nexpro", "run", source), (sys.executable, "-I", "-S", compiled)):
+        result = run(*args, cwd=tmp_path, input_text=stdin)
+        assert result.returncode == 0, result.stderr
+        assert json.loads(result.stdout) == expected
