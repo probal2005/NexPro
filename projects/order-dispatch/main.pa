@@ -1,0 +1,24 @@
+import "std/json" as json
+
+orders = json.parse(input())
+ready = []
+blocked = []
+for order in orders
+    reasons = []
+    quantity = get(order, "quantity", 0)
+    if get(order, "paid", false) != true
+        append(reasons, "Payment pending")
+    end
+    if trim(get(order, "address", "")) == ""
+        append(reasons, "Missing delivery address")
+    end
+    if quantity <= 0 or int(quantity) != quantity
+        append(reasons, "Invalid quantity")
+    end
+    if len(reasons) == 0
+        append(ready, order["id"])
+    else
+        append(blocked, {"id": order["id"], "reasons": reasons})
+    end
+end
+say json.stringify({"ready": ready, "blocked": blocked})

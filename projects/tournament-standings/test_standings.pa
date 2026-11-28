@@ -1,0 +1,12 @@
+import "standings.pa" as league
+
+table = league.standings(["C", "B", "A"], [
+    {"home": "A", "away": "B", "home_goals": 2, "away_goals": 1},
+    {"home": "C", "away": "B", "home_goals": 1, "away_goals": 0}
+])["standings"]
+assert table[0]["team"] == "A"
+assert table[1]["team"] == "C"
+assert table[2]["goal_difference"] == -2
+empty = league.standings(["C", "A"], [])["standings"]
+assert empty[0]["team"] == "A"
+assert empty[0]["played"] == 0

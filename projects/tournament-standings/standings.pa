@@ -1,0 +1,46 @@
+function standings(teams, matches)
+    records = {}
+    for name in teams
+        assert trim(name) != "" and get(records, name, 0) == 0
+        records[name] = {"team": name, "played": 0, "points": 0, "goal_difference": 0, "goals_for": 0}
+    end
+
+    for match in matches
+        home = match["home"]
+        away = match["away"]
+        assert home != away
+        home_goals = match["home_goals"]
+        away_goals = match["away_goals"]
+        assert home_goals >= 0 and away_goals >= 0
+        assert int(home_goals) == home_goals and int(away_goals) == away_goals
+        home_record = records[home]
+        away_record = records[away]
+        update_record(home_record, home_goals, away_goals)
+        update_record(away_record, away_goals, home_goals)
+    end
+
+    order = []
+    for name in teams
+        record = records[name]
+        append(order, [-record["points"], -record["goal_difference"], -record["goals_for"], name])
+    end
+    table = []
+    for rank_key in sorted(order)
+        append(table, records[rank_key[3]])
+    end
+    return {"standings": table}
+end
+
+function update_record(record, scored, conceded)
+    points = 0
+    if scored == conceded
+        points = 1
+    end
+    if scored > conceded
+        points = 3
+    end
+    record["played"] = record["played"] + 1
+    record["points"] = record["points"] + points
+    record["goals_for"] = record["goals_for"] + scored
+    record["goal_difference"] = record["goal_difference"] + scored - conceded
+end

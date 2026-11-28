@@ -1,0 +1,46 @@
+import "std/json" as json
+import "std/math" as math
+
+function grade(average)
+    if average >= 90
+        return "A"
+    end
+    if average >= 80
+        return "B"
+    end
+    if average >= 70
+        return "C"
+    end
+    if average >= 60
+        return "D"
+    end
+    return "F"
+end
+
+students = json.parse(input())
+reports = []
+invalid = []
+order = []
+for student in students
+    scores = student["scores"]
+    valid = len(scores) > 0
+    for score in scores
+        if score < 0 or score > 100
+            valid = false
+        end
+    end
+    if not valid
+        append(invalid, {"name": student["name"], "reason": "Expected at least one score between 0 and 100"})
+        continue
+    end
+    average = sum(scores) / len(scores)
+    append(order, [-average, len(reports)])
+    append(reports, {"name": student["name"], "average": math.round(average, 2), "grade": grade(average)})
+end
+ranked = []
+for position in sorted(order)
+    report = reports[position[1]]
+    report["rank"] = len(ranked) + 1
+    append(ranked, report)
+end
+say json.stringify({"ranked": ranked, "invalid": invalid})

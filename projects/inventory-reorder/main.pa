@@ -1,0 +1,15 @@
+import "std/json" as json
+
+items = json.parse(input())
+orders = []
+for item in items
+    stock = item["stock"]
+    minimum = item["minimum"]
+    target = item["target"]
+    assert stock >= 0 and minimum >= 0 and target > minimum
+    assert int(stock) == stock and int(minimum) == minimum and int(target) == target
+    if stock <= minimum
+        append(orders, {"sku": item["sku"], "quantity": target - stock})
+    end
+end
+say json.stringify({"reorder": orders})

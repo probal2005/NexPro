@@ -1,0 +1,25 @@
+import "std/json" as json
+
+contacts = json.parse(input())
+clean = []
+duplicates = []
+incomplete = []
+seen = {}
+index = 0
+for contact in contacts
+    index = index + 1
+    name = trim(get(contact, "name", ""))
+    email = lower(trim(get(contact, "email", "")))
+    phone = trim(get(contact, "phone", ""))
+    if name == "" or email == "" or phone == ""
+        append(incomplete, index)
+        continue
+    end
+    if get(seen, email, 0) != 0
+        append(duplicates, {"row": index, "first_row": seen[email]})
+        continue
+    end
+    seen[email] = index
+    append(clean, {"name": name, "email": email, "phone": phone})
+end
+say json.stringify({"contacts": clean, "duplicates": duplicates, "incomplete": incomplete})

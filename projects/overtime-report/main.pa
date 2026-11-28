@@ -1,0 +1,20 @@
+import "std/json" as json
+import "std/math" as math
+
+request = json.parse(input())
+threshold = get(request, "weekly_threshold", 40)
+multiplier = get(request, "overtime_multiplier", 1.5)
+assert threshold >= 0 and multiplier >= 1
+reports = []
+for employee in request["employees"]
+    rate = employee["rate_cents"]
+    assert rate >= 0 and int(rate) == rate
+    for hours in employee["hours"]
+        assert hours >= 0 and hours <= 24
+    end
+    total = sum(employee["hours"])
+    overtime = max([0, total - threshold])
+    pay = math.round((total - overtime) * rate + overtime * rate * multiplier)
+    append(reports, {"name": employee["name"], "hours": total, "overtime_hours": overtime, "pay_cents": pay})
+end
+say json.stringify({"employees": reports})

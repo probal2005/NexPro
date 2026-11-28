@@ -13,13 +13,12 @@ and compile it to standalone Python.
 
 ## Built with NexPro
 
-**Bill Splitter** divides a bill into shares that add up to the exact total.
-Its calculation and input validation are written in NexPro. For a bill of
-`10.00` split three ways, two people pay `3.33` and one pays `3.34`.
+Explore [10 runnable NexPro projects](projects/README.md), including group
+expense settlement, student report cards, and tournament standings. Each
+project includes its `.pa` source, a sample input, and the expected output.
 
-[Use the Bill Splitter](https://nexpro-playground.vercel.app/projects/bill-splitter/) ·
-[Read the NexPro source](projects/bill-splitter/main.pa) ·
-[Explore the project files](projects/bill-splitter/)
+[Try the Bill Splitter web demo](https://nexpro-playground.vercel.app/projects/bill-splitter/) ·
+[Read its NexPro source](projects/bill-splitter/main.pa)
 
 ## Quick start
 

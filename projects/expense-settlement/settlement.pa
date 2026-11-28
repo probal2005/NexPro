@@ -1,0 +1,58 @@
+function settle(participants)
+    count = len(participants)
+    assert count > 0
+    seen = {}
+    total = 0
+    for person in participants
+        name = trim(person["name"])
+        paid = person["paid_cents"]
+        assert name != "" and get(seen, name, 0) == 0
+        assert paid >= 0 and int(paid) == paid
+        seen[name] = 1
+        total = total + paid
+    end
+
+    assert total <= 99999999999
+    equal_share = int(total / count)
+    extra = total - equal_share * count
+    debtors = []
+    creditors = []
+    shares = []
+    index = 0
+    for person in participants
+        share = equal_share
+        if index < extra
+            share = share + 1
+        end
+        name = trim(person["name"])
+        paid = person["paid_cents"]
+        append(shares, {"name": name, "share_cents": share})
+        if paid < share
+            append(debtors, {"name": name, "remaining": share - paid})
+        else
+            if paid > share
+                append(creditors, {"name": name, "remaining": paid - share})
+            end
+        end
+        index = index + 1
+    end
+
+    payments = []
+    debtor = 0
+    creditor = 0
+    while debtor < len(debtors) and creditor < len(creditors)
+        from = debtors[debtor]
+        to = creditors[creditor]
+        amount = min([from["remaining"], to["remaining"]])
+        append(payments, {"from": from["name"], "to": to["name"], "cents": amount})
+        from["remaining"] = from["remaining"] - amount
+        to["remaining"] = to["remaining"] - amount
+        if from["remaining"] == 0
+            debtor = debtor + 1
+        end
+        if to["remaining"] == 0
+            creditor = creditor + 1
+        end
+    end
+    return {"total_cents": total, "shares": shares, "payments": payments}
+end

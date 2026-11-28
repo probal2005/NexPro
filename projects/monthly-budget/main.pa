@@ -1,0 +1,14 @@
+import "std/json" as json
+
+categories = json.parse(input())
+rows = []
+remaining = 0
+for category in categories
+    planned = category["budget_cents"]
+    spent = category["spent_cents"]
+    assert planned >= 0 and spent >= 0 and int(planned) == planned and int(spent) == spent
+    difference = planned - spent
+    remaining = remaining + difference
+    append(rows, {"category": category["category"], "remaining_cents": difference, "over_budget": difference < 0})
+end
+say json.stringify({"categories": rows, "total_remaining_cents": remaining})

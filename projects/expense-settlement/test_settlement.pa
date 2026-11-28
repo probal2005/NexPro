@@ -1,0 +1,8 @@
+import "settlement.pa" as settlement
+
+uneven = settlement.settle([{"name": "Ada", "paid_cents": 10}, {"name": "Ben", "paid_cents": 0}, {"name": "Chen", "paid_cents": 0}])
+assert uneven["shares"][0]["share_cents"] == 4
+assert uneven["payments"][0]["cents"] == 3
+assert uneven["payments"][1]["cents"] == 3
+equal = settlement.settle([{"name": "Ada", "paid_cents": 5}, {"name": "Ben", "paid_cents": 5}])
+assert len(equal["payments"]) == 0

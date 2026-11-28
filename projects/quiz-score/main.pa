@@ -1,0 +1,23 @@
+import "std/json" as json
+
+request = json.parse(input())
+questions = request["questions"]
+answers = request["answers"]
+assert len(answers) <= len(questions)
+correct = 0
+mistakes = []
+index = 0
+for question in questions
+    answer = ""
+    if index < len(answers)
+        answer = answers[index]
+    end
+    expected = question["answer"]
+    if lower(trim(answer)) == lower(trim(expected)) and index < len(answers)
+        correct = correct + 1
+    else
+        append(mistakes, {"question": question["question"], "submitted": answer, "correct": expected})
+    end
+    index = index + 1
+end
+say json.stringify({"correct": correct, "total": len(questions), "mistakes": mistakes})

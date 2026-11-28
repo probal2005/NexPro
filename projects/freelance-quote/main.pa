@@ -1,0 +1,18 @@
+import "std/json" as json
+import "std/math" as math
+
+request = json.parse(input())
+discount = get(request, "discount_percent", 0)
+assert discount >= 0 and discount <= 100
+subtotal = 0
+lines = []
+for item in request["items"]
+    hours = item["hours"]
+    hourly = item["rate_cents"]
+    assert hours >= 0 and hourly >= 0 and int(hourly) == hourly
+    cost = math.round(hours * hourly)
+    append(lines, {"name": item["name"], "cost_cents": cost})
+    subtotal = subtotal + cost
+end
+discount_cents = math.round(subtotal * discount / 100)
+say json.stringify({"items": lines, "subtotal_cents": subtotal, "discount_cents": discount_cents, "total_cents": subtotal - discount_cents})

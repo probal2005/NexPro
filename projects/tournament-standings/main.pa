@@ -1,0 +1,5 @@
+import "std/json" as json
+import "standings.pa" as tournament
+
+request = json.parse(input())
+say json.stringify(tournament.standings(request["teams"], request["matches"]))
