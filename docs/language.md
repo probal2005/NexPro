@@ -339,3 +339,15 @@ Convert cells such as amounts to integers before constructing the record.
 Use `records.to_dict(invoice)` for a new, ordinary dictionary containing the
 fields in declaration order. Nested values are shared with the source record.
 See [the CSV invoice import example](../examples/csv_invoice_records.pa).
+
+### Record validation rules
+
+Add one or more `where "rule_name", condition, "error message"` clauses after
+a record declaration. The condition sees field names as local variables.
+Rules are evaluated in declaration order at construction and before field
+assignment. Rules can use expressions but cannot call functions.
+
+A false condition raises `record_rule`. A structured catch receives the
+message, and `details` contains the record and rule names. A failed
+assignment preserves the previous value. Dictionary conversion also
+applies the record's rules. See [the validated CSV example](../examples/validated_invoice.pa).

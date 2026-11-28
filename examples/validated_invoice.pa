@@ -1,0 +1,20 @@
+import "std/csv" as csv
+import "std/json" as json
+import "std/record" as records
+
+record Invoice(number: string, amount_cents: integer, paid: boolean = false)
+where "nonnegative_amount", amount_cents >= 0, "Amount must be nonnegative"
+
+invoices = []
+row_number = 1
+for row in csv.parse("number,amount_cents\nINV-001,1800\nINV-002,-500\nINV-003,1200")
+    row_number = row_number + 1
+    try
+        row["amount_cents"] = int(row["amount_cents"])
+        invoice = records.from_dict("Invoice", row)
+        append(invoices, records.to_dict(invoice))
+    catch (error)
+        say "Skipped row " + json.stringify(row_number) + ": " + error["details"]["rule"]
+    end
+end
+say json.stringify(invoices)

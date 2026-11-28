@@ -56,6 +56,7 @@ from nexpro.tokens import (
 
 from nexpro.ast import (
     Program,
+    Expression,
     Assign,
     Variable,
     String,
@@ -399,11 +400,40 @@ class Parser:
         self.expect(RPAREN, "Expected ')' after parameters")
 
         if record:
-            return Record(name.value, parameters, defaults, field_types)
+            rules = []
+            labels = set()
+            while self.check(IDENTIFIER) and self.current.value == "where" and self.peek().type == STRING:
+                self.advance()
+                label = self.expect(STRING, "Expected a rule name")
+                if not label.value.strip() or label.value in labels:
+                    raise ParserError("Rule names must be non-empty and unique", label.line, label.column, self.filename)
+                labels.add(label.value)
+                self.expect(COMMA, "Expected ',' after rule name")
+                start = self.current
+                condition = self.expression()
+                if self.contains_call(condition):
+                    raise ParserError("Record rules cannot call functions", start.line, start.column, self.filename)
+                self.expect(COMMA, "Expected ',' after rule condition")
+                message = self.expect(STRING, "Expected a rule error message")
+                rules.append((label.value, condition, message.value))
+            return Record(name.value, parameters, defaults, field_types, rules)
 
         body = self.block(END, in_function=True)
         self.expect(END, "Expected 'end' after function body")
         return Function(name.value, parameters, body, defaults)
+
+    @staticmethod
+    def contains_call(node):
+        pending = [node]
+        while pending:
+            value = pending.pop()
+            if isinstance(value, Call):
+                return True
+            if isinstance(value, (list, tuple)):
+                pending.extend(value)
+            elif isinstance(value, Expression):
+                pending.extend(vars(value).values())
+        return False
 
     def block(self, *terminators, in_function, in_loop=False):
         body = []

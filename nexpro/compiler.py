@@ -299,8 +299,19 @@ def _statements(statements, lines, indent):
                 lines.emit(f"{body_indent}    _scope[{parameter!r}] = {value}", statement)
             if isinstance(statement, Record):
                 fields = tuple(statement.parameters)
+                validator = "None"
+                if statement.rules:
+                    validator = "_validate_rules"
+                    lines.append(f"{body_indent}def {validator}(_scope):")
+                    rule_indent = body_indent + "    "
+                    for rule, condition, message in statement.rules:
+                        value = _expression(condition, lines, rule_indent)
+                        lines.append(
+                            f"{rule_indent}_check_record_rule({statement.name!r}, {rule!r}, {value}, {message!r})"
+                        )
                 lines.append(
-                    f"{body_indent}return _Record({statement.name!r}, {fields!r}, _scope, {statement.field_types!r})"
+                    f"{body_indent}return _Record({statement.name!r}, {fields!r}, _scope, "
+                    f"{statement.field_types!r}, {validator})"
                 )
             else:
                 _statements(statement.body, lines, body_indent)

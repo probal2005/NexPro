@@ -53,12 +53,16 @@ def _type_of(value):
 class _Record(dict):
     _nexpro_type = "record"
 
-    def __init__(self, name, fields, scope, field_types):
+    def __init__(self, name, fields, scope, field_types, rules=None):
         self.name = name
         self.field_types = field_types
+        self.rules = rules
         for field in fields:
             self.validate(field, scope[field])
-        super().__init__((field, scope[field]) for field in fields)
+        values = {field: scope[field] for field in fields}
+        if self.rules is not None:
+            self.rules(values)
+        super().__init__(values)
 
     def validate(self, field, value):
         expected = self.field_types.get(field)
@@ -75,12 +79,19 @@ class _Record(dict):
         if key not in self:
             raise KeyError(f"Record '{self.name}' has no field '{key}'")
         self.validate(key, value)
+        if self.rules is not None:
+            self.rules({**self, key: value})
         super().__setitem__(key, value)
 
     def pop(self, key, default=None):
         if key in self:
             raise ValueError(f"Cannot remove field '{key}' from record '{self.name}'")
         return default
+
+
+def _check_record_rule(name, rule, condition, message):
+    if not condition:
+        raise _CodedError("record_rule", message, {"record": name, "rule": rule})
 
 
 def _record_field(record, name):

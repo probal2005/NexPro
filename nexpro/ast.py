@@ -113,9 +113,10 @@ class Function(Statement):
 
 
 class Record(Function):
-    def __init__(self, name, parameters, defaults, field_types):
+    def __init__(self, name, parameters, defaults, field_types, rules=()):
         super().__init__(name, parameters, [], defaults)
         self.field_types = field_types
+        self.rules = rules
 
 
 class Call(Expression, Statement):

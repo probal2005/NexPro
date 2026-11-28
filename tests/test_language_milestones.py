@@ -337,3 +337,22 @@ function calculate()
 end
 """,
     })
+
+
+def test_record_rules_reject_negative_rows_and_preserve_existing_values():
+    source = (ROOT / "examples/validated_invoice.pa").read_text(encoding="utf-8")
+    check_runtimes(source, 'Skipped row 3: nonnegative_amount\n'
+                          '[{"number": "INV-001", "amount_cents": 1800, "paid": false}, '
+                          '{"number": "INV-003", "amount_cents": 1200, "paid": false}]\n')
+    check_runtimes("""
+record Invoice(amount: integer)
+where "amount", amount >= 0, "Amount must be nonnegative"
+invoice = Invoice(1800)
+try
+    invoice.amount = -500
+catch (error)
+    say error["code"]
+    say error["message"]
+end
+say invoice.amount
+""", "record_rule\nAmount must be nonnegative\n1800\n")

@@ -4,7 +4,8 @@
 program        -> (import | function | record | statement)* EOF
 import         -> "import" STRING ("as" IDENTIFIER)?
 function       -> "function" IDENTIFIER "(" parameters? ")" function_body "end"
-record         -> "record" IDENTIFIER "(" fields? ")"
+record         -> "record" IDENTIFIER "(" fields? ")" rule*
+rule           -> "where" STRING "," expression "," STRING
 fields         -> field ("," field)*
 field          -> IDENTIFIER (":" (IDENTIFIER | "null"))? ("=" expression)?
 parameters     -> parameter ("," parameter)*

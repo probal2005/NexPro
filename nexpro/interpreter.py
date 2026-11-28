@@ -42,7 +42,7 @@ from nexpro.data_builtins import DATA_BUILTINS, _argument_scope, _call_builtin, 
 from nexpro.errors import EXECUTION_ERRORS
 from nexpro.errors import RuntimeError as NexProRuntimeError
 from nexpro.runtime import Runtime
-from nexpro.standard import STANDARD_MODULES, _Record, _error_code, _error_record, _record_field, _record_from_dict, _record_set_field, _throw, _to_int, _type_of
+from nexpro.standard import STANDARD_MODULES, _Record, _check_record_rule, _error_code, _error_record, _record_field, _record_from_dict, _record_set_field, _throw, _to_int, _type_of
 
 
 BINARY_OPERATORS = {
@@ -373,6 +373,16 @@ class Interpreter:
         finally:
             module.function_depth = previous_depth
 
+    def validate_record_rules(self, definition, values):
+        caller = self.runtime
+        self.runtime = Runtime()
+        self.runtime.variables.update(values)
+        try:
+            for rule, condition, message in definition.rules:
+                _check_record_rule(definition.name, rule, self.visit(condition), message)
+        finally:
+            self.runtime = caller
+
     def call_function(self, name, arguments, named, node, allow_builtin=True):
         function = self.functions.get(name)
         if function is None:
@@ -397,6 +407,7 @@ class Interpreter:
             if isinstance(function, Record):
                 return _Record(
                     function.name, function.parameters, self.runtime.variables, function.field_types,
+                    (lambda values: self.validate_record_rules(function, values)) if function.rules else None,
                 )
             self.visit_block(function.body)
         except _ReturnFromFunction as returned:
