@@ -224,15 +224,17 @@ class Slice(Expression):
 
 
 class Try(Statement):
-    def __init__(self, body, error_name, handler):
+    def __init__(self, body, error_name, handler, structured=False):
         self.body = body
         self.error_name = error_name
         self.handler = handler
+        self.structured = structured
 
 
 class Throw(Statement):
-    def __init__(self, message):
+    def __init__(self, message, code=None):
         self.message = message
+        self.code = code
 
 
 class Assert(Statement):

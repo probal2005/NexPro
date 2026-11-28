@@ -52,8 +52,9 @@ EXECUTION_ERRORS = (ArithmeticError, TypeError, ValueError, RecursionError, Inde
 
 
 class RuntimeError(NexProError):
-    def __init__(self, message):
+    def __init__(self, message, code="runtime_error"):
         super().__init__(message)
+        self.code = code
         self.message = message
         self.frames = []
 

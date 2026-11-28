@@ -15,8 +15,8 @@ statement      -> assignment
                 | "for" IDENTIFIER "in" expression block "end"
                 | "break" | "continue"
                 | "assert" expression
-                | "try" block "catch" IDENTIFIER block "end"
-                | "throw" expression
+                | "try" block "catch" (IDENTIFIER | "(" IDENTIFIER ")") block "end"
+                | "throw" expression ("," expression)?
                 | "return" expression
                 | call
 assignment     -> IDENTIFIER ("[" expression "]")* "=" expression

@@ -23,7 +23,22 @@ _globals = {}
 _functions = {}
 _aliases = {}
 _module_cache = {}
-_builtins = {**DATA_BUILTINS, "len": len, "int": int, "float": float, "input": input, "append": list.append}
+_builtins = {**DATA_BUILTINS, "len": len, "int": _to_int, "float": float, "input": input, "append": list.append}
+
+
+def _error_frames(error):
+    frames = []
+    trace = error.__traceback__
+    while trace is not None:
+        if trace.tb_frame.f_globals is globals() and trace.tb_lineno in _source_map:
+            frames.append(_source_map[trace.tb_lineno])
+        trace = trace.tb_next
+    return frames
+
+
+def _caught_record(error):
+    frames = _error_frames(error)
+    return _error_record(_error_code(error), str(error), frames[-1] if frames else None)
 
 
 def _get(scope, global_scope, name):
@@ -197,11 +212,13 @@ def _statements(statements, lines, indent):
             inner = indent + "    "
             _statements(statement.body, lines, inner)
             lines.append(f"{indent}except ({_ERROR_TYPES}) as _caught:")
-            lines.append(f"{inner}_scope[{statement.error_name!r}] = str(_caught)")
+            value = "_caught_record(_caught)" if statement.structured else "str(_caught)"
+            lines.append(f"{inner}_scope[{statement.error_name!r}] = {value}")
             _statements(statement.handler, lines, inner)
         elif isinstance(statement, Throw):
+            code = _expression(statement.code, lines, indent) if statement.code is not None else "'thrown'"
             value = _expression(statement.message, lines, indent)
-            lines.emit(f"{indent}_throw({value})", statement)
+            lines.emit(f"{indent}_throw({value}, {code})", statement)
         elif isinstance(statement, While):
             lines.append(f"{indent}while True:")
             body_indent = indent + "    "
@@ -259,13 +276,7 @@ def compile_program(program):
     lines.extend([
         f"    except ({_ERROR_TYPES}) as error:",
         "        print(f'NexPro Runtime Error: {error}', file=sys.stderr)",
-        "        frames = []",
-        "        trace = error.__traceback__",
-        "        while trace is not None:",
-        "            if trace.tb_frame.f_globals is globals() and trace.tb_lineno in _source_map:",
-        "                frames.append(_source_map[trace.tb_lineno])",
-        "            trace = trace.tb_next",
-        "        for function, filename, line in reversed(frames):",
+        "        for function, filename, line in reversed(_error_frames(error)):",
         "            print(f'  at {function} ({filename}:{line})', file=sys.stderr)",
         "        sys.exit(1)",
     ])

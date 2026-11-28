@@ -9,6 +9,44 @@ from collections import deque
 from io import StringIO
 
 
+class _CodedError(ValueError):
+    def __init__(self, code, message):
+        super().__init__(message)
+        self.code = code
+
+
+def _error_code(error):
+    if isinstance(error, _CodedError):
+        return error.code
+    for error_type, code in (
+        (ZeroDivisionError, "division_by_zero"), (ArithmeticError, "arithmetic_error"),
+        (TypeError, "invalid_type"), (KeyError, "missing_key"),
+        (IndexError, "invalid_index"), (EOFError, "end_of_input"),
+        (RecursionError, "recursion_limit"),
+    ):
+        if isinstance(error, error_type):
+            return code
+    return "runtime_error"
+
+
+def _error_record(code, message, location):
+    function, filename, line = location or (None, None, None)
+    return {"code": code, "message": message, "file": filename, "line": line, "function": function}
+
+
+def _throw(message, code="thrown"):
+    if not isinstance(code, str) or not code.strip() or not isinstance(message, str):
+        raise TypeError("throw requires a text message and a non-empty text code.")
+    raise _CodedError(code, message)
+
+
+def _to_int(*args):
+    try:
+        return int(*args)
+    except ValueError as error:
+        raise _CodedError("invalid_integer", str(error)) from error
+
+
 def _configure_stdio():
     """Keep Unicode input and output available when redirected on Windows."""
     if sys.platform == "win32":
@@ -40,13 +78,13 @@ def _csv_parse(text, required=None):
         headers = next((row for row in reader if row), None)
         if headers is None:
             if required:
-                raise ValueError("CSV header is missing.")
+                raise _CodedError("csv_missing_columns", "CSV header is missing.")
             return []
         if not all(headers) or len(set(headers)) != len(headers):
             raise ValueError("CSV column names must be unique and non-empty.")
         missing = [name for name in required if name not in headers]
         if missing:
-            raise ValueError("Missing CSV columns: " + ", ".join(missing))
+            raise _CodedError("csv_missing_columns", "Missing CSV columns: " + ", ".join(missing))
         rows = []
         for row in reader:
             if not row:

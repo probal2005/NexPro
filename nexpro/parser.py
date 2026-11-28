@@ -417,13 +417,19 @@ class Parser:
         if self.match(TRY):
             body = self.block(CATCH, END, in_function=in_function, in_loop=in_loop)
             self.expect(CATCH, "Expected 'catch' after try block")
+            structured = self.match(LPAREN)
             error_name = self.expect(IDENTIFIER, "Expected an error variable after 'catch'")
+            if structured:
+                self.expect(RPAREN, "Expected ')' after the structured error variable")
             handler = self.block(END, in_function=in_function, in_loop=in_loop)
             self.expect(END, "Expected 'end' after catch block")
-            return Try(body, error_name.value, handler)
+            return Try(body, error_name.value, handler, structured)
 
         if self.match(THROW):
-            return Throw(self.expression())
+            first = self.expression()
+            if self.match(COMMA):
+                return Throw(self.expression(), code=first)
+            return Throw(first)
 
         if self.match(WHILE):
             condition = self.expression()

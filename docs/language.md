@@ -264,3 +264,15 @@ Their `to_list()` functions make shallow snapshots suitable for JSON or CSV.
 | Statistics | `count_by(items, key)` | Count hashable values into a dictionary. With an optional key, count by that field in each record. An empty input yields an empty dictionary. |
 
 See the [dispatch summary example](../examples/dispatch_summary.pa).
+
+## Structured errors
+
+Use `catch (error) … end` for a dictionary with `code`, `message`, `file`,
+`line`, and `function`. Location fields are `null` when unavailable.
+Plain `catch message` still receives the message string. Codes include
+`csv_missing_columns`, `invalid_integer`, and `division_by_zero`.
+Use `throw "code", "message"` to signal a custom code. The one-argument
+form uses the code `thrown`.
+
+See [the inventory example](../examples/structured_inventory.pa) for errors
+that stop an import and errors that affect only the current row.

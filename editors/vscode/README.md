@@ -7,9 +7,9 @@ file and its imports using the installed NexPro CLI.
 
 1. Install the NexPro CLI with Python 3.11 or later. See the
    [CLI installation guide](https://github.com/probal2005/NexPro/blob/main/docs/HELP.md).
-2. Download `nexpro-4.0.0.vsix` from the
-   [NexPro 4.0.0 release](https://github.com/probal2005/NexPro/releases/tag/v4.0.0).
-3. Run `code --install-extension nexpro-4.0.0.vsix`, or choose
+2. Download `nexpro-4.1.0.vsix` from the
+   [NexPro 4.1.0 release](https://github.com/probal2005/NexPro/releases/tag/v4.1.0).
+3. Run `code --install-extension nexpro-4.1.0.vsix`, or choose
    **Extensions → … → Install from VSIX…**.
 
 Open a `.pa` file and select **NexPro: Check Syntax** from the Command Palette.

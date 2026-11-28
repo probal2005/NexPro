@@ -133,3 +133,29 @@ catch error
     say "Invalid index"
 end
 """, "[1, 2, 3, 4, 5]\n5\n1\n3\n2\n4\n[9]\n1\nlinked_list\nInvalid index\n")
+
+
+def test_structured_error_includes_origin_and_preserves_message_catches():
+    check_runtimes('''function fail()
+    throw "no_stock", "No stock"
+end
+try
+    fail()
+catch (error)
+    say error["code"]
+    say error["message"]
+    say error["file"]
+    say error["line"]
+    say error["function"]
+end
+try
+    fail()
+catch message
+    say message
+end
+''', "no_stock\nNo stock\nplayground.pa\n2\nfail\nNo stock\n")
+
+
+def test_structured_inventory_distinguishes_bad_rows_from_missing_columns():
+    source = (ROOT / "examples/structured_inventory.pa").read_text(encoding="utf-8")
+    check_runtimes(source, "Skipped row 3: invalid_integer\n10\nStopped: csv_missing_columns\n")

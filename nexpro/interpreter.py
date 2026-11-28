@@ -37,11 +37,11 @@ from nexpro.ast import (
     SetItem,
 )
 
-from nexpro.data_builtins import DATA_BUILTINS, _argument_scope, _extended_arithmetic, _say_value, _throw
+from nexpro.data_builtins import DATA_BUILTINS, _argument_scope, _extended_arithmetic, _say_value
 from nexpro.errors import EXECUTION_ERRORS
 from nexpro.errors import RuntimeError as NexProRuntimeError
 from nexpro.runtime import Runtime
-from nexpro.standard import STANDARD_MODULES
+from nexpro.standard import STANDARD_MODULES, _error_code, _error_record, _throw, _to_int
 
 
 BINARY_OPERATORS = {
@@ -87,7 +87,7 @@ class Interpreter:
         self.builtins = {
             **DATA_BUILTINS,
             "len": len,
-            "int": int,
+            "int": _to_int,
             "float": float,
             "input": read_input,
             "append": list.append,
@@ -103,7 +103,7 @@ class Interpreter:
                 error.add_frame(self.function_name, node.location)
             raise
         except EXECUTION_ERRORS as error:
-            runtime_error = NexProRuntimeError(str(error))
+            runtime_error = NexProRuntimeError(str(error), _error_code(error))
             runtime_error.add_frame(self.function_name, node.location)
             raise runtime_error from error
 
@@ -182,12 +182,18 @@ class Interpreter:
             try:
                 self.visit_block(node.body)
             except NexProRuntimeError as error:
-                self.runtime.set(node.error_name, error.message)
+                location = error.frames[0] if error.frames else None
+                value = _error_record(error.code, error.message, location) if node.structured else error.message
+                self.runtime.set(node.error_name, value)
                 self.visit_block(node.handler)
             return None
 
         elif isinstance(node, Throw):
-            _throw(self.visit(node.message))
+            if node.code is None:
+                _throw(self.visit(node.message))
+            else:
+                code = self.visit(node.code)
+                _throw(self.visit(node.message), code)
 
         elif isinstance(node, While):
             try:
